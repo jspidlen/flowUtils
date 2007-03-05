@@ -27,6 +27,8 @@ read.gatingML(file)
 \seealso{\code{\link[flowCore]{filter-class}}}
 \examples{
 
+EGate <-read.gatingML(system.file("xml",
+        "EllipsoidGates.xml", package="flowUtils"))
 }
 
 \keyword{methods}
