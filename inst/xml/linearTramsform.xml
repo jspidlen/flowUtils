@@ -15,7 +15,7 @@
         </transforms:pre-defined>
     </transforms:transformation>
 
-   <transforms:transformation transforms:newName="Linear">
+   <transforms:transformation transforms:newName="Linear3">
         <transforms:pre-defined>
             <transforms:linear transforms:a="3.0" transforms:b="5" transforms:parameter="FS"/>
         </transforms:pre-defined>

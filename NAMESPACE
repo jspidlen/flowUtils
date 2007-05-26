@@ -18,5 +18,12 @@ S3method("gate", "XMLNode")
 S3method("gate", "default")
 
 S3method("transforms", "transforms_linear")
+S3method("transforms", "transforms_quadratic")
+S3method("transforms", "transforms_ln")
+S3method("transforms", "transforms_log")
+S3method("transforms", "transforms_bi.exponential")
+S3method("transforms", "transforms_logicle")
+S3method("transforms", "transforms_split.scale")
+
 S3method("transforms", "XMLNode")
 S3method("transforms", "default")
