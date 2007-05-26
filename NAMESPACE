@@ -2,7 +2,7 @@ import("flowCore")
 import("XML")
 
 
-export("read.gatingML")
+export("read.gatingML","read.transformML")
 
 S3method("xmlGrep", "XMLNode")
 S3method("gate", "gating_EllipsoidGate")
@@ -16,3 +16,7 @@ S3method("gate", "gating_and")
 S3method("gate", "gating_or")
 S3method("gate", "XMLNode")
 S3method("gate", "default")
+
+S3method("transforms", "transforms_linear")
+S3method("transforms", "XMLNode")
+S3method("transforms", "default")

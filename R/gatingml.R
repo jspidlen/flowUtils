@@ -30,7 +30,7 @@ gate.gating_RectangleGate = function(x,refs,...) {
 	cn       = sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"parameter","")
 	minvalues= sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"min",-Inf,as.numeric)
 	maxvalues= sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"max",Inf,as.numeric)
-	gate = rbind("min"=minvalues,max=maxvalues)
+	gate = rbind("min"=minvalues,"max"=maxvalues)
 	colnames(gate) = cn
 	returnGate(rectangleGate(xmlGetAttr(x,"id","dummyGate"),gate),refs)
 }
@@ -167,10 +167,12 @@ read.gatingML = function(file) {
 	gate_list = new.env(hash=TRUE)
 	end = FALSE
 	last_len = length(ls(env=gate_list))
-	if(!is(xmlRoot(x),"gating_Gating.ML"))
+        if(!is(xmlRoot(x),"gating_Gating.ML"))
 		stop("Not a GatingML Document")
 	ret = xmlChildren(xmlRoot(x))
-	attempts = 0
+	print(str(ret))
+       
+        attempts = 0
 	while(!end) {
 		ret = lapply(ret,gate,gate_list)
 		new_len = length(ls(env=gate_list))
