@@ -1,18 +1,16 @@
 ## read.transformML("../inst/xml/linearTramsform.xml")
 
-returnTransforms = function(g,refs) {
-    
-   tranformationId = g@transformationId
-
+returnTransforms = function(g, transformationId, refs) {
+   print(summary(g))
     ##If we can add it, return a reference to pick up later
-	if(tranformationId != "dummyTransform") {
-		refs[[tranformationId]] = g
-		r = xmlNode("transformReference",attrs=list("ref"=tranformationId), namespace="transforms")
+	if(transformationId != "dummyTransform") {
+		refs[[transformationId]] = g
+		r = xmlNode("transformReference",attrs=list("ref"=transformationId), namespace="transforms")
                 class(r) = c("transforms_transformsReference",class(r))
 		r
 	} else
 		g
-       
+       print(g)
 }
 
 ##Linear transformation
@@ -22,9 +20,7 @@ transforms.transforms_linear= function(x,refs,...) {
   a =  xmlGetAttr(x, "a", 1, as.double)
   b =  xmlGetAttr(x, "b", 0, as.double)
  
-  transform = c("a"=a,"b"=b)
-  
-  returnTransforms(linearTransform(transformationId="dummyTransform", transform), refs)
+  returnTransforms(linearTransform(transformationId="", "a"=a, "b"=b), transformationId="dummyTransform", refs)
 }
 
 ##quadratic transformation
@@ -36,9 +32,7 @@ transforms.transforms_quadratic= function(x,refs,...) {
   b =  xmlGetAttr(x, "b", 1, as.double)
   c =  xmlGetAttr(x, "c", 0, as.double)
 
-  transform = c("a"=a,"b"=b, "c"=c)
-  
-  returnTransforms(quadraticTransform(transformationId="dummyTransform", transform), refs)
+  returnTransforms(quadraticTransform(transformationId="", "a"=a, "b"=b, "c"=c), transformationId="dummyTransform", refs)
 }
 
 
@@ -49,9 +43,7 @@ transforms.transforms_ln= function(x,refs,...) {
   r =  xmlGetAttr(x, "r", 1, as.double)
   d =  xmlGetAttr(x, "d", 1, as.double)
  
-  transform = c("r"=r,"d"=d)
-  
-  returnTransforms(lnTransform(transformationId="dummyTransform", transform), refs)
+  returnTransforms(lnTransform(transformationId="", "r"=r,"d"=d), transformationId="dummyTransform", refs)
 }
 
 ##log transformation
@@ -61,10 +53,8 @@ transforms.transforms_log= function(x,refs,...) {
   logbase =  xmlGetAttr(x, "logbase", 10, as.double)
   r =  xmlGetAttr(x, "r", 1, as.double)
   d =  xmlGetAttr(x, "d", 1, as.double)
- 
-  transform = c("logbase"=logbase, "r"=r,"d"=d)
   
-  returnTransforms(logTransform(transformationId="dummyTransform", transform), refs)
+  returnTransforms(logTransform(transformationId="", "logbase"=logbase, "r"=r,"d"=d), transformationId="dummyTransform", refs)
 }
 
 ##logicle transformation
@@ -78,8 +68,8 @@ transforms.transforms_logicle= function(x,refs,...) {
   ##maxit= xmlGetAttr(x, "maxit", 5000, as.integer)
   res = "not implemented"
   res
- ## transform = c("b"= b, "w"= w, "r"=r, "tol"= tol, maxit="maxit")
- ## returnTransforms(logicleTransform(transformationId="dummyTransform", transform), refs)
+ 
+ ## returnTransforms(logicleTransform(transformationId="dummyTransform", "b"= b, "w"= w, "r"=r, "tol"= tol, maxit="maxit"), transformationId="dummyTransform",refs)
 }
 
 
@@ -96,9 +86,8 @@ transforms.transforms_bi.exponential= function(x,refs,...) {
   tol =  xmlGetAttr(x, "tol", .Machine$double.eps^0.25, as.double)
   maxit= xmlGetAttr(x, "maxit", 5000, as.integer)
   
-  transform = c("a"= a, "b"= b,"c"= c,"d"= d,"f"= f,"w"= w, "tol"= tol, maxit="maxit")
-  
-  returnTransforms(biexponentialTransform(transformationId="dummyTransform", transform), refs)
+ returnTransforms(biexponentialTransform(transformationId="", "a"= a, "b"= b,"c"= c,"d"= d,"f"= f,"w"= w, "tol"= tol, maxit="maxit"),
+                   transformationId="dummyTransform", refs)
 }
 
 transforms.transforms_hyperlog= function(x,refs,...) {
@@ -155,11 +144,10 @@ read.transformML = function(file) {
           stop("Do not know what to do yet")
         ans <-sapply(def, xmlChildren)
         names(ans) <- nomen 
-        
+        print(ans)
         attempts = 0
         
         while(!end) {
-
             ret = lapply(ans, transforms, transform_list)
             new_len = length(ls(env= transform_list))
             if(new_len != last_len) attempts = 0
