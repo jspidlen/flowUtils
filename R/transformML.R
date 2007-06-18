@@ -1,4 +1,4 @@
-w## read.transformML("../inst/xml/linearTramsform.xml")
+## read.transformML("../inst/xml/linearTramsform.xml")
 
 returnTransforms = function(g,refs) {
     
