@@ -32,7 +32,7 @@ gate.gating_RectangleGate = function(x,refs,...) {
 	maxvalues= sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"max",Inf,as.numeric)
 	gate = rbind("min"=minvalues,"max"=maxvalues)
 	colnames(gate) = cn
-	returnGate(rectangleGate(xmlGetAttr(x,"id","dummyGate"),gate),refs)
+	returnGate(rectangleGate(xmlGetAttr(x,"id","dummyGate"),gate,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
 }
 gate.gating_EllipsoidGate = function(x,refs,...) {
 	#Okay, this gate is rough. First we need some dimensions. I assume that the dimension order
@@ -44,7 +44,7 @@ gate.gating_EllipsoidGate = function(x,refs,...) {
 	}))
 	
 	dist = as.numeric(xmlValue(xmlGrep(x,"gating_distance")[[1]]))
-	returnGate(ellipsoidGate(xmlGetAttr(x,"id","dummyGate"),foci,dist),refs)
+	returnGate(ellipsoidGate(xmlGetAttr(x,"id","dummyGate"),foci,dist,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
 }
 
 gate.gating_PolytopeGate = function(x,refs,...) {
@@ -58,9 +58,9 @@ gate.gating_PolytopeGate = function(x,refs,...) {
 	#Special case, polygonGate in 2D. I don't think polytope gates exist for higher dimension
 	#right now.
 	if(length(dim_names) == 2) 
-		returnGate(polygonGate(xmlGetAttr(x,"id","dummyGate"),points),refs)
+		returnGate(polygonGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
 	else
-		returnGate(polytopeGate(xmlGetAttr(x,"id","dummyGate"),points),refs)
+		returnGate(polytopeGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
 }
 
 gate.gating_PolygonGate = function(x,refs,...) {
@@ -74,9 +74,9 @@ gate.gating_PolygonGate = function(x,refs,...) {
 	#Special case, polygonGate in 2D. I don't think polytope gates exist for higher dimension
 	#right now.
 	if(length(dim_names) == 2) 
-		returnGate(polygonGate(xmlGetAttr(x,"id","dummyGate"),points),refs)
+		returnGate(polygonGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
 	else
-		returnGate(polytopeGate(xmlGetAttr(x,"id","dummyGate"),points),refs)
+		returnGate(polytopeGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
 }
 
 
