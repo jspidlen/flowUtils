@@ -150,6 +150,51 @@ gate.XMLNode = function(x,...) paste(xmlName(x),xmlGetAttr(x,"id"),sep=":")
 gate.default = function(x,...) x
 gate = function(x,...) UseMethod("gate")
 
+
+#######################################################################################
+##
+## Function: resolveParents
+##
+## Description: Find the parent gate of a given gate "g", apologize for the 
+##	recursion.  The parent is stored in the parentId slot of a filter.  Go
+##	up until you find the terminal parent, then use %&% to combine the gates.  
+## 
+## Author: straine 
+##
+#######################################################################################
+resolveParents <- function(g,refs,idList,origGate,...) {
+	
+	## If the parent gate doesn't exist, behave as if the filter had no parent
+	## Probably should be modified to it checks to see if the missing parent is a
+	## "dummyGate", otherwise it should give an error
+	if(length(g@parentId)>0 && (g@parentId %in% idList)) {
+		
+		## Check for circular gate definitions, not sure if this works, haven't
+		## ran a bad set of gates yet.
+		if(!missing(origGate) && g@parentId==origGate) {
+			stop(paste("Circular reference in gates\n"))
+		}
+		
+		## Stores the filterId from the original function call, later used to check
+		## for circular references.
+		## The filterId for combined gates from flowCore is the concatenation of the
+		## individual gates, whereas gatingML likes to use just the original filterId.
+		if(missing(origGate)){
+			parentG <- refs[[g@parentId]]
+			combinedGate <- resolveParents(parentG,refs,idList,origGate=g@filterId,...)%&% g
+			combinedGate@filterId <- g@filterId
+			return(combinedGate)
+		}else {
+			parentG <- refs[[g@parentId]]
+			return(resolveParents(parentG,refs,idList,origGate=origGate,...) %&% g)
+		}	
+	} else {
+		return(g)
+	}
+}
+
+
+
 read.gatingML = function(file) {
 	#Read in the XML file and mark it up 
 	#so that we can use dispatch	
@@ -182,5 +227,9 @@ read.gatingML = function(file) {
 		attempts = attempts + 1
 	}
 	names(ret) = lapply(ret,slot,"filterId")
+	
+	## Find the parents if they exist
+	ret <- lapply(ret,resolveParents,gate_list,names(ret))
+	
 	ret
 }
