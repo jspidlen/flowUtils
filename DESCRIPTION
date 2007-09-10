@@ -6,6 +6,6 @@ Date: 2006-11-16
 Author: M. Dalphin, B. Ellis, R. Gentleman, F. Hahne, N. Le Meur, B. Purcell
 Maintainer: Florian Hahne <f.hahne@dkfz.de>
 Description: Provides utilities for flow cytometry data. 
-Depends: R (>= 2.4.0), flowCore (>= 0.2.7), Biobase, XML
+Depends: R (>= 2.4.0), flowCore (>= 1.2.0), Biobase, XML
 License: Artistic
 biocViews:  Infrastructure, Flowcytometry, CellBasedAssays
