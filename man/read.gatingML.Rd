@@ -8,12 +8,12 @@
    Parsing Gating-ML into a structured filter.
 }
 \usage{
-read.gatingML(file,...,version="1.3")
+read.gatingML(file,...)
 }
 
 \arguments{
   \item{file}{xml file describing a gate}
-  \item{version}{An optional version string identifying the Gating-ML specification to parse}
+  \item{\dots}{additional arguments that are passed to the methods}
 }
 \details{
 The Gating-ML specification has been developed as an interchange format for the description of
@@ -22,13 +22,13 @@ which was the most recent at the time of this writing. When used in conjunction 
 Transformation-ML, this specification can 
 }
 \value{
-	A \code{\linkS4class{filterSet}} object containing all of the filters defined in
+	A \code{\link[flowCore]{filterSet-class}} object containing all of the filters defined in
 	the specified file.
   Structured filter of class as defined in the \code{\link[flowCore]{flowCore}} package.
 }
 \references{ ~put references to the literature/web site here ~ }
 \author{ B. Ellis}
-\seealso{\code{\linkS4class{filterSet}}}
+\seealso{\code{\link[flowCore]{filterSet-class}}}
 \examples{
 
 EGate <-read.gatingML(system.file("xml",
