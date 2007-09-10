@@ -17,7 +17,9 @@ Version: \tab 0.2.1\cr
 Date: \tab 2006-11-16\cr
 License: \tab Artistic\cr
 }
-Overview of packages goes here
+The main features of this package provide compatability to the data
+standards in the gatingML, transformationML and compensationML markup
+languages.
 }
 \author{
 
@@ -25,9 +27,7 @@ Overview of packages goes here
   Maintainer: Florian Hahne <f.hahne@dkfz.de>
   Authors: M. Dalphin, B. Ellis, R. Gentleman, F. Hahne, N. Le Meur, B. Purcell
 }
-\references{
-references go here
-}
+
 
 \keyword{ package }
 \seealso{
