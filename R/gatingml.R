@@ -1,235 +1,129 @@
-##
-## Parsing Gating-ML into a structured filter.
-
-xmlGrep = function(x,type) UseMethod("xmlGrep")
-xmlGrep.XMLNode = function(x,type) {
-	children = xmlChildren(x)
-	children[sapply(children,"is",type)]
-}
-
-#A gate does not need to appear in the tree BEFORE being referenced
-#so when we encounter a gate we process it and return a gate reference
-#to resolve on another pass. We keep trying until we make it through the
-#tree without errors or we don't add another gate to the hash of gates. This
-#should catch circular references. In an ideal world I suppose I would set things
-#up as a topological sort, but I'm not willing to take the time right now.
-
-returnGate = function(g,refs) {
-	#If we can add it, return a reference to pick up later
-	if(g@filterId != "dummyGate") {
-		refs[[g@filterId]] = g
-		r = xmlNode("gateReference",attrs=list("ref"=g@filterId),namespace="gating")
-		class(r) = c("gating_gateReference",class(r))
-		r
-	} else
-		g	
-}
-
-gate.gating_RectangleGate = function(x,refs,...) {
-	#This can be written more compactly, but later...
-	cn       = sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"parameter","")
-	minvalues= sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"min",-Inf,as.numeric)
-	maxvalues= sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"max",Inf,as.numeric)
-	gate = rbind("min"=minvalues,"max"=maxvalues)
-	colnames(gate) = cn
-	returnGate(rectangleGate(xmlGetAttr(x,"id","dummyGate"),gate,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
-}
-gate.gating_EllipsoidGate = function(x,refs,...) {
-	#Okay, this gate is rough. First we need some dimensions. I assume that the dimension order
-	#corresponds to the coordinate order, which seems odd but whatever.
-	dim_names = sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"parameter",NULL)
-	foci      = t(sapply(xmlGrep(x,"gating_focus"),function(focus) {
-		structure(sapply(xmlGrep(focus,"gating_coordinate"),xmlGetAttr,"value",NA,as.numeric),
-			names=dim_names)
-	}))
+#Parse a gatingML file into a filterSet
+"parse.gatingML.http...www.isac.net.org.std.Gating.ML.v1.3._Gating.ML" = function(root,...) {
+	ml    = new("filterSet")
+	idnum = 0
+	genid = function() {idnum <<- idnum + 1;paste("genid",idnum,sep="")}
 	
-	dist = as.numeric(xmlValue(xmlGrep(x,"gating_distance")[[1]]))
-	returnGate(ellipsoidGate(xmlGetAttr(x,"id","dummyGate"),foci,dist,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
-}
-
-gate.gating_PolytopeGate = function(x,refs,...) {
-	#Okay, this gate is rough. First we need some dimensions. I assume that the dimension order
-	#corresponds to the coordinate order, which seems odd but whatever.
-	dim_names = sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"parameter",NULL)
-	points      = t(sapply(xmlGrep(x,"gating_point"),function(focus) {
-		structure(sapply(xmlGrep(focus,"gating_coordinate"),xmlGetAttr,"value",NA,as.numeric),
-			names=dim_names)
-	}))
-	#Special case, polygonGate in 2D. I don't think polytope gates exist for higher dimension
-	#right now.
-	if(length(dim_names) == 2) 
-		returnGate(polygonGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
-	else
-		returnGate(polytopeGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
-}
-
-gate.gating_PolygonGate = function(x,refs,...) {
-	#Okay, this gate is rough. First we need some dimensions. I assume that the dimension order
-	#corresponds to the coordinate order, which seems odd but whatever.
-	dim_names = sapply(xmlGrep(x,"gating_dimension"),xmlGetAttr,"parameter",NULL)
-	points      = t(sapply(xmlGrep(x,"gating_vertex"),function(focus) {
-		structure(sapply(xmlGrep(focus,"gating_coordinate"),xmlGetAttr,"value",NA,as.numeric),
-			names=dim_names)
-	}))
-	#Special case, polygonGate in 2D. I don't think polytope gates exist for higher dimension
-	#right now.
-	if(length(dim_names) == 2) 
-		returnGate(polygonGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
-	else
-		returnGate(polytopeGate(xmlGetAttr(x,"id","dummyGate"),points,parentId=xmlGetAttr(x,"parent_id","dummyGate")),refs)
-}
-
-
-#When we see a reference we can actually just resolve to the gate
-gate.gating_gateReference = function(x,refs,...) {
-	y = refs[[xmlGetAttr(x,"ref")]]
-	if(is.null(y))
-		stop(paste("Unable to resolve reference \"",xmlGetAttr(x,"ref"),"\"",sep=""))
-	y
-}
-
-gate.gating_BooleanGate = function(x,refs,...) {
-	r = try({
-		y = gate(x$children[[1]],refs,...)
-		if(is(y,"filter")) {
-			y@filterId = xmlGetAttr(x,"id")
-			refs[[y@filterId]] = y
-			y
-		} else NULL
-	},silent=TRUE)
-	#If we fail to complete construction of the gate
-	#we just return ourselves to try again.
-	if(is(r,"try-error")) x else returnGate(r,refs)
-}
-
-gate.gating_not = function(x,...) {
-	ch = xmlChildren(x)
-	e1 = gate(ch[[1]],...) 
-	#If we get a gate reference back, guess what? The gate is 
-	#actually available so simply try to re-resolve it.
-	if(is(e1,"gating_gateReference")) e1=gate(e1,...)
-	if(is(e1,"filter"))
-		!e1
-	else 
-		stop(capture.output(print(x)))
-	
-}
-gate.gating_and = function(x,...) {
-	ch = xmlChildren(x)
-	e1 = gate(ch[[1]],...) 
-	e2 = gate(ch[[2]],...)
-	
-	if(is(e1,"gating_gateReference")) e1=gate(e1,...)
-	if(is(e2,"gating_gateReference")) e2=gate(e2,...)
-	
-	if(!is(e1,"filter"))
-		stop(paste("Lefthand side is not a filter:",capture.output(print(e1)),sep=" ",collapse="\n"))
-	if(!is(e2,"filter"))
-		stop(paste("Righthand side is not a filter:",capture.output(print(e2)),sep=" ",collapse="\n"))
-	e1 & e2
-}
-
-gate.gating_or = function(x,...) {
-	ch = xmlChildren(x)
-	e1 = gate(ch[[1]],...)
-	e2 = gate(ch[[2]],...)
-
-	if(is(e1,"gating_gateReference")) e1=gate(e1,...)
-	if(is(e2,"gating_gateReference")) e2=gate(e2,...)
-	
-	
-	if(!is(e1,"filter"))
-		stop(paste("Lefthand side is not a filter:",capture.output(print(e1)),sep=" ",collapse="\n"))
-	if(!is(e2,"filter"))
-		stop(paste("Righthand side is not a filter:",capture.output(print(e2)),sep=" ",collapse="\n"))
-	e1 | e2
-}
-
-
-gate.XMLNode = function(x,...) paste(xmlName(x),xmlGetAttr(x,"id"),sep=":")
-gate.default = function(x,...) x
-gate = function(x,...) UseMethod("gate")
-
-
-#######################################################################################
-##
-## Function: resolveParents
-##
-## Description: Find the parent gate of a given gate "g", apologize for the 
-##	recursion.  The parent is stored in the parentId slot of a filter.  Go
-##	up until you find the terminal parent, then use %&% to combine the gates.  
-## 
-## Author: straine 
-##
-#######################################################################################
-resolveParents <- function(g,refs,idList,origGate,...) {
-	
-	## If the parent gate doesn't exist, behave as if the filter had no parent
-	## Probably should be modified to it checks to see if the missing parent is a
-	## "dummyGate", otherwise it should give an error
-	if(length(g@parentId)>0 && (g@parentId %in% idList)) {
-		
-		## Check for circular gate definitions, not sure if this works, haven't
-		## ran a bad set of gates yet.
-		if(!missing(origGate) && g@parentId==origGate) {
-			stop(paste("Circular reference in gates\n"))
-		}
-		
-		## Stores the filterId from the original function call, later used to check
-		## for circular references.
-		## The filterId for combined gates from flowCore is the concatenation of the
-		## individual gates, whereas gatingML likes to use just the original filterId.
-		if(missing(origGate)){
-			parentG <- refs[[g@parentId]]
-			combinedGate <- resolveParents(parentG,refs,idList,origGate=g@filterId,...)%&% g
-			combinedGate@filterId <- g@filterId
-			return(combinedGate)
-		}else {
-			parentG <- refs[[g@parentId]]
-			return(resolveParents(parentG,refs,idList,origGate=origGate,...) %&% g)
-		}	
-	} else {
-		return(g)
+	gate = function(g,...) UseMethod("gate")	
+	createGate = function(type,g,args) {
+		args$filterId = xmlGetAttr(g,"id",genid())
+		f = do.call(type,args)
+		ml[[NULL]] = if(!is.null(xmlGetAttr(g,"parent_id",NULL))) {
+					#The parent_id tells us that we should use a subsetFilter and THAT is the filter
+					#that should get the proper name
+				    if(is(f,"concreteFilter")) identifier(f) = paste(identifier(f),"lhs",sep="_")
+					new("subsetFilter",filters=list(f,filterReference(ml,xmlGetAttr(g,"parent_id"))),filterId=args$filterId)
+				} else f
+		filterReference(ml,args$filterId)
 	}
-}
+	coordinate = function(g) 
+		sapply(xmlGrep(g,"http...www.isac.net.org.std.Gating.ML.v1.3._coordinate"),xmlGetAttr,"value",NA,as.numeric)
 
-
-
-read.gatingML = function(file) {
-	#Read in the XML file and mark it up 
-	#so that we can use dispatch	
-	x = xmlTreeParse(file,
-		handlers=list(
-		"comment"=function(x,...) NULL,
-		"startElement"=function(x) {
-			cn = paste(make.names(c(xmlNamespace(x),xmlName(x))),collapse="_")
-			class(x) = c(cn,class(x))
-			x
-		}
-	),asTree=TRUE)
-	
-	#A place to stash our gating ids
-	gate_list = new.env(hash=TRUE)
-	end = FALSE
-	last_len = length(ls(env=gate_list))
-        if(!is(xmlRoot(x),"gating_Gating.ML"))
-		stop("Not a GatingML Document")
-	ret = xmlChildren(xmlRoot(x))
-	print(str(ret))
-       
-        attempts = 0
-	while(!end) {
-		ret = lapply(ret,gate,gate_list)
-		new_len = length(ls(env=gate_list))
-		if(new_len != last_len) attempts = 0
-		if(all(sapply(ret,is,"filter")) || attempts >= 5) end = TRUE
-		last_len = new_len
-		attempts = attempts + 1
+	vertices   = function(g,type="http...www.isac.net.org.std.Gating.ML.v1.3._vertex") {
+		do.call("rbind",lapply(xmlGrep(g,type),coordinate))
 	}
-	names(ret) = lapply(ret,slot,"filterId")
+	dimensions = function(g,type="parameter",default="",...) sapply(xmlGrep(g,"http...www.isac.net.org.std.Gating.ML.v1.3._dimension"),xmlGetAttr,type,default,...)
 	
-	## Find the parents if they exist
-	ret <- lapply(ret,resolveParents,gate_list,names(ret))
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._RectangleGate = function(g,...) {
+		points = rbind(min=dimensions(g,"min",-Inf,as.numeric),max=dimensions(g,"max",Inf,as.numeric))
+		colnames(points) = dimensions(g)
+		createGate("rectangleGate",g,list(.gate=points))
+	}
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._PolygonGate = function(g,...) {
+		points    = vertices(g)
+		colnames(points) = dimensions(g)
+		if(ncol(points) != 2) stop("polygon gates must have two dimensions")
+		createGate("polygonGate",g,list(boundaries=points))
+	}
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._PolytopeGate = function(g,...) {
+		points    = vertices(g,"http...www.isac.net.org.std.Gating.ML.v1.3._point")
+		colnames(points) = dimensions(g)
+		createGate("polytopeGate",g,list(boundaries=points))
+	}	
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._EllipsoidGate = function(g,...) {
+		foci = vertices(g,"http...www.isac.net.org.std.Gating.ML.v1.3._focus")
+		colnames(foci) = dimensions(g)
+		dist = as.numeric(xmlValue(xmlGrep(g,"http...www.isac.net.org.std.Gating.ML.v1.3._distance")[[1]]))
+		createGate("ellipsoidGate",g,list(distance=dist,.gate=foci))
+	}
+
+	getSide = function(g,side) {
+		leaf = paste("http...www.isac.net.org.std.Gating.ML.v1.3._leaf",side,sep="")
+		node = paste("http...www.isac.net.org.std.Gating.ML.v1.3._node",side,sep="")
+		VAL  = xmlGrep(g,leaf)
+		if(length(VAL)==0) {
+			VAL = xmlGrep(g,node)
+			if(length(VAL)==0) stop(paste(leaf,"or",node,"is required at all levels of a decision tree."))
+		}
+		VAL[[1]]
+	}
+	makeCall = function(param,thres,LT,GTE) {
+		#if both sides result in a false entry 
+		NUM = if((is.logical(LT) && LT) || is.call(LT)) 1 else 0
+		NUM = NUM + if((is.logical(GTE) && GTE) || is.call(GTE)) 2 else 0
+		LESS  = as.call(c(as.symbol("<"),as.symbol(param),thres))
+		MORE  = as.call(c(as.symbol(">="),as.symbol(param),thres))
+		switch(NUM+1,
+			{FALSE},
+			{if(is.logical(LT)) LESS else as.call(c(as.symbol("&"),LESS,LT))},
+			{if(is.logical(GTE)) MORE else as.call(c(as.symbol("&"),MORE,GTE))},
+			{as.call(c(as.symbol("|"),as.call(as.symbol("&",LESS,LT)),as.call(as.symbol("&"),MORE,GTE)))}
+		)
+	}
 	
-	ret
+	decisionHelper = function(g,...) {
+		param = xmlGetAttr(g,"parameter")
+		thres = xmlGetAttr(g,"threshold",Inf,as.numeric)
+		
+		LT    = getSide(g,"LT")
+		GTE   = getSide(g,"GTE")
+		
+		if(is(LT,"http...www.isac.net.org.std.Gating.ML.v1.3._leafLT"))   LT  = if(xmlGetAttr(LT,"inside")=="true") TRUE else FALSE else LT  = decisionHelper(LT)
+		if(is(GTE,"http...www.isac.net.org.std.Gating.ML.v1.3._leafGTE")) GTE = if(xmlGetAttr(GTE,"inside")=="true") TRUE else FALSE else GTE = decisionHelper(GTE)
+		
+		makeCall(param,thres,LT,GTE)
+		
+	}
+	
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._DecisionTreeGate = function(g,...) {
+		root = xmlChildren(g)[[1]]
+		test = decisionHelper(root)
+		createGate("expressionFilter",g,list(expr=test))
+	}
+
+	#For some reason BooleanGates are special in Gating-ML and their gate id information is encapsulated in an
+	#outer type rather than simply defining OrGate and what have you. The suspicion is that this is a Java-ism
+	#that we don't employ so we need to punt the outer gate down to the real gate.
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._BooleanGate = function(g,...) gate(xmlChildren(g)[[1]],g)
+	#Boolean gate types
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._or = function(g,g2,...) {
+		m = xmlChildren(g)
+		m = lapply(m,function(x) gate(x))
+		createGate("new",g2,list(Class="unionFilter",filterId="",filters=m))
+	}
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._and = function(g,g2,...) {
+		m = xmlChildren(g)
+		m = lapply(m,function(x) gate(x))
+		createGate("new",g2,list(Class="intersectFilter",filterId="",filters=m))
+	}
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._not = function(g,g2,...)
+		createGate("new",g2,list(Class="complementFilter",filterId="",filters=list(gate(xmlChildren(g)[[1]]))))
+		
+	#References
+	gate.http...www.isac.net.org.std.Gating.ML.v1.3._gateReference = function(g,..) filterReference(ml,xmlGetAttr(g,"ref"))
+	gate.default = function(g,...) {
+		#A debugging tool mostly. If this happens, something has gone wrong.
+		print(g)
+	}
+	
+	#Do the actual parsing
+	for(g in xmlChildren(root)) {
+		gate(g)
+	}
+	ml
 }
+parse.gatingML.default = function(root,...) stop("Not a support Gating-ML XML Document")
+parse.gatingML = function(root,...) UseMethod("parse.gatingML")
+
+read.gatingML = function(file,...)
+	parse.gatingML(xmlRoot(smartTreeParse(file,...)))
