@@ -1,7 +1,7 @@
 Package: flowUtils
 Type: Package
 Title: Utilities for flow cytometry
-Version: 0.2.7
+Version: 0.4.0
 Date: 2006-11-16
 Author: M. Dalphin, B. Ellis, R. Gentleman, F. Hahne, N. Le Meur, B. Purcell
 Maintainer: Florian Hahne <f.hahne@dkfz.de>
