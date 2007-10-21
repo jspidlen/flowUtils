@@ -2,7 +2,7 @@ import("flowCore")
 import("XML")
 
 
-export("read.gatingML","read.transformML")
+export("read.gatingML","read.transformML", "read.compensationML")
 
 #S3method("xmlGrep", "XMLNode")
 #S3method("gate", "gating_EllipsoidGate")
