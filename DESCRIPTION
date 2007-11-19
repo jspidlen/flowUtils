@@ -4,7 +4,7 @@ Title: Utilities for flow cytometry
 Version: 0.5.0
 Date: 2006-11-16
 Author: M. Dalphin, B. Ellis, R. Gentleman, F. Hahne, N. Le Meur, B. Purcell
-Maintainer: Florian Hahne <f.hahne@dkfz.de>
+Maintainer: Florian Hahne <fhahne@fhcrc.org>
 Description: Provides utilities for flow cytometry data. 
 Depends: R (>= 2.4.0), flowCore (>= 1.2.0), Biobase, XML
 License: Artistic
