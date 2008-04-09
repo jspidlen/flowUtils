@@ -1,7 +1,7 @@
 ## read.transformML("../inst/xml/linearTramsform.xml")
 
 returnTransforms = function(g, transformationId, refs) {
-   print(summary(g))
+   #print(summary(g))
     ##If we can add it, return a reference to pick up later
 	if(transformationId != "dummyTransform") {
 		refs[[transformationId]] = g

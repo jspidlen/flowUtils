@@ -1,4 +1,4 @@
-import("flowCore")
+#import("flowCore")
 import("XML")
 
 
