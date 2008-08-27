@@ -1,3 +1,16 @@
+
+eigen2mat <- function(e) {
+    n <- length(e$values)
+    ans <- matrix(0, n, n)
+    for (i in seq_len(n))
+    {
+        ans[] <- ans + e$values[i] * (e$vectors[, i] %*% t(e$vectors[, i]))
+    }
+    ans
+}
+
+
+
 #Parse a gatingML file into a filterSet
 "parse.gatingML.http...www.isac.net.org.std.Gating.ML.v1.3._Gating.ML" = function(root,...) {
 	ml    = new("filterSet")
@@ -22,7 +35,9 @@
 	vertices   = function(g,type="http...www.isac.net.org.std.Gating.ML.v1.3._vertex") {
 		do.call("rbind",lapply(xmlGrep(g,type),coordinate))
 	}
-	dimensions = function(g,type="parameter",default="",...) sapply(xmlGrep(g,"http...www.isac.net.org.std.Gating.ML.v1.3._dimension"),xmlGetAttr,type,default,...)
+	dimensions = function(g,type="parameter",default="",...) {
+            sapply(xmlGrep(g,"http...www.isac.net.org.std.Gating.ML.v1.3._dimension"),
+                   xmlGetAttr,type,default,...)
 	
 	gate.http...www.isac.net.org.std.Gating.ML.v1.3._RectangleGate = function(g,...) {
 		points = rbind(min=dimensions(g,"min",-Inf,as.numeric),max=dimensions(g,"max",Inf,as.numeric))
