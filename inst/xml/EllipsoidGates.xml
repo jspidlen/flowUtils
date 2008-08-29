@@ -50,7 +50,7 @@
   </gating:EllipsoidGate>
 
 
-  <!-- Example of a 3D Ellipsoid Gate -->
+  <!-- Example of a 3D Ellipsoid Gate 
   <gating:EllipsoidGate gating:id="ellipsoid_3D">
     <gating:dimension gating:parameter="FSC-H"/>
     <gating:dimension gating:parameter="SSC-H"/>
@@ -66,9 +66,9 @@
       <gating:coordinate gating:value="78"/>
     </gating:focus>
     <gating:distance>54</gating:distance>
-  </gating:EllipsoidGate>
+  </gating:EllipsoidGate> -->
 
-  <!-- Example of a 3D Ellipsoid Gate -->
+  <!-- Example of a 3D Ellipsoid Gate 
   <gating:EllipsoidGate gating:id="ellipsoid3D">
     <gating:dimension gating:parameter="FSC-H"/>
     <gating:dimension gating:parameter="SSC-H"/>
@@ -84,9 +84,9 @@
       <gating:coordinate gating:value="300"/>
     </gating:focus>
     <gating:distance>274</gating:distance>
-  </gating:EllipsoidGate>
+  </gating:EllipsoidGate>-->
 
-  <!-- Example of a 3D Ellipsoid Gate -->
+  <!-- Example of a 3D Ellipsoid Gate
   <gating:EllipsoidGate gating:id="ball3D">
     <gating:dimension gating:parameter="FSC-H"/>
     <gating:dimension gating:parameter="SSC-H"/>
@@ -102,7 +102,7 @@
       <gating:coordinate gating:value="280"/>
     </gating:focus>
     <gating:distance>212</gating:distance>
-  </gating:EllipsoidGate>
+  </gating:EllipsoidGate> -->
 
   <!-- Example of a 2D Ellipse Gate -->
   <!-- The two foci are the same - it is an circle, the distance is it's radius -->

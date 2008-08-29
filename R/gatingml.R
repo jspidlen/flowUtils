@@ -62,11 +62,33 @@ eigen2mat <- function(e) {
         colnames(points) <- dimensions(g)
         createGate("polytopeGate", g, list(boundaries = points))
     }	
-    gate.http...www.isac.net.org.std.Gating.ML.v1.3._EllipsoidGate <- function(g, ...) {
-        foci  <- vertices(g, "http...www.isac.net.org.std.Gating.ML.v1.3._focus")
+    gate.http...www.isac.net.org.std.Gating.ML.v1.3._EllipsoidGate <-
+        function(g, ...) {
+        foci  <- vertices(g,
+        "http...www.isac.net.org.std.Gating.ML.v1.3._focus")
+        cat("foci =", foci, "\n")
         colnames(foci) = dimensions(g)
-        dist <- as.numeric(xmlValue(xmlGrep(g, "http...www.isac.net.org.std.Gating.ML.v1.3._distance")[[1]]))
-        createGate("ellipsoidGate", g, list(distance = dist, .gate = foci))
+        a <- as.numeric(xmlValue(xmlGrep(g,
+        "http...www.isac.net.org.std.Gating.ML.v1.3._distance")[[1]]))
+	cat("a =", a, "\n")
+	f <- sqrt(sum(diff(foci)^2))
+        cat("f =", f, "\n")
+        b <- 2 * sqrt(((a/2)^2) - ((f/2)^2))
+        cat("b =", b, "\n")
+	center <- apply(foci, 2, mean)
+        names(center) <- dimensions(g)
+	av <- center - foci[1,]
+        cat("av =", av,"\n")
+	avu <- av/(f/2)
+	bv <- c(center[1] - (av[2] - center[2]), 
+	        center[2] + (av[1] - center[1]))
+        cat("bv =",bv,"\n")
+        cat("center =",center,"\n")
+        bvu <- bv / sqrt(sum((bv - center)^2))
+        browser()
+	cov <- eigen2mat(list(values=c((a/2)^2,(b/2)^2), vectors=cbind(avu,bvu)))
+	dimnames(cov) <- list(dimensions(g), dimensions(g))
+        createGate("ellipsoidGate", g, list(.gate=cov, mean=center))
     }
     getSide <- function(g, side) {
         leaf  <- paste("http...www.isac.net.org.std.Gating.ML.v1.3._leaf", side, sep = "")
