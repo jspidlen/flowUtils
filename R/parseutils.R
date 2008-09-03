@@ -33,9 +33,16 @@ smartProcess = function(node,params,.defaults=list(),...) {
 	})
 }
 
-xmlToFUN   = function(FUN,...,.defaults=list())
-	function(node,...) do.call(FUN,smartProcess(node,list(params),.defaults,...))
-xmlToClass = function(className,...,.defaults=list()) 
-	function(node,...) do.call("new",c(className,smartProcess(node,list(params),.defaults,...)))
+## xmlToFUN <- function(FUN, ..., .defaults=list())
+## {
+##     function(node, ...)
+##     do.call(FUN,smartProcess(node, list(params), .defaults, ...))
+## }
 
+## xmlToClass <- function(className, ..., .defaults=list())
+## {
+##     function(node,...)
+##         do.call("new", c(className,
+##                          smartProcess(node, list(params), .defaults, ...)))
+    
 
