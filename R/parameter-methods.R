@@ -1,0 +1,116 @@
+setGeneric("getParameters",
+	    def=function(object,...) standardGeneric("getParameters"),
+	    useAsDefault=function(object,...)
+			 {
+				 stop("Not a supported Parameter node in
+				       GatingML 1.5 format")
+
+			 }
+	  )
+
+setMethod("getParameters",
+          "http...www.isac.net.org.std.Gating.ML.v1.5.gating_dimension",
+	  function(object,...)
+	  {     
+               
+    		c(xmlGetAttr(object,"min",default=-Inf,as.numeric),xmlGetAttr(object,"max",default=Inf,as.numeric)) 	
+
+ 	  }
+          
+     	 )
+setMethod("getParameters",
+          "http...www.isac.net.org.std.Gating.ML.v1.5.datatypes_parameter",
+	  function(object,...)
+	  {
+          	xmlGetAttr(object,"name") 	
+
+ 	  }
+          
+     	 )
+ 
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_vertex",
+   	  function(object,...)
+	  {   
+              as.numeric(sapply(xmlChildren(object),xmlGetAttr,"value"))
+          }
+	 )
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_entry",
+   	  function(object,...)
+	  {   
+              as.numeric(xmlGetAttr(object,"value"))
+          }
+	 )
+            
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.transformations_coefficient",
+   	  function(object,...)
+	  {      
+	       as.numeric(xmlGetAttr(object,"value"))
+	  }
+	 )
+
+
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_mean",
+   	  function(object,...)
+	  {   
+		sapply(sapply(xmlChildren(object), xmlGetAttr,"value"),as.numeric)
+	  }
+	 )
+
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_row",
+   	  function(object,...)
+	  {   
+		sapply(sapply(xmlChildren(object), xmlGetAttr,"value"),as.numeric)
+	  }
+	 )
+
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_distanceSquare",
+   	  function(object,...)
+	  {    
+	       as.numeric(xmlGetAttr(object,"value"))
+	  }
+	 )
+
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.transformations_transformationReference",
+   	  function(object,...)
+	  {    
+	      xmlGetAttr(object,"ref")
+
+	  }
+	 )
+
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_gateReference",
+   	  function(object,...)
+	  {    
+             
+	     refId=as.character(xmlGetAttr(object,"ref"))
+                        
+	  }
+	 )
+
+setMethod("getParameters",
+	  "unitytransform",
+   	  function(object,...)
+	  {    
+             
+	     as.character(object@parameters)
+                        
+	  }
+	 )
+
+setMethod("getParameters",
+	  "transformReference",
+   	  function(object,...)
+	  {    
+             
+	     as.character(object@transformationId)
+                        
+	  }
+	 )
