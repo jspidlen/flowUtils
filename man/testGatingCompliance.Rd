@@ -17,18 +17,18 @@
 \arguments{
   \item{file}{name of the file in which the report generated is to be saved }
   }
-}
-\details{
 
+\details{
+fixme
 }
 
 \references{ ~put references to the literature/web site here ~ }
 \author{Gopalakrishnan N}
 \seealso{\code{\link[flowCore]{filterSet-class}}}
 \examples{
-
+## will follow soon
 
 }
 
-\keyword{}
+\keyword{utilities}
 
