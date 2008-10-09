@@ -1,29 +1,5 @@
-#import("flowCore")
+export("read.gatingML","testGatingCompliance")
+
+import("flowCore")
 import("XML")
-
-
-export("read.gatingML","read.transformML", "read.compensationML")
-
-#S3method("xmlGrep", "XMLNode")
-#S3method("gate", "gating_EllipsoidGate")
-#S3method("gate", "gating_RectangleGate")
-#S3method("gate", "gating_PolytopeGate")
-#S3method("gate", "gating_PolygonGate")
-#S3method("gate", "gating_gateReference")
-#S3method("gate", "gating_BooleanGate")
-#S3method("gate", "gating_not")
-#S3method("gate", "gating_and")
-#S3method("gate", "gating_or")
-#S3method("gate", "XMLNode")
-#S3method("gate", "default")
-
-S3method("transforms", "transforms_linear")
-S3method("transforms", "transforms_quadratic")
-S3method("transforms", "transforms_ln")
-S3method("transforms", "transforms_log")
-S3method("transforms", "transforms_bi.exponential")
-S3method("transforms", "transforms_logicle")
-S3method("transforms", "transforms_split.scale")
-
-S3method("transforms", "XMLNode")
-S3method("transforms", "default")
+import("RUnit")
