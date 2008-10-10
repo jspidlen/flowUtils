@@ -34,7 +34,7 @@ dispatchTransform<-function(transName,node,flowEnv)
 
 transDg1polynomial<-function(node,flowEnv)
 {        
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"coefficient",recursive=TRUE)
     len=length(coefficientList)-1
     values=sapply(coefficientList,xmlGetAttr,"value")		
@@ -47,7 +47,7 @@ transDg1polynomial<-function(node,flowEnv)
 ####-----------Ratio transformation ------------------
 transRatio<-function(node,flowEnv)
 {      
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     parameters<-getParameterList(node,1,flowEnv)
     return(ratio(numerator=parameters[[1]],denominator=parameters[[2]],transformationId=transformationId))			
 }
@@ -56,7 +56,7 @@ transRatio<-function(node,flowEnv)
 
 transQuadratic<-function(node,flowEnv)
 {       
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"quadratic",recursive=FALSE)
     coefficients=sapply(coefficientList,xmlGetAttr,"a")		
     parameters<-getParameterList(node,1,flowEnv)
@@ -67,7 +67,7 @@ transQuadratic<-function(node,flowEnv)
 ####-----------Square root transformation ------------------
 transSquareroot<-function(node,flowEnv)
 {      
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"sqrt",recursive=FALSE)
     coefficients=sapply(coefficientList,xmlGetAttr,"a")		
     parameters<-getParameterList(node,1,flowEnv)
@@ -77,7 +77,7 @@ transSquareroot<-function(node,flowEnv)
 transLogarithm<-function(node,flowEnv)
 {      
         
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"ln",recursive=FALSE)
     a=sapply(coefficientList,xmlGetAttr,"a")		
     b=sapply(coefficientList,xmlGetAttr,"b")		
@@ -87,7 +87,7 @@ transLogarithm<-function(node,flowEnv)
 ####-----------Exponential transformation ------------------	
 transExponential<-function(node,flowEnv)
 {       
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"exponential",recursive=FALSE)
     a=sapply(coefficientList,xmlGetAttr,"a")		
     b=sapply(coefficientList,xmlGetAttr,"b")		
@@ -97,7 +97,7 @@ transExponential<-function(node,flowEnv)
 ####-----------Inverse Hyperbolic sin transformation ------------------	
 transInverseHyperbolicSin<-function(node,flowEnv)
 {       
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"asinh",recursive=FALSE)
     a=sapply(coefficientList,xmlGetAttr,"a")		
     b=sapply(coefficientList,xmlGetAttr,"b")		
@@ -108,7 +108,7 @@ transInverseHyperbolicSin<-function(node,flowEnv)
 ####-----------Hyperbolic sin transformation ------------------	
 transHyperbolicSin<-function(node,flowEnv)
 {      
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"sinh",recursive=FALSE)
     a=sapply(coefficientList,xmlGetAttr,"a")		
     b=sapply(coefficientList,xmlGetAttr,"b")		
@@ -119,7 +119,7 @@ transHyperbolicSin<-function(node,flowEnv)
 ####-----------Split scale transformation ------------------	
 transSplitScale<-function(node,flowEnv)
 {      
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"split-scale",recursive=FALSE)
     r=sapply(coefficientList,xmlGetAttr,"r")		
     maxValue=sapply(coefficientList,xmlGetAttr,"maxValue")	
@@ -132,7 +132,7 @@ transSplitScale<-function(node,flowEnv)
 ####-----------Inverse Split scale transformation ------------------	
 transInvSplitScale<-function(node,flowEnv)
 {      
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"inverse-split-scale",recursive=FALSE)
     r=sapply(coefficientList,xmlGetAttr,"r")		
     maxValue=sapply(coefficientList,xmlGetAttr,"maxValue")	
@@ -143,7 +143,7 @@ transInvSplitScale<-function(node,flowEnv)
 
 transHyperLog<-function(node,flowEnv)
 {     
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"hyperlog",recursive=FALSE)
     a=sapply(coefficientList,xmlGetAttr,"a")		
     b=sapply(coefficientList,xmlGetAttr,"b")		
@@ -153,7 +153,7 @@ transHyperLog<-function(node,flowEnv)
 
 transEH<-function(node,flowEnv)
 {     
-    transformationId=(xmlGetAttr(node,"id",genid()))
+    transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
     coefficientList=xmlElementsByTagName(node,"EH",recursive=FALSE)
     a=sapply(coefficientList,xmlGetAttr,"a")		
     b=sapply(coefficientList,xmlGetAttr,"b")		

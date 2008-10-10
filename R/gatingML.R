@@ -8,16 +8,18 @@ standardGeneric("parseGatingML"),
 			 }
 	  )
  
+genid = function(flowEnv)
+          {
+              flowEnv$Myidnum <- flowEnv$MYidnum + 1;
+              paste("genid",flowEnv$MYidnum,sep="")
+          }
+
 ### Methods definitions
 setMethod("parseGatingML","http...www.isac.net.org.std.Gating.ML.v1.5.gating_Gating.ML",
           function(object,flowEnv,...)
           {   
-              idnum = 0
-              genid = function()
-              {
-                  idnum <<- idnum + 1;
-                  paste("genid",idnum,sep="")
-              }
+              flowEnv$MYidnum = 0
+          
         
         
               for (node in xmlChildren(object))

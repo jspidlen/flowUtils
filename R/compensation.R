@@ -2,7 +2,7 @@
 transCompensation<-function(node,flowEnv)
 {
   
-      transformationId=(xmlGetAttr(node,"id",genid()))
+      transformationId=(xmlGetAttr(node,"id",genid(flowEnv)))
       tempComp=xmlElementsByTagName(node,"compensation")
       spillRef=xmlGetAttr(tempComp[[1]],"spilloverMatrixRef")
       parameter=getParameters(xmlChildren(tempComp[[1]])[[1]])
@@ -17,7 +17,7 @@ setMethod("identifyNode",
           "http...www.isac.net.org.std.Gating.ML.v1.5.transformations_spilloverMatrix",
           function(object,flowEnv,...)
           {   
-              transformationId=(xmlGetAttr(object,"id",genid()))
+              transformationId=(xmlGetAttr(object,"id",genid(flowEnv)))
               tempCoeff=xmlElementsByTagName(object,"coefficient",recursive=TRUE)
               coefficients=as.numeric(sapply(tempCoeff,getParameters))
               parameters<-getParameterList(object,0,flowEnv)  
