@@ -69,7 +69,7 @@ setMethod("identifyNode",
     	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_BooleanGate",
     	   function(object,flowEnv,...)
 	   {  			
-		gateId=(xmlGetAttr(object,"id",genid()))
+		gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
                 flowEnv[[as.character(gateId)]]=identifyNode(xmlChildren(object)[[1]],flowEnv)
            }
          ) 
@@ -79,7 +79,7 @@ setMethod("identifyNode",
           "http...www.isac.net.org.std.Gating.ML.v1.5.gating_RectangleGate",
           function(object,flowEnv,...)
 	  {   
-	        gateId=(xmlGetAttr(object,"id",genid()))
+	        gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
                 parentId=(xmlGetAttr(object,"parent_id","NULL"))
                 dimensionList=xmlElementsByTagName(object,"dimension")
 		len=length(dimensionList)
@@ -103,7 +103,7 @@ setMethod("identifyNode",
     	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_PolygonGate",
     	   function(object,flowEnv,...)
 	   {  			
-              gateId=(xmlGetAttr(object,"id",genid()))
+              gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
               parentId=(xmlGetAttr(object,"parent_id","NULL"))
 
               dimensionList= xmlElementsByTagName(object,"dimension")
@@ -133,7 +133,7 @@ setMethod("identifyNode",
     	   function(object,flowEnv,...)
 	   {  			
               
-              gateId=(xmlGetAttr(object,"id",genid()))
+              gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
               parentId=(xmlGetAttr(object,"parent_id","NULL"))
               dimensionList= xmlElementsByTagName(object,"dimension")
               len=length(dimensionList)	
@@ -163,7 +163,7 @@ setMethod("identifyNode",
     	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_PolytopeGate",
     	   function(object,flowEnv,...)
 	   {  			
-              gateId=(xmlGetAttr(object,"id",genid()))
+              gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
               parentId=(xmlGetAttr(object,"parent_id","NULL"))
               dimensionList= xmlElementsByTagName(object,"dimension")
               len=length(dimensionList)	
@@ -193,7 +193,7 @@ setMethod("identifyNode",
     	   function(object,flowEnv,...)
 	   {  			
 	       
-               gateId=(xmlGetAttr(object,"id",genid()))
+               gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
                parentId=(xmlGetAttr(object,"parent_id","NULL"))
 
                root = xmlChildren(object)[[1]]

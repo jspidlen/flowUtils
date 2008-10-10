@@ -22,7 +22,7 @@ setMethod("identifyNode",
               coefficients=as.numeric(sapply(tempCoeff,getParameters))
               parameters<-getParameterList(object,0,flowEnv)  
               spillMatrix=matrix(coefficients,ncol=length(parameters),byrow=TRUE)
-              colNames(spillMatrix)=sapply(parameters,getParameters)
+              colnames(spillMatrix)=sapply(parameters,getParameters)
               flowEnv[[as.character(transformationId)]]=
                       compensation(spillover=spillMatrix,compensationId=as.character(transformationId),parameters )
           }

@@ -8,16 +8,18 @@ standardGeneric("parseGatingML"),
 			 }
 	  )
  
+genid = function(flowEnv)
+          {
+              flowEnv$idnum <- flowEnv$idnum + 1;
+              paste("genid",flowEnv$idnum,sep="")
+          }
+
 ### Methods definitions
 setMethod("parseGatingML","http...www.isac.net.org.std.Gating.ML.v1.5.gating_Gating.ML",
           function(object,flowEnv,...)
           {   
               idnum = 0
-              genid = function()
-              {
-                  idnum <<- idnum + 1;
-                  paste("genid",idnum,sep="")
-              }
+          
         
         
               for (node in xmlChildren(object))
@@ -30,6 +32,6 @@ setMethod("parseGatingML","http...www.isac.net.org.std.Gating.ML.v1.5.gating_Gat
 
 read.gatingML = function(file,flowEnv,...)
 {       
-	 parseGatingML(xmlRoot,(smartTreeParse(file,...)),flowEnv)
+	 parseGatingML(xmlRoot(smartTreeParse(file,...)),flowEnv)
         
 }
