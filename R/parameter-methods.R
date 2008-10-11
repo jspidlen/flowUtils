@@ -15,6 +15,7 @@ setMethod("getParameters",
                
     		c(xmlGetAttr(object,"min",default=-Inf,as.numeric),xmlGetAttr(object,"max",default=Inf,as.numeric)) 	
 
+
  	  }
           
      	 )

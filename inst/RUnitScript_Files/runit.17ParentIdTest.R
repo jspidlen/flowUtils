@@ -3,7 +3,7 @@
   csvFile<-paste(system.file("extdata/ExpectedResults/17ParentIdTest",package="gatingMLData"))
   flowEnv=new.env()
   read.gatingML(gateFile,flowEnv)
-  fcs <- read.FCS(fcsFile,transformation=FALSE)
+  fcs <- read.FCS(fcsFile,transformation=TRUE)
  
 test.prt_01<- function() {
   gateId<-"prt_01"

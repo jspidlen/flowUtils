@@ -103,13 +103,6 @@ decisionHelper = function(g,...)
 }            
 
 
-idnum = 0
-### ID generator for the gates and transformations 
-genid = function()
-{
-	idnum <<- idnum + 1;
-	paste("genid",idnum,sep="")
-}
 	
 smartTreeParse = function(file,...) 
 {

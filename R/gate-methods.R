@@ -70,7 +70,18 @@ setMethod("identifyNode",
     	   function(object,flowEnv,...)
 	   {  			
 		gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
-                flowEnv[[as.character(gateId)]]=identifyNode(xmlChildren(object)[[1]],flowEnv)
+                parentId=(xmlGetAttr(object,"parent_id","NULL"))
+                filt<-identifyNode(xmlChildren(object)[[1]],flowEnv)
+                if(parentId=="NULL")
+                {
+                    flowEnv[[as.character(gateId)]]=filt
+                }
+                else
+                {
+                    temp=new("filterReference",name=parentId,env=flowEnv,filterId="NULL")
+                    flowEnv[[as.character(gateId)]]=new("subsetFilter",filters=list(filt,temp),filterId=gateId)
+                }
+               
            }
          ) 
 
