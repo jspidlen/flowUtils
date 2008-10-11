@@ -95,3 +95,22 @@ setMethod("getParameters",
 	  }
 	 )
 
+setMethod("getParameters",
+	  "unitytransform",
+   	  function(object,...)
+	  {    
+             
+	     as.character(object@parameters)
+                        
+	  }
+	 )
+
+setMethod("getParameters",
+	  "transformReference",
+   	  function(object,...)
+	  {    
+             
+	     as.character(object@transformationId)
+                        
+	  }
+	 )
