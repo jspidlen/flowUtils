@@ -2,14 +2,18 @@
 \alias{testGatingCompliance}
 
 \title{
-       Function to perfom all the gating-ML Compliance tests
+       
+Function to perfom all the gating-ML Compliance tests
       }
+
 \description{
-  This funtion performs all the gating-ML compliance tests .The results obtained
-  are compared with the expected results and an html report is generated.
-  The data files and XML files required for the tests are provided in the 
-  gatingML data package.
+  This funtion performs all the gating-ML compliance tests. The XML files, data files and the Expected 
+  results provided by the gatingMLData are utilized in performing the compliance tests.
+  The results obtained are compared with the expected results and a summary html report is
+  generated.
+  
  }
+
 \usage{
  testGatingCompliance(file)
 }
@@ -19,14 +23,20 @@
   }
 
 \details{
-fixme
+The testGatingCompliance depends on the data package gatingMLData for performing 
+the compliance tests 
 }
 
-\references{ ~put references to the literature/web site here ~ }
+\references{Gating-ML Candidate Recommendation for Gating Description in Flow Cytometry V 1.5 }
 \author{Gopalakrishnan N}
-\seealso{\code{\link[flowCore]{filterSet-class}}}
+
 \examples{
-## will follow soon
+
+\dontrun{
+### performs all the Gating compliance tests  and writes the results to mytest.html
+testGatingCompliance("mytest")
+}
+
 
 }
 

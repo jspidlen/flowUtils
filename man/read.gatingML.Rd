@@ -2,7 +2,6 @@
 \alias{read.gatingML}
 \alias{internal.read.gatingML}
 
-
 \title{
        Function to parse an XML gating File into objects in the R enviroment
       }
@@ -11,13 +10,14 @@
   recommendation into objects in the R environment, which can then be evaluated using 
   functions provided by the flowCore package.
  }
+
 \usage{
 read.gatingML(file,flowEnv,...)
 }
 
 \arguments{
   \item{file}{XML file describing gates,transformations or compensations}
-  \item{flowEnv}{environment into which the objects created from the XML
+  \item{flowEnv}{environment into which the R objects created from the XML
   file are to be stored
   }
   \item{\dots}{additional arguments that are passed to the methods}
@@ -28,19 +28,25 @@ gates relevant to a flow cytometry experiment. Presently, we can read version 1.
 which was the most recent at the time of this writing. 
 
 }
-\value{
-	A \code{\link[flowCore]{filterSet-class}} object containing all of the filters defined in
-	the specified file.
-  Structured filter of class as defined in the \code{\link[flowCore]{flowCore}} package.
-}
-\references{ ~put references to the literature/web site here ~ }
+
+\references{Gating-ML Candidate Recommendation for Gating Description in Flow Cytometry V 1.5}
+
 \author{Gopalakrishnan N}
-\seealso{\code{\link[flowCore]{filterSet-class}}}
+
 \examples{
-\dontrun{
-EGate <-read.gatingML(system.file("xml",
-        "EllipsoidGates.xml", package="flowUtils"))
-}
+
+ flowEnv=new.env()
+
+ fcsFile<-system.file("extdata/List-modeDataFiles","fcs2_int16_13367ev_8par_GvHD.fcs",package="gatingMLData")
+ fcs <- read.FCS(fcsFile,transformation=FALSE)
+ 
+ gateFile <- system.file("extdata/Gating-MLFiles","02CtSRectangular.xml",package="gatingMLData")
+ read.gatingML(gateFile,flowEnv)
+ 
+ ls(flowEnv)
+  
+ result=filter(fcs,flowEnv$CtSR_03)
+ summary(result)
 }
 
 \keyword{methods}

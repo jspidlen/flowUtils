@@ -6,12 +6,12 @@
   Utilities for flow cytometry data
 }
 \description{
-  This package includes methods to import Gates,transformations and 
+  This package includes functions to import Gates,transformations and 
   compensations defined in compliance with Gating-ML Candidate recommendation
-  for Gating Description.(Version V 1.5)
-  This package depends on the flowCore package for methods to evaluate the 
-  gatingML files read into the workspace.
+  for Gating Description.(Version V 1.5) This package depends on the flowCore
+  package for methods to evaluate the gatingML files read into the workspace.
 }
+
 \details{
 \tabular{ll}{
 Package: \tab flowUtils\cr
@@ -20,6 +20,7 @@ Version: \tab 0.2.1\cr
 Date: \tab 2006-11-16\cr
 License: \tab Artistic\cr
 }
+
 The main features of this package provide compatability to the data
 standards defined by Gating-ML candidate recommendation for gating description
 in flow cytometry (Version 1.5).
@@ -30,10 +31,9 @@ Gating-ML standard.
 
 }
 \author{
-
-
   Maintainer: Nishant Gopalakrishnan <ngopalak@fhcrc.org>
-  Authors: M. Dalphin, B. Ellis, R. Gentleman, F. Hahne, N. Le Meur, B. Purcell
+  Authors: Gopalakrishnan N.,F. Hahne,B. Ellis, R. Gentleman,
+           M. Dalphin, N. Le Meur, B. Purcell,
 }
 
 
@@ -41,6 +41,4 @@ Gating-ML standard.
 \seealso{
 \code{\link[flowCore:flowCore-package]{flowCore}}
 }
-\examples{
-## examples go here
-}
+
