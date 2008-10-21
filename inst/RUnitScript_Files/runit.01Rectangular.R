@@ -78,13 +78,13 @@ test.GreaterThanMinAndEqualToMax <- function()
     flowUtils:::performGateTest(gateId,fcs, expectedResult,flowEnv)
 }
 
-test.EqualToMinAndMax <- function() 
-{   
-    gateId="EqualToMinAndMax"
-    csvFile<-paste(csvFile,"/",gateId,".txt",sep="")
-    expectedResult=read.csv(csvFile,header=TRUE)
-    flowUtils:::performGateTest(gateId,fcs, expectedResult,flowEnv)
-}
+# test.EqualToMinAndMax <- function() 
+# {   
+#     gateId="EqualToMinAndMax"
+#     csvFile<-paste(csvFile,"/",gateId,".txt",sep="")
+#     expectedResult=read.csv(csvFile,header=TRUE)
+#     flowUtils:::performGateTest(gateId,fcs, expectedResult,flowEnv)
+# }
 
 test.GreaterThanMinAndMax <- function() 
 {
@@ -102,13 +102,13 @@ test.LessThanMinAndMax <- function()
     flowUtils:::performGateTest(gateId,fcs, expectedResult,flowEnv)
 }
 
-test.MinGreaterThanMax <- function() 
-{   
-    gateId="MinGreaterThanMax"
-    csvFile<-paste(csvFile,"/",gateId,".txt",sep="")
-    expectedResult=read.csv(csvFile,header=TRUE)
-    flowUtils:::performGateTest(gateId,fcs, expectedResult,flowEnv)
-}
+# test.MinGreaterThanMax <- function() 
+# {   
+#     gateId="MinGreaterThanMax"
+#     csvFile<-paste(csvFile,"/",gateId,".txt",sep="")
+#     expectedResult=read.csv(csvFile,header=TRUE)
+#     flowUtils:::performGateTest(gateId,fcs, expectedResult,flowEnv)
+# }
 
 test.InNoDimensions <- function() 
 {
