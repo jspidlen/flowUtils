@@ -10,7 +10,7 @@ standardGeneric("parseGatingML"),
  
 genid = function(flowEnv)
           {
-              flowEnv$Myidnum <- flowEnv$MYidnum + 1;
+              flowEnv$MYidnum <- flowEnv$MYidnum + 1;
               paste("genid",flowEnv$MYidnum,sep="")
           }
 
