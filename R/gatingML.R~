@@ -10,15 +10,15 @@ standardGeneric("parseGatingML"),
  
 genid = function(flowEnv)
           {
-              flowEnv$idnum <- flowEnv$idnum + 1;
-              paste("genid",flowEnv$idnum,sep="")
+              flowEnv$Myidnum <- flowEnv$MYidnum + 1;
+              paste("genid",flowEnv$MYidnum,sep="")
           }
 
 ### Methods definitions
 setMethod("parseGatingML","http...www.isac.net.org.std.Gating.ML.v1.5.gating_Gating.ML",
           function(object,flowEnv,...)
           {   
-              idnum = 0
+              flowEnv$MYidnum = 0
           
         
         
