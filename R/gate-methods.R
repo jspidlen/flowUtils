@@ -209,7 +209,7 @@ setMethod("identifyNode",
 
                root = xmlChildren(object)[[1]]
                test = decisionHelper(root)
-               filt=do.call("expressionFilter",list(expr=test))
+               filt=do.call(expressionFilter,list(expr=test))
                if(parentId=="NULL")
                {
                  flowEnv[[as.character(gateId)]]=filt
