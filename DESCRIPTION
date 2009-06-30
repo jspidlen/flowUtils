@@ -1,8 +1,7 @@
 Package: flowUtils
 Type: Package
 Title: Utilities for flow cytometry
-Version: 1.5.0
-Date: 2008-04-08
+Version: 1.5.1
 Author: Gopalakrishnan N, F. Hahne, B. Ellis, R. Gentleman
         M. Dalphin,N. Le Meur, B. Purcell.
 Maintainer: Nishant Gopalakrishnan <ngopalak@fhcrc.org>
@@ -17,6 +16,7 @@ Collate: AllClasses.R
          transforms.R
          parameter-methods.R
          compensation.R
+	   createFlowJoSpaces.R
 License: Artistic-2.0
 biocViews:  Infrastructure, Flowcytometry, CellBasedAssays
 
