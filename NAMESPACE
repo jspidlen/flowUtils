@@ -1,5 +1,6 @@
 export("read.gatingML","testGatingCompliance")
 
 import("flowCore")
+import("graph")
 import("XML")
 import("RUnit")
