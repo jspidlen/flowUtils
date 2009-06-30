@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<defaults>
+  
+ <!--Workspace-->
+ <Workspace version="1.6" flowJoVersion="7.5b134" modDate="Tue Jun 30 15:35:27 PDT 2009" useFreqParent="1" drawRowBorders="1" drawColumnBorders="1" isTemplate="0" curGroup="All Samples" groupPaneHeight="-1" nonAutoSaveFileName="anonymous"/>
+  
+ <!--WindowPosition-->
+ <WindowPosition x="20" y="20" width="600" height="400" displayed="1" panelState="NULL"/>
+  
+ <!--TextTraits-->
+ <TextTraits font="SansSerif" size="12" name="Workspace" style="plain" color="#000000" background="#FFFFFF" just="left"/>
+  
+ <!--Columns-->
+ <Columns wsSortOrder="$BTIM" wsSortAscending="1"/>
+  
+ <!--TColumn-->
+ <TColumn name="Name" width="240"/>
+  
+ <!--Groups-->
+ <Groups/>
+  
+ <!--GroupNode-->
+ <GroupNode name="All Samples" annotation="" owningGroup="All Samples" expanded="1" sortPriority="10" count="0"/>
+  
+ <!--Group-->
+ <Group name="All Samples" foreground="#000000" fontStyle="bold" live="1" synchronized="0"/>
+  
+ <!--Criteria-->
+ <Criteria/>
+  
+ <!--SampleRefs-->
+ <SampleRefs/>
+  
+ <!--SampleRef-->
+ <SampleRef sampleID="1"/>
+  
+ <!--Graph-->
+ <Graph backColor="#FFFFFF" foreColor="#000000" smoothing="0" type="Pseudocolor" fast="1" histogramSmoothingCount="0" showOutliers="0" tint="None" xDisplayScale="" yDisplayScale="" showAxes="" drawLargeDots="0" lineWeight="Hairline" scientificNotation="1" smoothingHighResolution="1" contourHighResolution="1" showGates="1" showFreqOnPlots="1" showGateNameOnPlots="1" showMedians="0" showUncomped="0" showGrid="0" lastYAxisName="" rowCount="NULL"/>
+  
+ <!--Axis-->
+ <Axis dimension="x" name="" max="NULL"/>
+  
+ <!--SampleList-->
+ <SampleList/>
+  
+ <!--Sample-->
+ <Sample/>
+  
+ <!--DataSet-->
+ <DataSet uri="anonymous" sampleID="1" baseChannel="3.0" extraNegs="0.0" posDecades="4.5"/>
+  
+ <!--Keywords-->
+ <Keywords/>
+  
+ <!--Keyword-->
+ <Keyword name="anonymous" value="NA"/>
+  
+ <!--SampleNode-->
+ <SampleNode name="anonymous" annotation="" owningGroup="" expanded="1" sortPriority="10" count="0" sampleID="1"/>
+  
+ <!--Subpopulations-->
+ <Subpopulations/>
+  
+ <!--Population-->
+ <Population name="anonymous" annotation="" owningGroup="" expanded="1" sortPriority="10" count="0"/>
+  
+ <!--Gate-->
+ <Gate gating:id="1" xmlns:gating="dummy"/>
+  
+ <!--gating:RectangleGate-->
+ <gating:RectangleGate eventsInside="1" annoOffsetX="0" annoOffsetY="0" tint="#000000" isTinted="0" lineWeight="Hairline" isFJGate="1" xmlns:gating="dummy"/>
+  
+ <!--gating:PolygonGate-->
+ <gating:PolygonGate eventsInside="1" annoOffsetX="0" annoOffsetY="0" tint="#000000" isTinted="0" lineWeight="Hairline" isFJGate="1" xmlns:gating="dummy"/>
+  
+ <!--gating:dimension-->
+ <gating:dimension gating:min="0" gating:max="0" xmlns:gating="dummy"/>
+  
+ <!--gating:coordinate-->
+ <gating:coordinate data-type:value="0" xmlns:gating="dummy" xmlns:data-type="dummy"/>
+  
+ <!--gating:vertex-->
+ <gating:vertex xmlns:gating="dummy"/>
+  
+ <!--data-type:parameter-->
+ <data-type:parameter data-type:name="anonymous" xmlns:data-type="dummy"/>
+  
+ <!--TableEditor-->
+ <TableEditor title="anonymous" current="Untitled"/>
+  
+ <!--Table-->
+ <Table name="Untitled" destination="FlowJo" autoopen="0" quickclose="0" heatmaps="0"/>
+  
+ <!--FigList-->
+ <FigList/>
+  
+ <!--Iteration-->
+ <Iteration iterationType="Off" iterationValue="" discriminator="" panelSize="1" groupName=""/>
+  
+ <!--LayoutEditor-->
+ <LayoutEditor title="anonymous" current="Untitled" layoutstate="Untitled"/>
+  
+ <!--Layout-->
+ <Layout orientation="1" simpleUI="0" name="Untitled" pagescale="1.0" scale="1.0" showGrid="0" showPageBreaks="1"/>
+  
+ <!--CompensationEditor-->
+ <CompensationEditor title="anonymous"/>
+  
+ <!--DivaSettings-->
+ <DivaSettings logSideSc="0" logForwSc="0" logAllNonSc="1" logAllFluors="1" baseChannel="3.0" pulseHeight="5.0" pulseArea="5.0" autoTransform="1" numDecades="4.5" extraNegs="0.0" widthBasis="-10" pulseAccuriArea="7.0" pulseAccuriHeight="7.0" linearParameters=""/>
+</defaults>
