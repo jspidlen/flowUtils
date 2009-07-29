@@ -2,7 +2,8 @@
 .onLoad <- function(...)
 {
     def <- xmlSApply(xmlTreeParse(system.file("defaults.xml",
-                                              package="flowUtils"))[["doc"]][[1]],
+                                              package="flowUtils"),
+                                              addAttributeNamespaces=TRUE)[["doc"]][[1]],
                      function(x)
                      if(!is(x, "XMLCommentNode")) as.list(xmlAttrs(x)))
     def <- def[!sapply(def, is.null)]
