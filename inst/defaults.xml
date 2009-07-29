@@ -73,6 +73,9 @@
  <!--gating:PolygonGate-->
  <gating:PolygonGate eventsInside="1" annoOffsetX="0" annoOffsetY="0" tint="#000000" isTinted="0" lineWeight="Hairline" isFJGate="1" xmlns:gating="dummy"/>
   
+ <!--gating:EllipsoidGate-->
+ <gating:EllipsoidGate gating:distance="0" eventsInside="1" annoOffsetX="0" annoOffsetY="0" tint="#000000" isTinted="0" lineWeight="Hairline" isFJGate="1" xmlns:gating="dummy"/>              
+  
  <!--gating:dimension-->
  <gating:dimension gating:min="0" gating:max="0" xmlns:gating="dummy"/>
   
@@ -81,6 +84,12 @@
   
  <!--gating:vertex-->
  <gating:vertex xmlns:gating="dummy"/>
+ 
+ <!--gating:foci-->
+ <gating:foci xmlns:gating="dummy"/>
+ 
+ <!--gating:vertex-->
+ <gating:edge xmlns:gating="dummy"/>
   
  <!--data-type:parameter-->
  <data-type:parameter data-type:name="anonymous" xmlns:data-type="dummy"/>

@@ -28,9 +28,10 @@
  targs <- function(tag, attrs=NULL, ...)
  {
     defs <- fjSettings()
-    if(!tag %in% names(defs))
-      stop("'", tag, "' is not a valid XML tag in this context.")
-    res <- defs[[tag]]
+    tnam <- gsub(".*:", "", tag)
+    if(!tnam %in% names(defs))
+      stop("'", tnam, "' is not a valid XML tag in this context.")
+    res <- defs[[tnam]]
     args <- c(list(...), attrs)
     if(length(args) && length(names(args)))
     {
@@ -216,11 +217,14 @@ xmlKeywords <- function(frame)
 
 ## The SampleNode XML node. This represents a single base node in FlowJo's event 
 ## tree. It maps back into the DataSet node via the sampleID attribute. 
-xmlSampleNode <- function(frame, id, gates=NULL, transforms=NULL)
+xmlSampleNode <- function(frame, id, gates=NULL, transforms=NULL, level=0)
 {
-  spops <- if(length(gates$tree)) xmlSubpopulations(gates, transforms) else
-    NULL
-  g <- xmlGraph(frame[,1:2])
+  pars <- if(is.null(gates)) 1:2 
+    else if(level==0) parameters(gates$gates[[names(gates$tree)]]) 
+    else parameters(gates$gates[[names(gates$tree[[level]])]]) 
+  spops <- if(length(gates$tree)) xmlSubpopulations(gates, transforms, 
+    level=level, frame=frame) else NULL
+  g <- xmlGraph(frame[,pars])
   xmlTag("SampleNode", attrs=list(name=identifier(frame), count=nrow(frame),
       sampleID=id), children=list(spops, g))
 }
@@ -257,32 +261,59 @@ xmlGraph <- function(frame, count=TRUE)
 ## need to know the number of events after the gating. Note the recomputing 
 ## the event counts in FlowJo could potentially  yield slightly different 
 ## results.
-xmlSubpopulations <- function(gates, transforms)
+xmlSubpopulations <- function(gates, transforms, level, frame)
 {
   pop <- c("<wrapper xmlns:gating=\"dummy\" xmlns:data-type=\"dummy\">",
     xmlSubpopulationsHelper(gates=gates$gates, gresults=gates$result, 
-      glist=gates$tree, transforms=transforms), 
+      glist=gates$tree, transforms=gates$transforms, level=level, frame=frame), 
     "</wrapper>")
   xmlTreeParse(pop, asText=TRUE, 
     addAttributeNamespaces=TRUE)$doc$children[[1]][[1]]
 }
 
-xmlSubpopulationsHelper <- function(gates, gresults, glist, current, pops=NULL,
-  transforms)
+xmlSubpopulationsHelper <- function(gates, gresults, glist, pops=NULL,
+  transforms, level, frame)
 {
-  children <- if(missing(current)) names(glist) else names(glist[[current]])
-  if(!is.null(children))
-    pops <- append(pops, "<Subpopulations>") 
+  children <- names(glist)
+  if(!is.null(children) && any(children %in% names(gates)))
+  {
+    level <- level+1
+    pops <- append(pops, "<Subpopulations>")
+  } 
   for(i in children)
   {
-    pops <- c(pops, sprintf(paste("<Population name=\"%s\" annotation=\"\"", 
-      "owningGroup=\"\" expanded=\"1\" sortPriority=\"10\" count=\"%s\">"),
-      identifier(gates[[i]]), summary(gresults[[i]])$true), 
-      toString.XMLNode(xmlGateNode(gates[[i]], i, transforms)))
-    pops <- xmlSubpopulationsHelper(gates, gresults, glist, i, pops, transforms)
-    pops <- append(pops, "</Population>")
+    g <- NULL
+    if(i %in% names(gates))
+    { 
+      if(i == children[[1]])
+      {
+        tmpglist <- glist[[1]]
+        grandchild <- NULL
+        while(!is.null(names(tmpglist)))
+        {
+          ng <- names(tmpglist)[1]
+          if(ng %in% names(gates))
+          { 
+            grandchild <- ng
+            break
+          }
+          tmpglist <- tmpglist[[1]]
+        }
+        cparms <- if(is.null(grandchild)) parameters(gates[[i]]) 
+          else parameters(gates[[grandchild]])
+          g <- toString.XMLNode(xmlGraph(frame[,cparms]))  
+      }
+      pops <- c(pops, sprintf(paste("<Population name=\"%s\" annotation=\"\"", 
+        "owningGroup=\"\" expanded=\"1\" sortPriority=\"10\" count=\"%s\">"),
+        identifier(gates[[i]]), toTable(summary(gresults[[i]]))$true), g,
+        toString.XMLNode(xmlGateNode(gates[[i]], i, transforms[[i]], gresults[[i]])))
+    }
+    pops <- xmlSubpopulationsHelper(gates, gresults, glist[[1]], pops, transforms,
+      level=level, frame=frame)
+    if(i %in% names(gates))
+      pops <- append(pops, "</Population>")
   }
-  if(!is.null(children))
+  if(!is.null(children) && any(children %in% names(gates)))
   pops <- append(pops, "</Subpopulations>")
   return(pops)
 }
@@ -291,10 +322,10 @@ xmlSubpopulationsHelper <- function(gates, gresults, glist, current, pops=NULL,
 ## The Gate XML node. This holds the geometric definiton of a gate. The 
 ## translateGate function makes sure that we created the appropriate 
 ## representation for the respective gate types.
-xmlGateNode <- function(gate, id, transforms)
+xmlGateNode <- function(gate, id, transforms, gres=NULL)
 {
   xmlTag("Gate", attrs=c("gating:id"=id), children=translateGate(gate,
-    transforms))
+    transforms, gres))
 } 
 
 
@@ -305,8 +336,13 @@ guid <- function(...) substr(as.character(as.vector(as.integer(Sys.time())/
 
 ## The PolygonGate XML node. This represents dimensions and vertices for a 
 ## single polygon gate.
-xmlPolygonGateNode <- function(gate)
+xmlPolygonGateNode <- function(gate, tf)
 {
+  if(!missing(tf) && !is.null(tf))
+  {
+    for(p in parameters(gate))
+      gate@boundaries[,p] <- tf[[p]](gate@boundaries[,p])
+  }     
   dims <- lapply(parameters(gate), xmlDimensionNode)
   verts <- apply(gate@boundaries, 1, xmlVertexNode)
   xmlTag("PolygonGate", namespace="gating", children=c(dims, verts))
@@ -314,49 +350,51 @@ xmlPolygonGateNode <- function(gate)
 
 
 
-xmlEllypsoidGateNode <- function()
+xmlEllipsoidGateNode <- function(gate, tf)
 {
-  #   <gating:EllipsoidGate gating:distance="89.6517268546188" eventsInside="1" annoOffsetX="0" annoOffsetY="0" tint="#000000" isTinted="0" lineWeight="Hairline" isFJGate="1"  >
-#                <gating:dimension  >
-#                <data-type:parameter data-type:name="FSC-H"  />
-#                </gating:dimension >
-#                <gating:dimension  >
-#                <data-type:parameter data-type:name="SSC-H"  />
-#                </gating:dimension >
-#                <gating:foci  >
-#                <gating:vertex  >
-#                <gating:coordinate data-type:value="71.97366325550765"  />
-#                <gating:coordinate data-type:value="163.04098515178657"  />
-#                </gating:vertex >
-#                <gating:vertex  >
-#                <gating:coordinate data-type:value="141.02633674449237"  />
-#                <gating:coordinate data-type:value="121.95901484821343"  />
-#                </gating:vertex >
-#                </gating:foci >
-#                <gating:edge  >
-#                <gating:vertex  >
-#                <gating:coordinate data-type:value="67.0"  />
-#                <gating:coordinate data-type:value="166.0"  />
-#                </gating:vertex >
-#                <gating:vertex  >
-#                <gating:coordinate data-type:value="146.0"  />
-#                <gating:coordinate data-type:value="119.0"  />
-#                </gating:vertex >
-#                <gating:vertex  >
-#                <gating:coordinate data-type:value="94.0"  />
-#                <gating:coordinate data-type:value="124.0"  />
-#                </gating:vertex >
-#                <gating:vertex  >
-#                <gating:coordinate data-type:value="119.0"  />
-#                <gating:coordinate data-type:value="161.0"  />
-#                </gating:vertex >
-#                </gating:edge >
-#                </gating:EllipsoidGate >
+  parms <- parameters(gate)
+  if(length(parms)!=2)
+    stop("FlowJo only supports 2D ellipsoidal gates.")
+  dims <- lapply(parms, xmlDimensionNode)
+  center <- gate@mean[parms]
+  if (is.null(rownames(gate@cov))) 
+    rownames(gate@cov) <- colnames(gate@cov)
+  cov <- gate@cov[parms, parms]
+  radius <- gate@distance
+  ev <- eigen(cov)
+  eVal <- sqrt(ev$values)*radius
+  eVect <- ev$vectors
+  names(eVal) <- colnames(eVect) <- parms
+  ans <- rbind(center - eVal[1]*eVect[,1],
+               center + eVal[1]*eVect[,1],
+               center - eVal[2]*eVect[,2],
+               center + eVal[2]*eVect[,2])/4
+  fd <- sqrt(eVal[1]^2 - eVal[2]^2)
+  f <- rbind(center - fd*eVect[,1], center + fd*eVect[,1])
+  if(!missing(tf) && !is.null(tf))
+  {
+    for(p in parms)
+    {
+      ans[,p] <- tf[[p]](ans[,p])
+      f[,p] <- tf[[p]](f[,p])
+    }
+  }
+  foci <- xmlFociNode(apply(f, 1, xmlVertexNode))
+  verts <- xmlEdgeNode(apply(ans, 1, xmlVertexNode))
+  xmlTag("EllipsoidGate", namespace="gating", children=c(dims, list(foci, verts)))
 }
 
 
-xmlRectangleGateNode <- function(gate)
+xmlRectangleGateNode <- function(gate, tf)
 {
+  pars <- parameters(gate)
+  if(!missing(tf) && !is.null(tf))
+  {
+    gate@min <- sapply(pars, function(x) 
+      as.vector(tf[[x]](gate@min[x])))
+    gate@max <- sapply(pars, function(x) 
+      as.vector(tf[[x]](gate@max[x])))
+  }
   dims <- lapply(parameters(gate), function(x) 
     xmlDimensionNode(parameter=x, min=gate@min[x], max=gate@max[x]))
   xmlTag("RectangleGate", namespace="gating", children=dims)
@@ -382,6 +420,20 @@ xmlVertexNode <- function(xy)
   xmlTag("vertex", namespace="gating",
     children=lapply(xy, function(x) xmlTag("coordinate", 
     namespace="gating", attrs=list("data-type:value"=x))))
+}
+
+
+## The edges of an ellipse gate, essentially a collection of 4 vertex nodes
+xmlEdgeNode <- function(xy)
+{
+  xmlTag("edge", namespace="gating", children=xy)
+}
+
+
+## The foci of an ellipse gate, essentially a collection of 2 vertex nodes
+xmlFociNode <- function(xy)
+{
+  xmlTag("foci", namespace="gating", children=xy)
 }
 
 
@@ -412,7 +464,7 @@ createWorkspace <- function(set, outdir="flowJo", filename="workspace.wsp",
   sampleNames(set) <- sn
   ## We write our flowSet out as FCS files and read it back in to guarantee
   ## concordance with the keywords we write in the XML
-  write.flowSet(set, outdir=outdir, what="numeric")
+  write.flowSet(set, outdir=outdir, what="integer")
   set <- read.flowSet(path=outdir, phenoData="annotation.txt")
   ## Create the sample list from a flowSet and the gating structure object
   slist <- xmlSampleList(lapply(1:length(set), createSample, set, gates, 
@@ -443,13 +495,14 @@ setAs(from="workFlow", to="list", def=function(from)
   tv <- grep("transView", n)
   gv <- grep("gateView", n)
   rv <- setdiff(seq_along(n), gv)
-  if(length(tv) > 1)
-    stop("Multiple transformation operations are not supported by flowJo.")
-  if(length(gv) && length(rv) && !all(rv < min(gv)))
-    stop("Only further gate nodes are allowed as children of a gate node.")
+  ##if(length(tv) > 1)
+  ##  stop("Multiple transformation operations are not supported by flowJo.")
+  ##if(length(gv) && length(rv) && !all(rv < min(gv)))
+  ##  stop("Only further gate nodes are allowed as children of a gate node.")
   start <- n[max(1, min(gv)-1)]
-  gates <- gres <- list()
-  buildList <- function(tree, node, wf)
+  parent <- n[max(1, min(gv)-2)]
+  gates <- gres <- transforms <- list()
+  buildList <- function(tree, node, wf, first=TRUE, parent)
   {
     clist <- list()
     if(length(node))
@@ -460,29 +513,45 @@ setAs(from="workFlow", to="list", def=function(from)
       for(i in children)
       {
         v <- wf[[i]]
-        fr <- action(v)@filterResult
-        if(is(get(fr)[[1]], "logicalFilterResult") && !identifier(fr) %in% processed)
+        if(is(v, "gateView"))
         {
-          gchildren <- c(gchildren, i)
-          processed <- c(processed, identifier(fr))
-          gates[[ids[i]]] <<- gate(action(v))
-          gres[[ids[i]]] <<- get(fr)
+          fr <- action(v)@filterResult
+          if(is(get(fr)[[1]], "logicalFilterResult") && !identifier(fr) %in% processed)
+          {
+            gchildren <- c(gchildren, i)
+            processed <- c(processed, identifier(fr))
+            gates[[ids[i]]] <<- gate(action(v))
+            gres[[ids[i]]] <<- get(fr)
+            transforms[[ids[i]]] <<- if(first) identTransform(Data(wf[[node]]))
+              else if(is(wf[[node]], "transformView")) 
+                estimateBackTransform(Data(wf[[parent]]), 
+                  get(action(wf[[node]])@transform))
+              else if(is(wf[[node]], "normalizeView"))
+                estimateBackNorm(Data(wf[[parent]]), 
+                  attr(Data(wf[[node]]), "warping")) 
+              else identTransform(Data(wf[[node]]))
+          }
+        }
+        else
+        {
+           gchildren <- c(gchildren, i)
         }
       }
-      for(i in gchildren)      
-        clist[[ids[i]]] <- buildList(tree, i, wf)
+      for(i in gchildren)  
+          clist[[ids[i]]] <- buildList(tree, i, wf, FALSE, parent=node)
     }
     return(clist)
   }
   if(is.na(start))
     return(list(gates=NULL, results=NULL, tree=list()))
-  tree <- buildList(wt, start, from) 
-  return(list(gates=gates, results=gres, tree=tree))
+  tree <- buildList(wt, start, from, parent=parent) 
+  return(list(gates=gates, results=gres, transforms=transforms, 
+    tree=tree))
 })
 
 
 
-createGlist <- function(wf)
+createGlist <- function(wf, backTrans)
 {
   glistSet <- as(wf, "list")
   sn <- sampleNames(Data(wf[["base view"]]))
@@ -495,55 +564,80 @@ createGlist <- function(wf)
     ## else as(x[[i]], "polygonGate"))
     gates <- lapply(gtmp, function(x) if(is(x, "filter")) x else x[[i]])
     res <- lapply(glistSet$results, function(x) x[[i]])
-    glist[[i]] <- list(gates=gates, results=res, tree=glistSet$tree)
+    trans <- lapply(names(gtmp), collapseTransforms, fid=i, 
+      transforms=glistSet$transforms, backTrans=backTrans)
+    names(trans) <- names(gtmp) 
+    glist[[i]] <- list(gates=gates, results=res, tree=glistSet$tree,
+      transforms=trans)
   }
   return(glist)
 }   
 
-
-wfToFlowJo <- function(wf, transforms, outdir="flowJo", 
-  filename="workspace.wsp")
+wfToFlowJo <- function(wf, outdir="flowJo", 
+  filename="workspace.wsp", backTrans=NULL)
 {
   wt <- tree(wf)
   n <- nodes(wt)
   tv <- grep("transView", n)
-  ## set <- if(length(tv)) Data(wf[[n[min(tv)]]]) else Data(wf[["base view"]])
-  set <-  Data(wf[["base view"]])
-  pars <- colnames(set)
-  miss <- setdiff(pars, c(names(transforms@transforms), 
-    flowCore:::findTimeChannel(set)))
-  for(m in miss)
-    transforms@transforms[[m]] <- new("transformMap", output=m, input=m,
-      f=function(x) x)
-  gates <- createGlist(wf)
+  nv <- grep("normView", n)
+  relBaseView <- min(if(length(tv)) min(tv) else Inf,
+                     if(length(nv)) min(nv) else Inf)
+  set <- if(!is.infinite(relBaseView)) Data(wf[[n[relBaseView]]]) else 
+    Data(wf[["base view"]])
+  pars <- colnames(set[[1]])
+  if(is.null(backTrans))
+  {
+    backTrans <- makeLinear(set[[1]], listOnly=TRUE)
+    set <- fsApply(set, makeLinear)
+  }
+  else
+  {
+    set <- transform(set, backTrans)
+  }
+  gates <- createGlist(wf, backTrans=backTrans)
   createWorkspace(set, outdir=outdir, filename=filename, gates=gates,
-    transforms=transforms)
+    transforms=NULL)
 }
 
 
-translateGate <- function(gate, transformation)
+translateGate <- function(gate, transformation, gres)
 {
-  if(!is(gate, "parameterFilter"))
+  if(!is(gate, "parameterFilter") && !is(gate, "subsetFilter"))
     stop("We only know how to represent object inheriting from 'parameterFilter'",
       " in FlowJo.")
   type <- class(gate)
   pars <- parameters(gate)   
-  if(!all(pars %in% names(transformation@transforms)))
+  if(!all(pars %in% names(transformation)))
     stop("Transformation missing for gating parameter.")
   switch(type,
+    ## FIXME: This is cheating
+    "subsetFilter"={
+      ##xmlEllipsoidGateNode(flowViz:::norm2Ell(filterDetails(gres)[[2]],
+      ##parms=parameters(gate)), 
+      ##transformation)
+      xmlPolygonGateNode(flowViz:::norm2Polygon(filterDetails(gres)[[2]],
+      parms=parameters(gate)), 
+      transformation)
+    },
     "polygonGate"={
-      for(p in pars)
-        gate@boundaries[,p] <- transformation@transforms[[p]]@f(gate@boundaries[,p])
-      xmlPolygonGateNode(gate)
+      xmlPolygonGateNode(gate, transformation)
     },
     "rectangleGate"={
-      gate@min <- sapply(pars, function(x) 
-        as.vector(transformation@transforms[[x]]@f(gate@min[x])))
-      gate@max <- sapply(pars, function(x) 
-        as.vector(transformation@transforms[[x]]@f(gate@max[x])))
-      xmlRectangleGateNode(gate)
+      xmlRectangleGateNode(gate, transformation)
     },
     "ellipsoidGate"={
+      ##xmlEllipsoidGateNode(gate, transformation)
+      xmlPolygonGateNode(flowViz:::ell2Polygon(filterDetails(gres)[[1]],
+      parms=parameters(gate)), 
+      transformation)
+    },
+    "norm2Filter"={
+      ##xmlEllipsoidGateNode(flowViz:::norm2Ell(filterDetails(gres)[[1]],
+      ##  parms=parameters(gate)), 
+      ##  transformation)
+      xmlPolygonGateNode(flowViz:::norm2Polygon(filterDetails(gres)[[1]],
+      parms=parameters(gate)), 
+      transformation)
     },
     "quadGate"={
     },
@@ -559,3 +653,103 @@ fjSettings <- function() .fuEnv$fjDefaults
 
   
  
+makeLinear <- function(x, range=1023, listOnly=FALSE)
+{
+  parms <- pData(parameters(x))
+  rownames(parms) <- parms$name
+  isExp <- sapply(keyword(x, sprintf("$P%dE", 1:ncol(x))), 
+    function(y) length(y) && y!="0,0")
+  tl <- lapply(parms[isExp, "name"], function(y) 
+    new("transformMap", output=y, input=y, 
+    f=function(zp){fun <- function(z) 
+    (z - parms[y, "minRange"])/diff(unlist(parms[y, c("minRange", 
+    "maxRange")]))*range;fun(zp)}))
+    names(tl) <- parms[isExp, "name"]
+  tlist <- new("transformList", transforms=tl)
+  if(listOnly)
+    return(tlist)
+  x <- transform(x, tlist)
+  repl <- list()
+  repl[names(which(isExp))] <- "0,0"
+  keyword(x) <- repl
+  return(x)
+}
+
+
+estimateBackTransform <- function(x, tf, n=1000)
+{
+  dexpr <- apply(range(x[[1]]), 2, function(r) seq(r[1], r[2], len=n))
+  dummy <- flowFrame(dexpr)
+  dummyt <- transform(dummy, tf)
+  apf <- vector(mode="list", length(colnames(dummy)))
+  names(apf) <- colnames(dummy)
+  for(p in colnames(dummy))
+    apf[[p]] <- if(p %in% names(tf@transforms)) 
+      approxfun(exprs(dummyt[,p]), exprs(dummy[,p])) else function(x) x
+  res <- lapply(sampleNames(x), function(y) apf)
+  names(res) <- sampleNames(x)
+  return(res)
+}
+
+estimateBackNorm <- function(x, norm, n=1000)
+{
+  enFun <- function(fid, norm)
+  {
+    apf <- vector(mode="list", length(colnames(x)))
+    names(apf) <- colnames(x)
+    for(p in colnames(x))
+      apf[[p]] <- if(length(norm[[p]])) 
+        norm[[p]][["revWarpFuns"]][[fid]] else function(x) x 
+    return(apf) 
+  } 
+  res <- lapply(sampleNames(x), enFun, norm)
+  names(res) <- sampleNames(x)
+  return(res)
+}
+
+identTransform <- function(x)
+{
+  res <- lapply(sampleNames(x), function(y){
+    resY <- lapply(colnames(x[[y]]), function(z) function(zr) zr)
+    names(resY) <- colnames(x[[y]])
+    resY})
+  names(res) <- sampleNames(x)
+  return(res)
+}
+
+
+collapseTransforms <- function(gid, fid, transforms, backTrans=NULL)
+{
+  wh <- which(names(transforms) == gid)
+  ttf <- transforms[wh:1]
+  parms <- names(ttf[[1]][[fid]])
+  funs <- sapply(parms, function(p) ttf[[1]][[fid]][[p]])
+  if(length(ttf) > 1)
+    for(t in 2:length(ttf))
+      for(p in parms)
+      {
+        makeFun <- function()
+        {
+          f1 <- funs[[p]]
+          f2 <- ttf[[t]][[fid]][[p]]
+          function(x) f1(f2(x))
+        }
+        funs[[p]] <- makeFun()
+      }
+  if(!is.null(backTrans))
+  {
+    ltf <- backTrans@transforms
+    for(p in parms)
+      if(p %in% names(ltf))
+      {
+        makeFun <- function()
+        {
+          f1 <- funs[[p]]
+          f2 <- ltf[[p]]@f
+        function(x) f2(f1(x))
+        }
+        funs[[p]] <- makeFun()
+      }
+  }
+  return(funs)
+}
