@@ -1,13 +1,20 @@
 ## Parse the xml file containing the defaults for the respective FlowJo tags
 .onLoad <- function(...)
 {
-    def <- xmlSApply(xmlTreeParse(system.file("defaults.xml",
+    mdef <- xmlSApply(xmlTreeParse(system.file("defaults.xml",
                                               package="flowUtils"),
-                                              addAttributeNamespaces=TRUE)[["doc"]][[1]],
+                                              addAttributeNamespaces=TRUE)[["doc"]][[1]][["macdefaults"]],
                      function(x)
                      if(!is(x, "XMLCommentNode")) as.list(xmlAttrs(x)))
-    def <- def[!sapply(def, is.null)]
-    assign("fjDefaults", def, .fuEnv)
+    wdef <- xmlSApply(xmlTreeParse(system.file("defaults.xml",
+                                              package="flowUtils"),
+                                              addAttributeNamespaces=TRUE)[["doc"]][[1]][["windefaults"]],
+                     function(x)
+                     if(!is(x, "XMLCommentNode")) as.list(xmlAttrs(x)))
+    mdef <- mdef[!sapply(mdef, is.null)]
+    wdef <- wdef[!sapply(wdef, is.null)]
+    assign("winDefaults", wdef, .fuEnv)
+    assign("macDefaults", mdef, .fuEnv)
 }
 
 
