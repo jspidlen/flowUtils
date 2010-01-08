@@ -5,7 +5,7 @@
 ##      Sample (xmlSample)
 ##        DataSet (xmlDataSet)
 ##        Keywords (xmlKeywords)
-##          Keyword (xmlKeýword)
+##          Keyword (xmlKeï¿½word)
 ##          Keyword...
 ##        SampleNode (xmlSampleNode)
 ##          Subpopulations (xmlSubpopulations)
@@ -54,7 +54,7 @@ targs <- function(tag, attrs=NULL, system="win", ...)
 ## the node can be passed in as a list using 'children' or as named
 ## '...' arguments
 xmlTag <- function(tag, attrs=NULL, children=NULL, system="win", ...)
-{
+{	
     mf <- list(...)
     tn <- if("namespace" %in% names(mf)) 
         paste(mf$namespace, tag, sep=":") else tag
@@ -73,7 +73,7 @@ xmlTag <- function(tag, attrs=NULL, children=NULL, system="win", ...)
 ## the different tag versions without having to check for the current
 ## system every time.
 xmlConst <- function(name, system=c("win", "mac"), ...)
-{
+{   
     ext <- switch(match.arg(system), win="Win", mac="Mac", stop("Unknown system!"))
     do.call(paste("xml", name, ext, sep=""), args=list(...))
 }
@@ -148,7 +148,7 @@ xmlGroupsWin <- function(set)
     refs <- xmlTag("SampleRefs", children=lapply(1:length(set), function(x)
                                  xmlTag("SampleRef", attrs=list(sampleID=x))), simplify=FALSE)
     grp <- xmlTag("Group", children=list(xmlTag("Criteria"), refs))
-    grpNode <- xmlTag("GroupNode", children=list(xmlGraph(count=FALSE), grp))
+    grpNode <- xmlTag("GroupNode", children=list(xmlGraphWin(count=FALSE), grp))
     xmlTag("Groups", children=grpNode)
 }
 
@@ -158,7 +158,7 @@ xmlGroupsWin <- function(set)
 xmlTableEditorWin <- function(title="workspace.wsp")
 {
     tab <-  xmlTag("Table", children=xmlTag("Iteration"))
-    wp <- xmlWindowPosition(x="0", y="0", width="675", height="340", 
+    wp <- xmlWindowPositionWin(x="0", y="0", width="675", height="340", 
                             displayed="0", panelState=NULL)
     xmlTag("TableEditor", attrs=list(title=sprintf("FlowJo Tables - %s", title)),
            children=list(tab, wp))
@@ -170,7 +170,7 @@ xmlTableEditorWin <- function(title="workspace.wsp")
 xmlLayoutEditorWin <- function(title="workspace.wsp")                                                      
 {
     lo <-  xmlTag("Layout", children=list(xmlTag("FigList"), xmlTag("Iteration")))
-    wp <- xmlWindowPosition(x="0", y="0", width="650", width="624", 
+    wp <- xmlWindowPositionWin(x="0", y="0", width="650", width="624", 
                             displayed="0", panelState=NULL)
     xmlTag("LayoutEditor", attrs=list(title=sprintf("FlowJo Tables - %s", title)),
            children=list(lo, wp))
@@ -190,7 +190,7 @@ xmlCompensationEditorWin <- function(title="workspace.wsp", spillover=FALSE)
                            children=xmlTag("logicle", namespace="transforms"))))))
     
     xmlTag("CompensationEditor", attrs=list(title=sprintf("FlowJo Tables - %s", 
-                                            title)), children=list(comp, xmlWindowPosition(x="0", y="0", width="800", 
+                                            title)), children=list(comp, xmlWindowPositionWin(x="0", y="0", width="800", 
                                                      height="570", displayed="0", panelState=NULL)))
 } 
 
@@ -211,9 +211,9 @@ xmlSampleListMac <- function(Sample)
 
 ## The Sample XML node. All the information about a single sample, both 
 ## regarding the linked data file and the full gating hierarchy if present.
-xmlSampleWin <- function(DataSet, Keywords, SampleNode)
+xmlSampleWin <- function(DataSet, Keywords, SampleNode,...){
     xmlTag("Sample", children=list(DataSet, Keywords, SampleNode))
-
+}
 
 ## The DataSet XML node. Information about the linked data file for a 
 ## particular sample. We constuct this from the flowFrame identifier, so we
@@ -235,7 +235,7 @@ xmlKeywordsWin <- function(frame)
     kw <- sapply(description(frame), paste, collapse=" ")
     sel <- sapply(names(kw), function(x) length(grep("&", x, fixed=TRUE))>0)
     kw <- kw[!sel]
-    xkw <- mapply(function(n, v) xmlTag("Keyword", attrs=list(name=n, value=v)),
+	xkw <- mapply(function(n, v)  xmlTag("Keyword", attrs=list(name=n, value=v)),
                   names(kw), kw, SIMPLIFY=FALSE)
     xmlTag("Keywords", children=xkw)
 }
@@ -246,13 +246,13 @@ xmlKeywordsMac <- xmlKeywordsWin
 ## The SampleNode XML node. This represents a single base node in FlowJo's event 
 ## tree. It maps back into the DataSet node via the sampleID attribute. 
 xmlSampleNodeWin <- function(frame, id, gates=NULL, transforms=NULL, level=0)
-{
-    pars <- if(is.null(gates)) 1:2 
-    else if(level==0) parameters(gates$gates[[names(gates$tree)]]) 
-    else parameters(gates$gates[[names(gates$tree[[level]])]]) 
-    spops <- if(length(gates$tree)) xmlSubpopulations(gates, transforms, 
+{   
+    pars <- if(is.null(gates)) 1:2 else if(level==0) {parameters(gates$gates[[names(gates$tree)]])
+	}else{ parameters(gates$gates[[names(gates$tree[[level]])]]) }
+
+	spops <- if(length(gates$tree)) xmlSubpopulationsWin(gates, transforms, 
                                                       level=level, frame=frame) else NULL
-    g <- xmlGraph(frame[,pars])
+    g <- xmlGraphWin(frame[,pars])
     xmlTag("SampleNode", attrs=list(name=identifier(frame), count=nrow(frame),
                          sampleID=id), children=list(spops, g))
 }
@@ -266,8 +266,8 @@ xmlGraphWin <- function(frame, count=TRUE)
     m <- if(missing(frame)) c("0.0", "0.0") else head(range(frame)["max",], 2)
     ax <- mapply(function(d, n ,m) xmlTag("Axis", attrs=list(dimension=d, 
                                                   name=n, max=m)), d, n, m, SIMPLIFY=FALSE)
-    traits <- lapply(c("Labels", "", "Numbers"), xmlTextTraits)
-    wp <- xmlWindowPosition(x="623", y="20", width="382", height="526", 
+    traits <- lapply(c("Labels", "", "Numbers"), xmlTextTraitsWin)
+    wp <- xmlWindowPositionWin(x="623", y="20", width="382", height="526", 
                             displayed="1")
     ats <- if(count && !missing(frame)) list(rowCount=nrow(frame)) else NULL
     xmlTag("Graph", attrs=ats, children=c(ax, traits, list(wp))) 
@@ -289,19 +289,12 @@ xmlGraphWin <- function(frame, count=TRUE)
 ## need to know the number of events after the gating. Note the recomputing 
 ## the event counts in FlowJo could potentially  yield slightly different 
 ## results.
-xmlSubpopulationsWin <- function(gates, transforms, level, frame)
-{
-    pop <- c("<wrapper xmlns:gating=\"dummy\" xmlns:data-type=\"dummy\">",
-             xmlSubpopulationsHelper(gates=gates$gates, gresults=gates$result, 
-                                     glist=gates$tree, transforms=gates$transforms, level=level, frame=frame), 
-             "</wrapper>")
-    xmlTreeParse(pop, asText=TRUE, 
-                 addAttributeNamespaces=TRUE)$doc$children[[1]][[1]]
-}
+
+
 
 xmlSubpopulationsHelper <- function(gates, gresults, glist, pops=NULL,
-                                    transforms, level, frame)
-{
+									transforms, level, frame)
+{ 
     children <- names(glist)
     if(!is.null(children) && any(children %in% names(gates)))
     {
@@ -327,14 +320,15 @@ xmlSubpopulationsHelper <- function(gates, gresults, glist, pops=NULL,
                     }
                     tmpglist <- tmpglist[[1]]
                 }
-                cparms <- if(is.null(grandchild)) parameters(gates[[i]]) 
-                else parameters(gates[[grandchild]])
-                g <- toString.XMLNode(xmlGraph(frame[,cparms]))  
+                cparms <- if(is.null(grandchild)) parameters(gates[[i]]) else parameters(gates[[grandchild]])
+                g <- toString.XMLNode(xmlGraphWin(frame[,cparms]))  
             }
+		
+			tmp <- xmlGateWin(gates[[i]], i, transforms[[i]], gresults[[i]])
             pops <- c(pops, sprintf(paste("<Population name=\"%s\" annotation=\"\"", 
                                           "owningGroup=\"\" expanded=\"1\" sortPriority=\"10\" count=\"%s\">"),
                                     identifier(gates[[i]]), toTable(summary(gresults[[i]]))$true), g,
-                      toString.XMLNode(xmlGateNode(gates[[i]], i, transforms[[i]], gresults[[i]])))
+                      toString.XMLNode(xmlGateWin(gates[[i]], i, transforms[[i]], gresults[[i]])))
         }
         pops <- xmlSubpopulationsHelper(gates, gresults, glist[[1]], pops, transforms,
                                         level=level, frame=frame)
@@ -346,12 +340,23 @@ xmlSubpopulationsHelper <- function(gates, gresults, glist, pops=NULL,
     return(pops)
 }
 
+xmlSubpopulationsWin <- function(gates, transforms, level, frame)
+{	             
+    pop <- c("<wrapper xmlns:gating=\"dummy\" xmlns:data-type=\"dummy\">",
+				xmlSubpopulationsHelper(gates=gates$gates, gresults=gates$result, 
+										glist=gates$tree, transforms=gates$transforms, 
+										level=level, frame=frame), 
+             "</wrapper>")
+    xmlTreeParse(pop, asText=TRUE, addAttributeNamespaces=TRUE)$doc$children[[1]][[1]]
+}
+
+
 
 ## The Gate XML node. This holds the geometric definiton of a gate. The 
 ## translateGate function makes sure that we created the appropriate 
 ## representation for the respective gate types.
 xmlGateWin <- function(gate, id, transforms, gres=NULL)
-{
+{	
     xmlTag("Gate", attrs=c("gating:id"=id), children=translateGate(gate,
                                             transforms, gres))
 } 
@@ -374,6 +379,13 @@ xmlPolygonGateWin <- function(gate, tf)
     dims <- lapply(parameters(gate), xmlDimensionNode)
     verts <- apply(gate@boundaries, 1, xmlVertexNode)
     xmlTag("PolygonGate", namespace="gating", children=c(dims, verts))
+}
+
+xmlVertexNode <- function(xy)
+{
+  xmlTag("vertex", namespace="gating",
+    children=lapply(xy, function(x) xmlTag("coordinate", 
+    namespace="gating", attrs=list("data-type:value"=x))))
 }
 
 
@@ -477,14 +489,15 @@ xmlParameterWin <- function(...) NULL
 ## can be the input to the xmlSampleList constructor.
 createSample <- function(i, set, gates, transforms, system)
 {
+	
     kw <- xmlConst("Keywords", set[[i]], system=system)
     ds <- xmlConst("DataSet", set[[i]], i, system=system)
     parms <- pData(parameters(set[[i]]))
     pn <- if(system=="win") NULL else if(system=="mac")
         lapply(seq_len(nrow(parms)), function(j, p, system)
                xmlConst("Parameter", p[j,], system=system))
-    sn <- xmlConst("SampleNode", set[[i]], i, gates[[i]], transforms)
-    xmlConst("Sample", ds, kw, sn, pn)
+    sn <- xmlConst("SampleNode", set[[i]], i, gates[[i]], transforms,system=system)
+    xmlConst("Sample", ds, kw, sn, pn,system=system)
 }
 
 
@@ -504,10 +517,10 @@ createWorkspace <- function(set, outdir="flowJo", filename="workspace.wsp",
     ## We write our flowSet out as FCS files and read it back in to guarantee
     ## concordance with the keywords we write in the XML
     write.flowSet(set, outdir=outdir, what="integer")
-    set <- read.flowSet(path=outdir, phenoData="annotation.txt")
+    #set <- read.flowSet(path=outdir, phenoData="annotation.txt")
     ## Create the sample list from a flowSet and the gating structure object
     slist <- xmlConst("SampleList", lapply(1:length(set), createSample, set, gates, 
-                                           transforms), system=system)
+                                           transforms,system=system), system=system)
     wp <- xmlConst("WindowPosition", system=system)
     traits <- xmlConst("TextTraits", system=system)
     cols <- xmlConst("Columns", system=system)
@@ -629,9 +642,7 @@ wfToFlowJo <- function(wf, outdir="flowJo",
     {
         backTrans <- makeLinear(set[[1]], listOnly=TRUE)
         set <- fsApply(set, makeLinear)
-    }
-    else
-    {
+    }else{
         set <- transform(set, backTrans)
     }
     gates <- createGlist(wf, backTrans=backTrans)
@@ -641,7 +652,7 @@ wfToFlowJo <- function(wf, outdir="flowJo",
 
 
 translateGate <- function(gate, transformation, gres)
-{
+{   
     if(!is(gate, "parameterFilter") && !is(gate, "subsetFilter"))
         stop("We only know how to represent object inheriting from 'parameterFilter'",
              " in FlowJo.")
@@ -649,35 +660,33 @@ translateGate <- function(gate, transformation, gres)
     pars <- parameters(gate)   
     if(!all(pars %in% names(transformation)))
         stop("Transformation missing for gating parameter.")
+	
     switch(type,
-           ## FIXME: This is cheating
+		   ## FIXME: This is cheating
            "subsetFilter"={
-               ##xmlEllipsoidGateNode(flowViz:::norm2Ell(filterDetails(gres)[[2]],
-               ##parms=parameters(gate)), 
-               ##transformation)
-               xmlPolygonGateNode(flowViz:::norm2Polygon(filterDetails(gres)[[2]],
-                                                         parms=parameters(gate)), 
-                                  transformation)
-           },
+				# browser()           
+				# flt <- filterDetails(gres)
+				# lapply(flt,function(x){
+						# translateGate(x[[1]],transformation,gres)
+				# }
+				# gate <- flowViz:::norm2Polygon(filterDetails(gres)[[1]][[1]],parms=pars)
+				# xmlPolygonGateNode(gate,transformation,pars)				  
+           },                          
            "polygonGate"={
-               xmlPolygonGateNode(gate, transformation)
+				xmlPolygonGateNode(gate,transformation,pars)
+	
            },
            "rectangleGate"={
-               xmlRectangleGateNode(gate, transformation)
+			    xmlRectangleGateNode(gate,transformation,pars)
            },
            "ellipsoidGate"={
-               ##xmlEllipsoidGateNode(gate, transformation)
-               xmlPolygonGateNode(flowViz:::ell2Polygon(filterDetails(gres)[[1]],
-                                                        parms=parameters(gate)), 
-                                  transformation)
+			   gate <- flowViz:::ell2Polygon(filterDetails(gres)[[1]][[1]],parms=pars)
+               xmlPolygonGateNode(gate,transformation,pars)
+			
            },
            "norm2Filter"={
-               ##xmlEllipsoidGateNode(flowViz:::norm2Ell(filterDetails(gres)[[1]],
-               ##  parms=parameters(gate)), 
-               ##  transformation)
-               xmlPolygonGateNode(flowViz:::norm2Polygon(filterDetails(gres)[[1]],
-                                                         parms=parameters(gate)), 
-                                  transformation)
+			   gate <- flowViz:::norm2Polygon(filterDetails(gres)[[1]][[1]],parms=pars)
+               xmlPolygonGateNode(gate,transformation,pars)
            },
            "quadGate"={
            },
@@ -685,13 +694,46 @@ translateGate <- function(gate, transformation, gres)
            )
 }   
 
+xmlRectangleGateNode <- function(gate,transformation,pars){
+
+    gate@min <- sapply(pars,function(x){
+			as.vector(transformation[[x]](gate@min[x]))
+		})
+    gate@max <- sapply(pars,function(x){
+			as.vector(transformation[[x]](gate@max[x]))
+		})
+    dims <- lapply(parameters(gate),function(x)
+			xmlDimensionNode(parameter=x,min=gate@min[x], max=gate@max[x]))
+    xmlTag("RectangleGate", namespace="gating", children=dims)
+
+}
+
+xmlPolygonGateNode <- function(gate,transformation,pars){
+		for(p in pars)
+			gate@boundaries[,p] <- transformation[[p]](gate@boundaries[,p])
+		dims <- lapply(parameters(gate), xmlDimensionNode)
+		verts <- apply(gate@boundaries, 1, xmlVertexNode)
+		xmlTag("PolygonGate", namespace="gating", children=c(dims, verts))
+}
+
+## The dimension XML node. Basically the parameter name. For polygon gates there
+## need to be two of those.
+xmlDimensionNode <- function(parameter, min=NULL, max=NULL)
+{
+  xmlTag("dimension", namespace="gating", 
+    children=xmlTag("parameter", namespace="data-type", 
+      attrs=list("data-type:name"=parameter)), 
+      attrs=list("gating:min"=as.vector(min), 
+      "gating:max"=as.vector(max)))
+}
+
 
 ## The default attributes for all types of XML nodes needed for a FlowJo 
 ## workspace. NULL values are ignored. These are stored in inst/defaults.xml
 ## and new tags have to be added there.
 fjSettings <- function(type=c("win", "mac")) switch(match.arg(type),
-                       "win"=.fuEnv$winDefaults,
-                       "mac"=.fuEnv$macDefaults, stop("Unknown system!"))
+                       "win"=flowUtils:::.fuEnv$winDefaults,
+                       "mac"=flowUtils:::.fuEnv$macDefaults, stop("Unknown system!"))
 
 
 

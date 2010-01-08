@@ -1,7 +1,11 @@
 ## Parse the xml file containing the defaults for the respective FlowJo tags
+## Internal environment to store the parsed defaults
+
+.fuEnv <-  new.env(parent=emptyenv())
 .onLoad <- function(...)
-{
-    mdef <- xmlSApply(xmlTreeParse(system.file("defaults.xml",
+{	
+    
+     mdef <- xmlSApply(xmlTreeParse(system.file("defaults.xml",
                                               package="flowUtils"),
                                               addAttributeNamespaces=TRUE)[["doc"]][[1]][["macdefaults"]],
                      function(x)
@@ -18,6 +22,4 @@
 }
 
 
-## Internal environment to store the parsed defaults
-.fuEnv <-  new.env()
- 
+
