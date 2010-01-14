@@ -1,6 +1,43 @@
 export("read.gatingML","testGatingCompliance")
 
-import("flowCore")
-import("graph")
-import("XML")
-import("RUnit")
+
+importClassesFrom(flowCore, transformReference, unitytransform,
+                  workFlow)
+
+importClassesFrom(methods, ANY, list)
+
+importMethodsFrom(Biobase, description, exprs, pData, sampleNames,
+                  "sampleNames<-")
+
+importMethodsFrom(flowCore,action, assign, colnames,
+                  "colnames<-", Data, filter, filterDetails, fsApply,
+                  gate, get, head, identifier, keyword, "keyword<-",
+                  ncol, nrow, parameters, summary, toTable, transform,
+                  tree)
+
+importMethodsFrom(graph, adj, nodes)
+
+importMethodsFrom(methods, coerce)
+
+importMethodsFrom(XML, saveXML)
+
+importFrom(flowCore, asinht, compensatedParameter, compensation,
+           dg1polynomial, EHtrans, ellipsoidGate, exponential,
+           expressionFilter, flowFrame, hyperlog, invsplitscale,
+           logarithm, polygonGate, polytopeGate, quadratic, ratio,
+           rectangleGate, sinht, splitscale, squareroot,
+           transformReference, unitytransform, write.flowSet)
+
+importFrom(methods, "@<-", as, is, new, slot)
+
+importFrom(RUnit, checkTrue, defineTestSuite, printHTMLProtocol,
+           runTestSuite)
+
+importFrom(stats, approxfun, runif)
+
+importFrom(utils, localeToCharset)
+
+importFrom(XML, names.XMLNode, toString.XMLNode, xmlAttrs, xmlChildren,
+           xmlElementsByTagName, xmlGetAttr, xmlName, xmlNamespace,
+           xmlNode, xmlRoot, xmlSApply, xmlTreeParse)
+
