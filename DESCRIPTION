@@ -18,5 +18,5 @@ Collate: AllClasses.R
 	 workflow2FlowJo.R
 	 zzz.R
 License: Artistic-2.0
-biocViews:  Infrastructure, Flowcytometry, CellBasedAssays
+biocViews:  Infrastructure, FlowCytometry, CellBasedAssays
 
