@@ -28,7 +28,7 @@ importFrom(flowCore, asinht, compensatedParameter, compensation,
            rectangleGate, sinht, splitscale, squareroot,
            transformReference, unitytransform, write.flowSet)
 
-importFrom(methods, "@<-", as, is, new, slot)
+importFrom(methods, as, is, new, slot)
 
 importFrom(RUnit, checkTrue, defineTestSuite, printHTMLProtocol,
            runTestSuite)
