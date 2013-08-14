@@ -7,9 +7,10 @@
 }
 \description{
   This package includes functions to import Gates,transformations and 
-  compensations defined in compliance with Gating-ML Candidate recommendation
-  for Gating Description.(Version V 1.5) This package depends on the flowCore
-  package for methods to evaluate the gatingML files read into the workspace.
+  compensations defined in compliance with Gating-ML specification version 1.5 
+  and 2.0. This package depends on the flowCore package for methods to evaluate 
+  the gatingML files read into the workspace.
+  Note: Gating-ML 2.0 support in progress.
 }
 
 \details{
@@ -22,18 +23,18 @@ License: \tab Artistic\cr
 }
 
 The main features of this package provide compatability to the data
-standards defined by Gating-ML candidate recommendation for gating description
-in flow cytometry (Version 1.5).
+standards defined by the Gating-ML specification version 1.5 and 2.0.
 
 The package also includes a Test Suite, which allows the user to test whether 
 the implmentation of gates, trasnformations are in compliance with the 
-Gating-ML standard. 
+Gating-ML 1.5 standard. (At this point, Gating-ML 2.0 does not come with a
+similar test suite).
 
 }
 \author{
   Maintainer: Nishant Gopalakrishnan <ngopalak@fhcrc.org>
-  Authors: Gopalakrishnan N.,F. Hahne,B. Ellis, R. Gentleman,
-           M. Dalphin, N. Le Meur, B. Purcell,
+  Authors: N. Gopalakrishnan, F. Hahne, B. Ellis, R. Gentleman,
+           M. Dalphin, N. Le Meur, B. Purcell, J. Spidlen
 }
 
 

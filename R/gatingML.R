@@ -19,7 +19,7 @@ setMethod("parseGatingML","http...www.isac.net.org.std.Gating.ML.v1.5.gating_Gat
           function(object,flowEnv,...)
           {   
               flowEnv$MYidnum = 0
-          
+              flowEnv$GatingMLVersion = 1.5
         
         
               for (node in xmlChildren(object))
@@ -29,6 +29,19 @@ setMethod("parseGatingML","http...www.isac.net.org.std.Gating.ML.v1.5.gating_Gat
               
         }
       )
+
+setMethod("parseGatingML", "http...www.isac.net.org.std.Gating.ML.v2.0.gating_Gating.ML",
+          function(object, flowEnv, ...)
+          {
+              flowEnv$MYidnum = 0
+              flowEnv$GatingMLVersion = 2.0
+              for (node in xmlChildren(object))
+              {
+                  identifyNode(node, flowEnv);
+              }
+          }
+)
+
 
 read.gatingML = function(file,flowEnv,...)
 {       

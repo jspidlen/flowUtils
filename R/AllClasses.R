@@ -1,3 +1,53 @@
+setClass("http...www.isac.net.org.std.Gating.ML.v2.0.gating_Gating.ML",
+    representation=representation(),
+	  validity=function(object)
+		{
+        ;   
+    }
+)
+
+setClass("http...www.isac.net.org.std.Gating.ML.v2.0.gating_PolygonGate",
+    representation=representation(),
+    validity=function(object)
+    {
+        ;   
+    }
+)
+
+setClass("http...www.isac.net.org.std.Gating.ML.v2.0.gating_dimension",
+    representation=representation(),
+    validity=function(object)
+    {
+        ;
+    }
+)
+
+setClass("http...www.isac.net.org.std.Gating.ML.v2.0.datatypes_parameter",
+    representation=representation(),
+    validity=function(object)
+    {
+        ;
+    }
+)
+			
+setClass("http...www.isac.net.org.std.Gating.ML.v2.0.gating_vertex",
+    representation=representation(),
+    validity=function(object)
+    {
+        ;   
+    }
+)
+
+setClass("http...www.isac.net.org.std.Gating.ML.v2.0.transformations_transformation",
+    representation=representation(),
+    validity=function(object)
+    {
+        ;
+    }
+)
+
+
+
 
 setClass("http...www.isac.net.org.std.Gating.ML.v1.5.gating_Gating.ML",
           representation=representation(),
