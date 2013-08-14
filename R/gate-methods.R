@@ -1,11 +1,40 @@
 
 setGeneric("identifyNode",
-            def=function(object,flowEnv,...) standardGeneric("identifyNode"),
-	    useAsDefault=function(object,flowEnv,...)
-			 {
-                               stop("Not a supported Node in GatingML format")
-                         }
-          )
+           def=function(object,flowEnv,...) standardGeneric("identifyNode"),
+           useAsDefault=function(object,flowEnv,...)
+           {
+               stop(paste("Not a supported node in GatingML format:", paste(object, collapse = ", "), sep = " "))
+           }
+)
+
+
+setMethod("identifyNode",
+          "http...www.isac.net.org.std.Gating.ML.v2.0.gating_PolygonGate",
+          function(object, flowEnv, ...)
+          {	
+              gateId=(xmlGetAttr(object,"id",genid(flowEnv)))
+              parentId=(xmlGetAttr(object,"parent_id","NULL"))
+              dimensionList= xmlElementsByTagName(object,"dimension")
+              len=length(dimensionList)	
+              transformationList<-getTransformationList(dimensionList,flowEnv)
+              vertexList=xmlElementsByTagName(object,"vertex")
+              len=length(vertexList)
+              vertexLimits=matrix(nrow=len,ncol=length(dimensionList))
+              for (i in seq(len)) vertexLimits[i,]=getParameters(vertexList[[i]]) 
+              filt=polygonGate(filterId=gateId,.gate=vertexLimits,transformationList)				
+
+              if(parentId=="NULL")
+              {
+                  flowEnv[[as.character(gateId)]]=filt
+              }
+              else
+              {
+                  temp=new("filterReference",name=parentId,env=flowEnv,filterId="NULL")
+                  flowEnv[[as.character(gateId)]]=new("subsetFilter",filters=list(filt,temp),filterId=gateId)    
+              }
+          }
+)
+
 
 setMethod("identifyNode",
 	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_and",

@@ -2,11 +2,27 @@ setGeneric("getParameters",
 	    def=function(object,...) standardGeneric("getParameters"),
 	    useAsDefault=function(object,...)
 			 {
-				 stop("Not a supported Parameter node in
-				       GatingML 1.5 format")
-
+				 stop("Not a supported Parameter node in GatingML 1.5 or 2.0 format")
 			 }
 	  )
+
+setMethod("getParameters",
+	  "http...www.isac.net.org.std.Gating.ML.v2.0.gating_vertex",
+   	 function(object,...)
+	   {   
+         as.numeric(sapply(xmlChildren(object),xmlGetAttr,"value"))
+     }
+)
+
+setMethod("getParameters",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.datatypes_parameter",
+	  function(object,...)
+    {
+      xmlGetAttr(object,"name") 	
+ 	  }
+)
+
+
 
 setMethod("getParameters",
           "http...www.isac.net.org.std.Gating.ML.v1.5.gating_dimension",

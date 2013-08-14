@@ -1,3 +1,24 @@
+setMethod("identifyNode", "http...www.isac.net.org.std.Gating.ML.v2.0.transformations_transformation",
+          function(object,flowEnv,...)
+          {
+            transName=sapply(xmlChildren(object), xmlName)
+            dispatchGatingML2Transform(transName, object, flowEnv)
+          }
+)
+
+dispatchGatingML2Transform <- function(transName, node, flowEnv)
+{
+    temp = switch(transName,
+                "fasinh" = fasinh(node, flowEnv)
+                )
+
+    name=as.character(slot(temp,"transformationId"))
+    flowEnv[[name]]=temp
+    temp
+}
+
+
+
 setMethod("identifyNode","http...www.isac.net.org.std.Gating.ML.v1.5.transformations_transformation",
           function(object,flowEnv,...)
 	  {  
@@ -21,7 +42,7 @@ dispatchTransform<-function(transName,node,flowEnv)
                 "inverse-split-scale"=transInvSplitScale(node,flowEnv),
                 "compensation"=transCompensation(node,flowEnv),
                 "hyperlog"=transHyperLog(node,flowEnv),
-                "EH"=transEH(node,flowEnv)                  
+                "EH"=transEH(node,flowEnv)
                 )
 
     name=as.character(slot(temp,"transformationId"))
@@ -29,6 +50,30 @@ dispatchTransform<-function(transName,node,flowEnv)
     temp
                   
 }
+
+####################################################
+####--------- Gating-ML 2.0 transforms -------------
+####################################################
+
+####----------- fasinh transformation --------------
+fasinh <- function(node, flowEnv)
+{       
+    transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
+    coefficientList = xmlElementsByTagName(node, "fasinh", recursive=FALSE)
+    T = sapply(coefficientList, xmlGetAttr, "T")
+    M = sapply(coefficientList, xmlGetAttr, "M")
+    A = sapply(coefficientList, xmlGetAttr, "A")
+    # parameters<-getParameterList(node,0,flowEnv)   
+    # sinh^{-1}(a*parameter)*b
+    # TODO
+    return(asinht(a=as.numeric(1),b=as.numeric(1),transformationId=transformationId))
+}
+
+
+
+####################################################
+####--------- Gating-ML 1.5 transforms -------------
+####################################################
 
 ####----------Degree n polynomial ------------------
 

@@ -12,6 +12,7 @@ getTransformationList<-function(dimensionList,flowEnv)
                               dispatchTransform(transName,subNodes,flowEnv)
                              },
             "parameter"=unitytransform(xmlGetAttr(subNodes,"name")),
+            "fcs-dimension"=unitytransform(xmlGetAttr(subNodes,"name")), # TODO Gating-ML 2.0, transformations work differently
             "transformationReference"=transformReference(referenceId=as.character(xmlGetAttr(subNodes,"ref")),flowEnv)
                    ) 
         transformationList[[len]]=temp
