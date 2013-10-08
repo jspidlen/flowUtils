@@ -35,6 +35,33 @@ setMethod("identifyNode",
           }
 )
 
+setMethod("identifyNode",
+          "http...www.isac.net.org.std.Gating.ML.v2.0.gating_RectangleGate",
+		  function(object,flowEnv,...)
+		  {   
+            gateId = (xmlGetAttr(object, "id", genid(flowEnv)))
+            parentId = (xmlGetAttr(object, "parent_id", "NULL"))
+            dimensionList = xmlElementsByTagName(object, "dimension")
+            len = length(dimensionList)
+            gateLimits = matrix(nrow=2, ncol=len)
+            for (i in seq(len)) 
+            {
+              gateLimits[,i] = getParameters(dimensionList[[i]]) 
+			}
+			transformationList <- getTransformationList(dimensionList, flowEnv)
+			filt = rectangleGate(filterId=gateId, .gate=gateLimits, transformationList)
+			if(parentId=="NULL")
+            {
+              flowEnv[[as.character(gateId)]]=filt
+            }
+            else
+            {		
+                temp=new("filterReference", name=parentId, env=flowEnv, filterId="NULL")
+                flowEnv[[as.character(gateId)]]=new("subsetFilter", filters=list(filt, temp), filterId=gateId)
+            }
+          }
+)
+
 
 setMethod("identifyNode",
 	  "http...www.isac.net.org.std.Gating.ML.v1.5.gating_and",
