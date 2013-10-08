@@ -22,7 +22,14 @@ setMethod("getParameters",
  	  }
 )
 
-
+setMethod(
+    "getParameters",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_dimension",
+    function(object,...)
+    {     
+        c(xmlGetAttr(object, "min", default=-Inf, as.numeric), xmlGetAttr(object, "max", default=Inf, as.numeric)) 	
+    }
+)
 
 setMethod("getParameters",
           "http...www.isac.net.org.std.Gating.ML.v1.5.gating_dimension",
