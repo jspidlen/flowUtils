@@ -1,10 +1,9 @@
-
-getTransformationList<-function(dimensionList,flowEnv)
+getTransformationList <- function(dimensionList, flowEnv)
 {  
     len=length(dimensionList)
     transformationList=list()
     while(len>0)
-    {	
+    {    
         subNodes=xmlChildren(dimensionList[[len]])[[1]]
         temp=switch(names.XMLNode(dimensionList[[len]]),
             "transformation"={
@@ -21,7 +20,55 @@ getTransformationList<-function(dimensionList,flowEnv)
     return(transformationList)
 }
 
+# TODO: This should be done properly
+getTransformationListForQuadrantGate <- function(quadrant, dividers, flowEnv) 
+{
+    len <- length(quadrant)
+    transformationList <- list()
+    while(len > 0)
+    {   
+		name <- names(quadrant)[[len]]
+		parameterName <- dividers[[name]][[length(dividers[[name]])]]
+        transformationList[[len]] <- unitytransform(parameterName)
+        len <- len-1
+    }
+    return(transformationList)
+}
 
+getElementValueAsNumeric <- function(element)
+{
+    # This is ugly but it just extracts a numeric value of an element, 
+    # i.e., <value>500</value> --> 500
+    as.numeric((as.character((xmlChildren(element))[['text']]))[[6]])
+}
+
+getBounds <- function(value, name, dividers)
+{
+#   cat("\nValue: ")
+#   cat(paste(value, collapse=", "))
+#   cat("\nName: ")
+#   cat(paste(name, collapse=", "))
+#   cat("\nDividers: ")
+#   cat(paste(dividers[[name]], collapse=", "))
+#   cat("\n")
+    
+    lowerBound = -Inf
+    upperBound = +Inf
+    for (i in seq(length(dividers[[name]])-1))
+    {
+        if (dividers[[name]][[i]] < value) lowerBound = dividers[[name]][[i]] 
+    }
+    for (i in (length(dividers[[name]])-1):1)
+    {
+        if (dividers[[name]][[i]] > value) upperBound = dividers[[name]][[i]] 
+    }
+    
+#   cat(paste("LowerBound: ", lowerBound, "\n", sep="")) 
+#   cat(paste("UpperBound: ", upperBound, "\n", sep=""))
+    
+    c(lowerBound, upperBound)
+}
+    
 getParameterList<-function(node,type,flowEnv)
 {   parameters=list()
     nodeNames=names.XMLNode(node[[1]])
@@ -49,7 +96,7 @@ getParameterList<-function(node,type,flowEnv)
 }
 
 getSide = function(g,side) 
-	{       
+    {       
           leaf = paste("http...www.isac.net.org.std.Gating.ML.v1.5.gating_leaf",side,sep="")
           node = paste("http...www.isac.net.org.std.Gating.ML.v1.5.gating_node",side,sep="")
           VAL=xmlElementsByTagName(g,paste("leaf",side,sep=""))
@@ -59,7 +106,7 @@ getSide = function(g,side)
             if(length(VAL)==0) stop(paste(leaf,"or",node,"is required at all levels of a decision tree."))
           }
           VAL[[1]]
-	}
+    }
             
 makeCall = function(param,thres,LT,GTE) 
         {       
@@ -85,7 +132,7 @@ decisionHelper = function(g,...)
       if(is(LT,"http...www.isac.net.org.std.Gating.ML.v1.5.gating_leafLT"))
       {       
               LT  = if(xmlGetAttr(LT,"inside")=="true") TRUE else FALSE 
-      }	
+      }    
       else
       {
               LT  = decisionHelper(LT)
@@ -95,7 +142,7 @@ decisionHelper = function(g,...)
               GTE = if(xmlGetAttr(GTE,"inside")=="true") TRUE else FALSE 
       }
       else 
-      {	
+      {    
               GTE = decisionHelper(GTE)
       }
       
@@ -104,7 +151,7 @@ decisionHelper = function(g,...)
 }            
 
 
-	
+    
 smartTreeParse = function(file,...) 
 {
   handlers = list(comment=function(x,...)

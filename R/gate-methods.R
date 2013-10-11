@@ -38,7 +38,7 @@ setMethod(
 setMethod(
     "identifyNode",
     "http...www.isac.net.org.std.Gating.ML.v2.0.gating_RectangleGate",
-    function(object,flowEnv,...)
+    function(object, flowEnv, ...)
     {   
         gateId = (xmlGetAttr(object, "id", genid(flowEnv)))
         parentId = (xmlGetAttr(object, "parent_id", "NULL"))
@@ -51,9 +51,9 @@ setMethod(
         }
         transformationList <- getTransformationList(dimensionList, flowEnv)
         filt = rectangleGate(filterId=gateId, .gate=gateLimits, transformationList)
-        if(parentId == "NULL")
+        if (parentId == "NULL")
         {
-            flowEnv[[as.character(gateId)]]=filt
+            flowEnv[[as.character(gateId)]] = filt
         }
         else
         {
@@ -95,6 +95,61 @@ setMethod(
         }
     }
 ) 
+
+setMethod(
+    "identifyNode",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_QuadrantGate",
+    function(object, flowEnv, ...)
+    {   
+        gateId = (xmlGetAttr(object, "id", genid(flowEnv)))
+        parentId = (xmlGetAttr(object, "parent_id", "NULL"))
+
+        dividerList = xmlElementsByTagName(object, "divider")
+        dividers <- list()
+        for (i in seq(length(dividerList)))
+        {
+            dividerValues <- list()
+            fcsDimension = xmlElementsByTagName(dividerList[[i]], "fcs-dimension")
+            name = xmlGetAttr(fcsDimension[[1]], "name")
+            dividerId = (xmlGetAttr(dividerList[[i]], "id", genid(flowEnv)))
+            values = xmlElementsByTagName(dividerList[[i]], "value")
+            for (j in seq(length(values)))
+            {
+                dividerValues[[j]] = getElementValueAsNumeric(values[[j]]) 
+            }
+            dividerValues[[j + 1]] = as.character(name)
+            dividers[[as.character(dividerId)]] = dividerValues
+        }
+        
+        quadrantList = xmlElementsByTagName(object, "Quadrant")
+        for (i in seq(length(quadrantList)))
+        {
+            quadrant <- getParameters(quadrantList[[i]])
+            quadrantId = (xmlGetAttr(quadrantList[[i]], "id", genid(flowEnv)))
+            
+            len = length(quadrant)
+            gateLimits = matrix(nrow=2, ncol=len)
+            for (i in seq(len)) 
+            {
+                gateLimits[,i] = getBounds(quadrant[[i]], names(quadrant)[[i]], dividers)
+            }
+            
+            transformationList <- getTransformationListForQuadrantGate(quadrant, dividers, flowEnv)
+            filt = rectangleGate(filterId=gateId, .gate=gateLimits, transformationList)
+            
+            if (parentId == "NULL")
+            {
+                flowEnv[[paste(as.character(gateId), as.character(quadrantId), sep=".")]] = filt
+            }
+            else
+            {
+                temp = new("filterReference", name=parentId, env=flowEnv, filterId="NULL")
+                flowEnv[[as.character(gateId)]] = new("subsetFilter", filters=list(filt, temp), filterId=gateId)
+            }
+        }    
+        
+    }
+)
 
 
 setMethod(
@@ -147,7 +202,7 @@ setMethod(
         {
             stop("Not element should have only one operand")
         }
-	    new("complementFilter", filterId="", filters=parameters)
+      new("complementFilter", filterId="", filters=parameters)
     }
 )
 
@@ -174,12 +229,12 @@ setMethod(
             flowEnv[[as.character(gateId)]] = filt
         }
         else
-		{
+    {
             temp = new("filterReference", name=parentId, env=flowEnv, filterId="NULL")
             flowEnv[[as.character(gateId)]] = new("subsetFilter", filters=list(filt, temp), filterId=gateId)
         }
     }
-) 
+)
 
 setMethod(
     "identifyNode",

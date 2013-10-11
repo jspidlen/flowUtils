@@ -63,6 +63,22 @@ setMethod(
 
 setMethod(
     "getParameters",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_Quadrant",
+    function(object, ...)
+    {   
+        ret <- list()
+        positionList = xmlElementsByTagName(object, "position")
+        for (i in seq(length(positionList)))
+        {
+            ret[[as.character(xmlGetAttr(positionList[[i]], "divider_ref"))]] <- as.numeric(xmlGetAttr(positionList[[i]], "location")) 
+        }
+        ret
+    }
+)
+
+
+setMethod(
+    "getParameters",
     "http...www.isac.net.org.std.Gating.ML.v1.5.gating_dimension",
     function(object, ...)
     {     
