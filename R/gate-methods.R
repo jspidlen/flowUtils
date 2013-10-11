@@ -135,11 +135,11 @@ setMethod(
             }
             
             transformationList <- getTransformationListForQuadrantGate(quadrant, dividers, flowEnv)
-            filt = rectangleGate(filterId=gateId, .gate=gateLimits, transformationList)
+            filt = rectangleGate(filterId=quadrantId, .gate=gateLimits, transformationList)
             
             if (parentId == "NULL")
             {
-                flowEnv[[paste(as.character(gateId), as.character(quadrantId), sep=".")]] = filt
+                flowEnv[[as.character(quadrantId)]] = filt
             }
             else
             {
@@ -151,6 +151,93 @@ setMethod(
     }
 )
 
+# TODO: look into why is the filterId slot left as NULL for Boolean gates, this is the case for
+# Gating-ML 1.5 so keeping it the same for Gating-ML 2.0 for now, but try to find out whether this
+# was purposely done so, it it is a bug? 
+setMethod(
+    "identifyNode",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_BooleanGate",
+    function(object, flowEnv, ...)
+    {  
+        gateId = (xmlGetAttr(object, "id", genid(flowEnv)))
+        parentId = (xmlGetAttr(object, "parent_id", "NULL"))
+        filt <- identifyNode(xmlChildren(object)[[1]], flowEnv)
+        if (parentId == "NULL")
+        {
+            flowEnv[[as.character(gateId)]] = filt
+        }
+        else
+        {
+            temp = new("filterReference", name=parentId, env=flowEnv, filterId="NULL")
+            flowEnv[[as.character(gateId)]] = new("subsetFilter", filters=list(filt, temp), filterId=gateId)
+        }
+    }
+)
+
+setMethod(
+    "identifyNode",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_gateReference",
+    function(object, flowEnv, ...)
+    {     
+        gateRefId = getParameters(object)
+        new("filterReference", name=gateRefId, env=flowEnv, filterId=gateRefId)
+    }
+)
+
+setMethod(
+    "identifyNode",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_and",
+    function(object, flowEnv, ...)
+    {
+        gateList = xmlChildren(object)
+        len = length(gateList)
+        parameters = list()
+        while (len > 0)
+        {   
+            parameters[[len]] = identifyNode(gateList[[len]], flowEnv)
+            len = len-1
+        }
+        new("intersectFilter", filterId="", filters=parameters)
+    }
+)
+
+setMethod(
+    "identifyNode",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_or",
+    function(object, flowEnv, ...)
+    {
+        gateList = xmlChildren(object)
+        len = length(gateList)
+        parameters = list()
+        while (len > 0)
+        {
+            parameters[[len]] = identifyNode(gateList[[len]], flowEnv)
+            len = len-1
+        }
+        new("unionFilter", filterId="", filters=parameters)
+    }
+)
+
+
+setMethod(
+    "identifyNode",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_not",
+    function(object, flowEnv, ...)
+    {
+        gateList = xmlChildren(object)
+        len = length(gateList)
+        parameters = list()
+        if (len == 1)
+        {
+            parameters[[len]] = identifyNode(gateList[[len]], flowEnv)
+        }
+        else
+        {
+            stop("Not element should have only one operand")
+        }
+        new("complementFilter", filterId="", filters=parameters)
+    }
+)
 
 setMethod(
     "identifyNode",
@@ -196,7 +283,7 @@ setMethod(
         parameters = list()
         if (len == 1)
         {
-            parameters[[len]]=identifyNode(gateList[[len]],flowEnv)
+            parameters[[len]] = identifyNode(gateList[[len]], flowEnv)
         }
         else
         {

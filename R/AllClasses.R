@@ -85,6 +85,36 @@ setClass(
     validity=function(object) {}
 )
 
+setClass(
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_BooleanGate",
+    representation=representation(),
+    validity=function(object) {}
+)
+
+setClass(
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_gateReference",
+    representation=representation(),
+    validity=function(object) {}
+)
+
+setClass(
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_and",
+    representation=representation(),
+    validity=function(object) {}
+)
+
+setClass(
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_or",
+    representation=representation(),
+    validity=function(object) {}
+)
+
+setClass(
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_not",
+    representation=representation(),
+    validity=function(object) {}
+)
+
 
 ## Gating-ML 1.5
 ################

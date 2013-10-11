@@ -76,6 +76,15 @@ setMethod(
     }
 )
 
+setMethod(
+    "getParameters",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.gating_gateReference",
+    function(object, ...)
+    {
+        refId = as.character(xmlGetAttr(object, "ref"))
+    }
+)
+
 
 setMethod(
     "getParameters",
