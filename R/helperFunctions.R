@@ -83,49 +83,53 @@ createOrUseGml2Transformation <- function(genericTransformationId, parameterName
         }
         else
         {
+			write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())
+			# TODO fix doc, we no longer do this.
+			
             # The generic transformation does not exists (it is probably defined later in the XML file)
             # -> We will same what transformation is needed in flowEnv[['transformationsToCreate']] and
             # then create all required applied transformations after the XML parsing is done.
-            if (exists('transformationsToCreate', envir=flowEnv)) transformationsToCreate <- flowEnv[['transformationsToCreate']]
-            else transformationsToCreate <- list()
-            if (is.null(transformationsToCreate[[genericTransformationId]])) transformationsToCreate[[genericTransformationId]] <- list()
-            transformationsToCreate[[genericTransformationId]][[parameterName]] <- parameterName
-            flowEnv[['transformationsToCreate']] <- transformationsToCreate
+			
+#            if (exists('transformationsToCreate', envir=flowEnv)) transformationsToCreate <- flowEnv[['transformationsToCreate']]
+#            else transformationsToCreate <- list()
+#            if (is.null(transformationsToCreate[[genericTransformationId]])) transformationsToCreate[[genericTransformationId]] <- list()
+#            transformationsToCreate[[genericTransformationId]][[parameterName]] <- parameterName
+#            flowEnv[['transformationsToCreate']] <- transformationsToCreate
         }
     }
     appliedName
 }
 
-createMissingAppliedTransforms <- function(flowEnv)
-{
-    if (exists('transformationsToCreate', envir=flowEnv))
-    {
-        for (genericTransformationId in names(flowEnv[['transformationsToCreate']]))
-        {
-            if (exists(genericTransformationId, envir=flowEnv))
-            {
-                for (parameterName in flowEnv[['transformationsToCreate']][[genericTransformationId]]) 
-                { 
-                    appliedName <- paste(genericTransformationId, parameterName, sep = ".")
-                    if (!exists(appliedName, envir=flowEnv))
-                    {
-                        # Create applied transformation based on the generic transformation by copying it and 
-                        # changing the FCS parameters and transformationId 
-                        appliedTransformation <- flowEnv[[genericTransformationId]]
-                        appliedTransformation@parameters = unitytransform(parameterName)
-                        appliedTransformation@transformationId = appliedName
-                        flowEnv[[appliedName]] <- appliedTransformation
-                    }
-                }
-            }
-            else
-            {
-                write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())    
-            }
-        }
-        rm('transformationsToCreate', envir=flowEnv)
-    }
-}
+#createMissingAppliedTransforms <- function(flowEnv)
+#{
+#    if (exists('transformationsToCreate', envir=flowEnv))
+#    {
+#        for (genericTransformationId in names(flowEnv[['transformationsToCreate']]))
+#        {
+#            if (exists(genericTransformationId, envir=flowEnv))
+#            {
+#                for (parameterName in flowEnv[['transformationsToCreate']][[genericTransformationId]]) 
+#                { 
+#                    appliedName <- paste(genericTransformationId, parameterName, sep = ".")
+#                    if (!exists(appliedName, envir=flowEnv))
+#                    {
+#                        # Create applied transformation based on the generic transformation by copying it and 
+#                        # changing the FCS parameters and transformationId 
+#                        appliedTransformation <- flowEnv[[genericTransformationId]]
+#                        appliedTransformation@parameters = unitytransform(parameterName)
+#                        appliedTransformation@transformationId = appliedName
+#                        flowEnv[[appliedName]] <- appliedTransformation
+#                    }
+#                }
+#            }
+#            else
+#            {
+#                write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())    
+#            }
+#        }
+#        rm('transformationsToCreate', envir=flowEnv)
+#    }
+#}
 
 # TODO: This should be done properly
 getTransformationListForQuadrantGate <- function(quadrant, dividers, flowEnv) 
