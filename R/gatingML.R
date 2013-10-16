@@ -45,6 +45,21 @@ setMethod("parseGatingML", "http...www.isac.net.org.std.Gating.ML.v2.0.gating_Ga
 
 read.gatingML = function(file,flowEnv,...)
 {       
+    flowEnv[['.flowUtilsRead.GatingML.PassNo']] <- 1
     parseGatingML(xmlRoot(smartTreeParse(file,...)),flowEnv)
-    createMissingAppliedTransforms(flowEnv)
+    if (flowEnv[['GatingMLVersion']] == 2)
+    {
+        # Gating-ML 2.0 is parsed twice, gates are extracted at the
+        # second pass to make sure we have all the transformations already.
+        # This is since transformations are being reused for different FCS 
+        # parameters and creating "placeholders" caused issues with ellipse gates 
+        # (unable to find an inherited method for function ‘parameters’ for signature ‘"NULL"’)
+        flowEnv[['.flowUtilsRead.GatingML.PassNo']] <- 2
+        parseGatingML(xmlRoot(smartTreeParse(file,...)),flowEnv)
+    }
+
+    rm('.flowUtilsRead.GatingML.PassNo', envir=flowEnv)
+
+    # This is no longer done since we do a two pass parsing of Gating-ML 2.0
+    # createMissingAppliedTransforms(flowEnv)
 }
