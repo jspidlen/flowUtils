@@ -17,7 +17,114 @@ getTransformationList <- function(dimensionList, flowEnv)
         transformationList[[len]]=temp
         len=len-1
     }
+    
     return(transformationList)
+}
+
+getTransformationListGml2 <- function(dimensionList, flowEnv)
+{
+    len = length(dimensionList)
+    transformationRefs = list()
+    while (len > 0)
+    {
+        temp = xmlGetAttr(dimensionList[[len]], "transformation-ref")
+        if (is.null(temp)) transformationRefs[[len]] = "unitytransform" 
+        # Don't want to assign null to make sure the length of this list is right and the indexes match
+        else transformationRefs[[len]] = temp
+        len = len - 1
+    }
+    
+    len = length(dimensionList)
+    transformationList = list()
+    while (len > 0)
+    {   
+        if (transformationRefs[[len]] == "unitytransform")
+        {
+            subNodes = xmlChildren(dimensionList[[len]])[[1]]
+            temp = switch(names.XMLNode(dimensionList[[len]]),
+                "fcs-dimension" = 
+                {
+                    unitytransform(xmlGetAttr(subNodes, "name"))
+                },
+                "new-dimension" = unitytransform("TODO") #TODO
+            )
+        }
+        else
+        {
+            subNodes = xmlChildren(dimensionList[[len]])[[1]]
+            temp = switch(names.XMLNode(dimensionList[[len]]),
+                "fcs-dimension" = {
+                    newId = createOrUseGml2Transformation(transformationRefs[[len]], xmlGetAttr(subNodes,"name"), flowEnv)
+                    transformReference(referenceId=newId, flowEnv)
+                },
+                "new-dimension" = unitytransform("TODO") #TODO
+            )
+        }
+        transformationList[[len]]=temp
+        len=len-1
+    }
+    
+    return(transformationList)
+}
+
+createOrUseGml2Transformation <- function(genericTransformationId, parameterName, flowEnv)
+{
+    appliedName <- paste(genericTransformationId, parameterName, sep = ".")
+    if (!exists(appliedName, envir=flowEnv))
+    {
+        if (exists(genericTransformationId, envir=flowEnv))
+        {
+            # The generic transformation exists -> we will a transformation
+            # applied to the specific FCS parameter based on the generic transformation
+            appliedTransformation <- flowEnv[[genericTransformationId]]
+            appliedTransformation@parameters = unitytransform(parameterName)
+            appliedTransformation@transformationId = appliedName
+            flowEnv[[appliedName]] <- appliedTransformation
+        }
+        else
+        {
+            # The generic transformation does not exists (it is probably defined later in the XML file)
+            # -> We will same what transformation is needed in flowEnv[['transformationsToCreate']] and
+            # then create all required applied transformations after the XML parsing is done.
+            if (exists('transformationsToCreate', envir=flowEnv)) transformationsToCreate <- flowEnv[['transformationsToCreate']]
+            else transformationsToCreate <- list()
+            if (is.null(transformationsToCreate[[genericTransformationId]])) transformationsToCreate[[genericTransformationId]] <- list()
+            transformationsToCreate[[genericTransformationId]][[parameterName]] <- parameterName
+            flowEnv[['transformationsToCreate']] <- transformationsToCreate
+        }
+    }
+    appliedName
+}
+
+createMissingAppliedTransforms <- function(flowEnv)
+{
+    if (exists('transformationsToCreate', envir=flowEnv))
+    {
+        for (genericTransformationId in names(flowEnv[['transformationsToCreate']]))
+        {
+            if (exists(genericTransformationId, envir=flowEnv))
+            {
+                for (parameterName in flowEnv[['transformationsToCreate']][[genericTransformationId]]) 
+                { 
+                    appliedName <- paste(genericTransformationId, parameterName, sep = ".")
+                    if (!exists(appliedName, envir=flowEnv))
+                    {
+                        # Create applied transformation based on the generic transformation by copying it and 
+                        # changing the FCS parameters and transformationId 
+                        appliedTransformation <- flowEnv[[genericTransformationId]]
+                        appliedTransformation@parameters = unitytransform(parameterName)
+                        appliedTransformation@transformationId = appliedName
+                        flowEnv[[appliedName]] <- appliedTransformation
+                    }
+                }
+            }
+            else
+            {
+                write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())    
+            }
+        }
+        rm('transformationsToCreate', envir=flowEnv)
+    }
 }
 
 # TODO: This should be done properly
@@ -27,8 +134,8 @@ getTransformationListForQuadrantGate <- function(quadrant, dividers, flowEnv)
     transformationList <- list()
     while(len > 0)
     {   
-		name <- names(quadrant)[[len]]
-		parameterName <- dividers[[name]][[length(dividers[[name]])]]
+        name <- names(quadrant)[[len]]
+        parameterName <- dividers[[name]][[length(dividers[[name]])]]
         transformationList[[len]] <- unitytransform(parameterName)
         len <- len-1
     }
@@ -44,14 +151,6 @@ getElementValueAsNumeric <- function(element)
 
 getBounds <- function(value, name, dividers)
 {
-#   cat("\nValue: ")
-#   cat(paste(value, collapse=", "))
-#   cat("\nName: ")
-#   cat(paste(name, collapse=", "))
-#   cat("\nDividers: ")
-#   cat(paste(dividers[[name]], collapse=", "))
-#   cat("\n")
-    
     lowerBound = -Inf
     upperBound = +Inf
     for (i in seq(length(dividers[[name]])-1))
@@ -62,10 +161,6 @@ getBounds <- function(value, name, dividers)
     {
         if (dividers[[name]][[i]] > value) upperBound = dividers[[name]][[i]] 
     }
-    
-#   cat(paste("LowerBound: ", lowerBound, "\n", sep="")) 
-#   cat(paste("UpperBound: ", upperBound, "\n", sep=""))
-    
     c(lowerBound, upperBound)
 }
     

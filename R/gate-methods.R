@@ -16,7 +16,7 @@ setMethod(
         parentId = (xmlGetAttr(object, "parent_id", "NULL"))
         dimensionList= xmlElementsByTagName(object, "dimension")
         len = length(dimensionList)
-        transformationList <- getTransformationList(dimensionList, flowEnv)
+        transformationList <- getTransformationListGml2(dimensionList, flowEnv)
         vertexList = xmlElementsByTagName(object, "vertex")
         len = length(vertexList)
         vertexLimits = matrix(nrow=len, ncol=length(dimensionList))
@@ -96,6 +96,7 @@ setMethod(
     }
 ) 
 
+# TODO Look into flowCore's Quad gate, which could possibly be used in case this quadrant is 2x2
 setMethod(
     "identifyNode",
     "http...www.isac.net.org.std.Gating.ML.v2.0.gating_QuadrantGate",
