@@ -45,6 +45,6 @@ setMethod("parseGatingML", "http...www.isac.net.org.std.Gating.ML.v2.0.gating_Ga
 
 read.gatingML = function(file,flowEnv,...)
 {       
-	 parseGatingML(xmlRoot(smartTreeParse(file,...)),flowEnv)
-        
+    parseGatingML(xmlRoot(smartTreeParse(file,...)),flowEnv)
+    createMissingAppliedTransforms(flowEnv)
 }

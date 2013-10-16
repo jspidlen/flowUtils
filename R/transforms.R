@@ -60,13 +60,17 @@ fasinh <- function(node, flowEnv)
 {       
     transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
     coefficientList = xmlElementsByTagName(node, "fasinh", recursive=FALSE)
-    T = sapply(coefficientList, xmlGetAttr, "T")
-    M = sapply(coefficientList, xmlGetAttr, "M")
-    A = sapply(coefficientList, xmlGetAttr, "A")
-    # parameters<-getParameterList(node,0,flowEnv)   
-    # sinh^{-1}(a*parameter)*b
-    # TODO
-    return(asinht(a=as.numeric(1),b=as.numeric(1),transformationId=transformationId))
+    pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use
+    pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
+    pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # method fail...
+
+    # Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
+    # "placeholder" transformation with parameters = "any" and later on, when a transformation is 
+    # actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
+    # fill out the parameters accodingly.
+	
+    return(asinhtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+        A = as.numeric(pA), transformationId = transformationId))
 }
 
 
