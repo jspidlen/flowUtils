@@ -25,12 +25,18 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
 {
     len = length(dimensionList)
     transformationRefs = list()
+	compensationRefs = list()
     while (len > 0)
     {
         temp = xmlGetAttr(dimensionList[[len]], "transformation-ref")
         if (is.null(temp)) transformationRefs[[len]] = "unitytransform" 
         # Don't want to assign null to make sure the length of this list is right and the indexes match
         else transformationRefs[[len]] = temp
+		
+		temp = xmlGetAttr(dimensionList[[len]], "compensation-ref")
+		if (is.null(temp)) compensationRefs[[len]] = "FCS"
+		else compensationRefs[[len]] = temp
+
         len = len - 1
     }
     
@@ -44,7 +50,22 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
             temp = switch(names.XMLNode(dimensionList[[len]]),
                 "fcs-dimension" = 
                 {
-                    unitytransform(xmlGetAttr(subNodes, "name"))
+					parName = xmlGetAttr(subNodes, "name")
+					# TODO for FCS-based compensation and uncompensated parameters
+					if (compensationRefs[[len]] == "FCS") unitytransform(parName)
+					else if (compensationRefs[[len]] == "uncompensated") unitytransform(parName)
+					else 
+					{
+						if (exists(parName, envir=flowEnv) 
+							&& class(flowEnv[[parName]])[1] == "compensatedParameter" 
+							&& flowEnv[[parName]]@spillRefId == compensationRefs[[len]])
+						flowEnv[[parName]]
+						else 
+						{
+							write(paste("Failed to use spillover/spectrum matrix ", compensationRefs[[len]], " for compensated parameter ", parName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
+							unitytransform(parName)
+						}
+					}
                 },
                 "new-dimension" = unitytransform("TODO") #TODO
             )
@@ -53,8 +74,9 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
         {
             subNodes = xmlChildren(dimensionList[[len]])[[1]]
             temp = switch(names.XMLNode(dimensionList[[len]]),
+				# TODO Support compensation together with other trasforms!
                 "fcs-dimension" = {
-                    newId = createOrUseGml2Transformation(transformationRefs[[len]], xmlGetAttr(subNodes,"name"), flowEnv)
+                    newId = createOrUseGml2Transformation(transformationRefs[[len]], xmlGetAttr(subNodes, "name"), flowEnv)
                     transformReference(referenceId=newId, flowEnv)
                 },
                 "new-dimension" = unitytransform("TODO") #TODO

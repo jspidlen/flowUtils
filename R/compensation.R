@@ -46,9 +46,22 @@ setMethod(
         {
             spillMatrix = matrix(coefficients, ncol=length(detectors), byrow=TRUE)
             colnames(spillMatrix) = sapply(detectors, getParameters)
-			rownames(spillMatrix) = sapply(fluorochromes, getParameters)
-            flowEnv[[as.character(transformationId)]] =
-                compensation(spillover=spillMatrix, compensationId=as.character(transformationId), detectors)
-	    }
+            rownames(spillMatrix) = sapply(fluorochromes, getParameters)
+            spillId = as.character(transformationId) 
+            flowEnv[[spillId]] = compensation(spillover=spillMatrix, compensationId=spillId, detectors)
+            
+            len = length(fluorochromes)
+            while (len > 0)
+            {
+                compPar = compensatedParameter(
+                    parameters=as.character(detectors[[len]]@parameters),
+                    spillRefId=spillId,
+                    transformationId=as.character(fluorochromes[[len]]@parameters),
+                    searchEnv=flowEnv
+                )
+                flowEnv[[as.character(fluorochromes[[len]]@parameters)]] = compPar
+                len = len - 1
+            }
+        }
     }
 )
