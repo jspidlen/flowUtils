@@ -194,6 +194,38 @@ getParameterList<-function(node,type,flowEnv)
     return(parameters)
 }
 
+getFluorochromeList<-function(node,flowEnv)
+{   parameters=list()
+	nodeNames=names.XMLNode(node[[1]])
+	len=length(nodeNames)
+	subNodes=xmlChildren(node[[1]])
+	
+	for (i in seq(len))
+	{
+		temp=switch(nodeNames[i],
+				"fcs-dimension"=unitytransform(xmlGetAttr(subNodes[[i]],"name"))
+		) 
+		parameters[[i]]=temp
+	}
+	return(parameters)
+}
+
+getDetectorList<-function(node,flowEnv)
+{   parameters=list()
+	nodeNames=names.XMLNode(node[[2]])
+	len=length(nodeNames)
+	subNodes=xmlChildren(node[[2]])
+	
+	for (i in seq(len))
+	{
+		temp=switch(nodeNames[i],
+				"fcs-dimension"=unitytransform(xmlGetAttr(subNodes[[i]],"name"))
+		) 
+		parameters[[i]]=temp
+	}
+	return(parameters)
+}
+
 getSide = function(g,side) 
     {       
           leaf = paste("http...www.isac.net.org.std.Gating.ML.v1.5.gating_leaf",side,sep="")
