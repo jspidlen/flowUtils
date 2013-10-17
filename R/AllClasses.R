@@ -115,6 +115,18 @@ setClass(
     validity=function(object) {}
 )
 
+setClass(
+    "http...www.isac.net.org.std.Gating.ML.v2.0.transformations_spectrumMatrix",
+    representation=representation(),
+    validity=function(object) {}
+)
+
+setClass(
+    "http...www.isac.net.org.std.Gating.ML.v2.0.transformations_coefficient",
+    representation=representation(),
+    validity=function(object) {}
+)
+
 
 ## Gating-ML 1.5
 ################

@@ -85,6 +85,14 @@ setMethod(
     }
 )
 
+setMethod(
+    "getParameters",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.transformations_coefficient",
+    function(object, ...)
+    {      
+        as.numeric(xmlGetAttr(object, "value"))
+    }
+)
 
 setMethod(
     "getParameters",

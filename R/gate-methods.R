@@ -3,7 +3,7 @@ setGeneric(
     def=function(object, flowEnv, ...) standardGeneric("identifyNode"),
     useAsDefault=function(object, flowEnv, ...)
     {
-        stop(paste("Not a supported node in GatingML format:", paste(object, collapse = ", "), sep = " "))
+        stop(paste("Not a supported node in Gating-ML format:", paste(object, collapse = ", "), sep = " "))
     }
 )
 
