@@ -52,7 +52,15 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
                 {
 					parName = xmlGetAttr(subNodes, "name")
 					# TODO for FCS-based compensation and uncompensated parameters
-					if (compensationRefs[[len]] == "FCS") unitytransform(parName)
+					if (compensationRefs[[len]] == "FCS") 
+					{
+						compensatedParameter(
+							parameters=parName,
+							spillRefId="SpillFromFCS",
+							transformationId=paste(parName, "_compensated_according_to_FCS"),
+							searchEnv=flowEnv
+						)
+					}
 					else if (compensationRefs[[len]] == "uncompensated") unitytransform(parName)
 					else 
 					{
