@@ -51,7 +51,6 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
                 "fcs-dimension" = 
                 {
 					parName = xmlGetAttr(subNodes, "name")
-					# TODO for FCS-based compensation and uncompensated parameters
 					if (compensationRefs[[len]] == "FCS") 
 					{
 						compensatedParameter(
@@ -84,7 +83,7 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
             temp = switch(names.XMLNode(dimensionList[[len]]),
 				# TODO Support compensation together with other trasforms!
                 "fcs-dimension" = {
-                    newId = createOrUseGml2Transformation(transformationRefs[[len]], xmlGetAttr(subNodes, "name"), flowEnv)
+                    newId = createOrUseGml2Transformation(transformationRefs[[len]], compensationRefs[[len]], xmlGetAttr(subNodes, "name"), flowEnv)
                     transformReference(referenceId=newId, flowEnv)
                 },
                 "new-dimension" = unitytransform("TODO") #TODO
@@ -97,9 +96,9 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
     return(transformationList)
 }
 
-createOrUseGml2Transformation <- function(genericTransformationId, parameterName, flowEnv)
+createOrUseGml2Transformation <- function(genericTransformationId, compensationRef, parameterName, flowEnv)
 {
-    appliedName <- paste(genericTransformationId, parameterName, sep = ".")
+    appliedName <- paste(genericTransformationId, compensationRef, parameterName, sep = ".")
     if (!exists(appliedName, envir=flowEnv))
     {
         if (exists(genericTransformationId, envir=flowEnv))
@@ -107,24 +106,36 @@ createOrUseGml2Transformation <- function(genericTransformationId, parameterName
             # The generic transformation exists -> we will a transformation
             # applied to the specific FCS parameter based on the generic transformation
             appliedTransformation <- flowEnv[[genericTransformationId]]
-            appliedTransformation@parameters = unitytransform(parameterName)
-            appliedTransformation@transformationId = appliedName
+			
+			if (compensationRef == "FCS") 
+			{
+				tempParameter = compensatedParameter(
+						parameters=parameterName,
+						spillRefId="SpillFromFCS",
+						transformationId=paste(parameterName, "_compensated_according_to_FCS"),
+						searchEnv=flowEnv
+				)
+			}
+			else if (compensationRef == "uncompensated") tempParameter <- unitytransform(parameterName)
+			else 
+			{
+				if (exists(parameterName, envir=flowEnv) 
+						&& class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
+						&& flowEnv[[parameterName]]@spillRefId == compensationRef)
+					tempParameter = flowEnv[[parameterName]]
+				else 
+				{
+					write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
+					tempParameter = unitytransform(parameterName)
+				}
+			}
+			appliedTransformation@parameters = tempParameter
+			appliedTransformation@transformationId = appliedName
             flowEnv[[appliedName]] <- appliedTransformation
         }
         else
         {
 			write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())
-			# TODO fix doc, we no longer do this.
-			
-            # The generic transformation does not exists (it is probably defined later in the XML file)
-            # -> We will same what transformation is needed in flowEnv[['transformationsToCreate']] and
-            # then create all required applied transformations after the XML parsing is done.
-			
-#            if (exists('transformationsToCreate', envir=flowEnv)) transformationsToCreate <- flowEnv[['transformationsToCreate']]
-#            else transformationsToCreate <- list()
-#            if (is.null(transformationsToCreate[[genericTransformationId]])) transformationsToCreate[[genericTransformationId]] <- list()
-#            transformationsToCreate[[genericTransformationId]][[parameterName]] <- parameterName
-#            flowEnv[['transformationsToCreate']] <- transformationsToCreate
         }
     }
     appliedName
