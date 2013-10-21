@@ -174,6 +174,7 @@ setMethod(
             filt <- identifyNode(xmlChildren(object)[[1]], flowEnv)
             if (parentId == "NULL")
             {
+                filt@filterId = as.character(gateId)
                 flowEnv[[as.character(gateId)]] = filt
             }
             else
