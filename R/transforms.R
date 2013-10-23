@@ -1,9 +1,12 @@
 setMethod("identifyNode", "http...www.isac.net.org.std.Gating.ML.v2.0.transformations_transformation",
-          function(object,flowEnv,...)
-          {
+    function(object,flowEnv,...)
+    {
+        if (flowEnv[['.flowUtilsRead.GatingML.PassNo']] == 1)
+		{
             transName=sapply(xmlChildren(object), xmlName)
             dispatchGatingML2Transform(transName, object, flowEnv)
-          }
+		}
+    }
 )
 
 dispatchGatingML2Transform <- function(transName, node, flowEnv)
