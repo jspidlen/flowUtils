@@ -41,3 +41,4 @@ importFrom(XML, names.XMLNode, toString.XMLNode, xmlAttrs, xmlChildren,
            xmlElementsByTagName, xmlGetAttr, xmlName, xmlNamespace,
            xmlNode, xmlRoot, xmlSApply, xmlTreeParse)
 
+importFrom(corpcor, pseudoinverse)

@@ -36,12 +36,24 @@ setMethod(
         if (flowEnv[['.flowUtilsRead.GatingML.PassNo']] == 1)
         {
             transformationId = (xmlGetAttr(object, "id", genid(flowEnv)))
+            invertedAlready = (xmlGetAttr(object, "matrix-inverted-already", "false")) 
+            invertedAlready = (invertedAlready == "true" || invertedAlready == "1")
             tempCoeff = xmlElementsByTagName(object, "coefficient", recursive=TRUE)
             coefficients = as.numeric(sapply(tempCoeff, getParameters))
             fluorochromes = getFluorochromeList(object, flowEnv)
             detectors = getDetectorList(object, flowEnv)
 
-            spillMatrix = matrix(coefficients, ncol=length(detectors), byrow=TRUE)
+            if (invertedAlready)
+            {
+                # If the matrix has been inverted already, we will invert it back and
+                # always just store the non-inverted spillover/spectrum matrix.
+                spillMatrix = matrix(coefficients, ncol=length(fluorochromes), byrow=TRUE)
+                spillMatrix = pseudoinverse(spillMatrix)
+            }
+            else
+            {
+                spillMatrix = matrix(coefficients, ncol=length(detectors), byrow=TRUE)
+            }
             colnames(spillMatrix) = sapply(detectors, getParameters)
             rownames(spillMatrix) = sapply(fluorochromes, getParameters)
             spillId = as.character(transformationId) 
@@ -59,6 +71,6 @@ setMethod(
                 flowEnv[[as.character(fluorochromes[[len]]@parameters)]] = compPar
                 len = len - 1
             }
-	    }
+        }
     }
 )
