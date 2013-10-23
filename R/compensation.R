@@ -33,35 +33,38 @@ setMethod(
     "http...www.isac.net.org.std.Gating.ML.v2.0.transformations_spectrumMatrix",
     function(object, flowEnv, ...)
     {
-        transformationId = (xmlGetAttr(object, "id", genid(flowEnv)))
-        tempCoeff = xmlElementsByTagName(object, "coefficient", recursive=TRUE)
-        coefficients = as.numeric(sapply(tempCoeff, getParameters))
-        fluorochromes = getFluorochromeList(object, flowEnv)
-        detectors = getDetectorList(object, flowEnv)
-        if (length(fluorochromes) != length(detectors))
+        if (flowEnv[['.flowUtilsRead.GatingML.PassNo']] == 1)
         {
-            write(paste("Only square spillover (spectrum) matrices are currently supported. Matrix ", transformationId, " cannot be used.\n", sep=""), stderr())
-        }
-        else
-        {
-            spillMatrix = matrix(coefficients, ncol=length(detectors), byrow=TRUE)
-            colnames(spillMatrix) = sapply(detectors, getParameters)
-            rownames(spillMatrix) = sapply(fluorochromes, getParameters)
-            spillId = as.character(transformationId) 
-            flowEnv[[spillId]] = compensation(spillover=spillMatrix, compensationId=spillId, detectors)
-            
-            len = length(fluorochromes)
-            while (len > 0)
+            transformationId = (xmlGetAttr(object, "id", genid(flowEnv)))
+            tempCoeff = xmlElementsByTagName(object, "coefficient", recursive=TRUE)
+            coefficients = as.numeric(sapply(tempCoeff, getParameters))
+            fluorochromes = getFluorochromeList(object, flowEnv)
+            detectors = getDetectorList(object, flowEnv)
+            if (length(fluorochromes) != length(detectors))
             {
-                compPar = compensatedParameter(
-                    parameters=as.character(detectors[[len]]@parameters),
-                    spillRefId=spillId,
-                    transformationId=as.character(fluorochromes[[len]]@parameters),
-                    searchEnv=flowEnv
-                )
-                flowEnv[[as.character(fluorochromes[[len]]@parameters)]] = compPar
-                len = len - 1
+                write(paste("Only square spillover (spectrum) matrices are currently supported. Matrix ", transformationId, " cannot be used.\n", sep=""), stderr())
             }
-        }
+            else
+            {
+                spillMatrix = matrix(coefficients, ncol=length(detectors), byrow=TRUE)
+                colnames(spillMatrix) = sapply(detectors, getParameters)
+                rownames(spillMatrix) = sapply(fluorochromes, getParameters)
+                spillId = as.character(transformationId) 
+                flowEnv[[spillId]] = compensation(spillover=spillMatrix, compensationId=spillId, detectors)
+
+                len = length(fluorochromes)
+                while (len > 0)
+                {
+                    compPar = compensatedParameter(
+                        parameters=as.character(detectors[[len]]@parameters),
+                        spillRefId=spillId,
+                        transformationId=as.character(fluorochromes[[len]]@parameters),
+                        searchEnv=flowEnv
+                    )
+                    flowEnv[[as.character(fluorochromes[[len]]@parameters)]] = compPar
+                    len = len - 1
+                }
+            }
+	    }
     }
 )
