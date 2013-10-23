@@ -9,7 +9,8 @@ setMethod("identifyNode", "http...www.isac.net.org.std.Gating.ML.v2.0.transforma
 dispatchGatingML2Transform <- function(transName, node, flowEnv)
 {
     temp = switch(transName,
-                "fasinh" = fasinh(node, flowEnv)
+                "fasinh" = fasinh(node, flowEnv),
+				"flin" = flin(node, flowEnv)
                 )
 
     name=as.character(slot(temp,"transformationId"))
@@ -71,6 +72,23 @@ fasinh <- function(node, flowEnv)
 	
     return(asinhtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
         A = as.numeric(pA), transformationId = transformationId))
+}
+
+####----------- fasinh transformation --------------
+flin <- function(node, flowEnv)
+{       
+    transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
+    coefficientList = xmlElementsByTagName(node, "flin", recursive=FALSE)
+    pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use defaults
+    pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # here or just let the method fail...
+
+    # Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
+    # "placeholder" transformation with parameters = "any" and later on, when a transformation is 
+    # actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
+    # fill out the parameters accodingly.
+
+    return(lintGml2(parameters = "any", T = as.numeric(pT), A = as.numeric(pA), 
+        transformationId = transformationId))
 }
 
 
