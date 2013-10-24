@@ -105,7 +105,13 @@ setMethod(
     }
 ) 
 
-# TODO Look into flowCore's Quad gate, which could possibly be used in case this quadrant is 2x2
+# J. Spidlen, Oct 23, 2013:
+# It seems that flowCore's Quad gate will not work for this easily since we want to
+# have custom identifiers of these quads and want to be able to reference these
+# as parent populations or Boolean gate arguments. Also, it doesn't seem to be 
+# possible to use the quadGate on top of compensated or scaled parameters (since
+# the constructor is taking parameter names and not transformations). So we are
+# simply creating n-dimensional rectangle gates for all the Quads from here.
 setMethod(
     "identifyNode",
     "http...www.isac.net.org.std.Gating.ML.v2.0.gating_QuadrantGate",
@@ -117,12 +123,16 @@ setMethod(
             parentId = (xmlGetAttr(object, "parent_id", "NULL"))
             dividerList = xmlElementsByTagName(object, "divider")
             dividers <- list()
+            transformations <- list()
+            compensations <- list()
             for (i in seq(length(dividerList)))
             {
                 dividerValues <- list()
                 fcsDimension = xmlElementsByTagName(dividerList[[i]], "fcs-dimension")
                 name = xmlGetAttr(fcsDimension[[1]], "name")
                 dividerId = (xmlGetAttr(dividerList[[i]], "id", genid(flowEnv)))
+                transformationRef = (xmlGetAttr(dividerList[[i]], "transformation-ref", "unitytransform"))
+                compensationRef = (xmlGetAttr(dividerList[[i]], "compensation-ref", "FCS"))
                 values = xmlElementsByTagName(dividerList[[i]], "value")
                 for (j in seq(length(values)))
                 {
@@ -130,6 +140,8 @@ setMethod(
                 }
                 dividerValues[[j + 1]] = as.character(name)
                 dividers[[as.character(dividerId)]] = dividerValues
+                transformations[[as.character(dividerId)]] = transformationRef
+                compensations[[as.character(dividerId)]] = compensationRef
             }
         
             quadrantList = xmlElementsByTagName(object, "Quadrant")
@@ -143,7 +155,7 @@ setMethod(
                 {
                     gateLimits[,i] = getBounds(quadrant[[i]], names(quadrant)[[i]], dividers)
                 }
-                transformationList <- getTransformationListForQuadrantGate(quadrant, dividers, flowEnv)
+                transformationList <- getTransformationListForQuadrantGate(quadrant, dividers, transformations, compensations, flowEnv)
                 filt = rectangleGate(filterId=quadrantId, .gate=gateLimits, transformationList)
                 if (parentId == "NULL")
                 {
