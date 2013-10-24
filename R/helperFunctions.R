@@ -25,17 +25,17 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
 {
     len = length(dimensionList)
     transformationRefs = list()
-	compensationRefs = list()
+    compensationRefs = list()
     while (len > 0)
     {
         temp = xmlGetAttr(dimensionList[[len]], "transformation-ref")
         if (is.null(temp)) transformationRefs[[len]] = "unitytransform" 
         # Don't want to assign null to make sure the length of this list is right and the indexes match
         else transformationRefs[[len]] = temp
-		
-		temp = xmlGetAttr(dimensionList[[len]], "compensation-ref")
-		if (is.null(temp)) compensationRefs[[len]] = "FCS"
-		else compensationRefs[[len]] = temp
+
+        temp = xmlGetAttr(dimensionList[[len]], "compensation-ref")
+        if (is.null(temp)) compensationRefs[[len]] = "FCS"
+        else compensationRefs[[len]] = temp
 
         len = len - 1
     }
@@ -50,29 +50,29 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
             temp = switch(names.XMLNode(dimensionList[[len]]),
                 "fcs-dimension" = 
                 {
-					parName = xmlGetAttr(subNodes, "name")
-					if (compensationRefs[[len]] == "FCS") 
-					{
-						compensatedParameter(
-							parameters=parName,
-							spillRefId="SpillFromFCS",
-							transformationId=paste(parName, "_compensated_according_to_FCS"),
-							searchEnv=flowEnv
-						)
-					}
-					else if (compensationRefs[[len]] == "uncompensated") unitytransform(parName)
-					else 
-					{
-						if (exists(parName, envir=flowEnv) 
-							&& class(flowEnv[[parName]])[1] == "compensatedParameter" 
-							&& flowEnv[[parName]]@spillRefId == compensationRefs[[len]])
-						flowEnv[[parName]]
-						else 
-						{
-							write(paste("Failed to use spillover/spectrum matrix ", compensationRefs[[len]], " for compensated parameter ", parName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
-							unitytransform(parName)
-						}
-					}
+                    parName = xmlGetAttr(subNodes, "name")
+                    if (compensationRefs[[len]] == "FCS") 
+                    {
+                        compensatedParameter(
+                            parameters=parName,
+                            spillRefId="SpillFromFCS",
+                            transformationId=paste(parName, "_compensated_according_to_FCS"),
+                            searchEnv=flowEnv
+                        )
+                    }
+                    else if (compensationRefs[[len]] == "uncompensated") unitytransform(parName)
+                    else 
+                    {
+                        if (exists(parName, envir=flowEnv) 
+                            && class(flowEnv[[parName]])[1] == "compensatedParameter" 
+                            && flowEnv[[parName]]@spillRefId == compensationRefs[[len]])
+                        flowEnv[[parName]]
+                        else 
+                        {
+                            write(paste("Failed to use spillover/spectrum matrix ", compensationRefs[[len]], " for compensated parameter ", parName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
+                            unitytransform(parName)
+                        }
+                    }
                 },
                 "new-dimension" = unitytransform("TODO") #TODO
             )
@@ -81,7 +81,6 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
         {
             subNodes = xmlChildren(dimensionList[[len]])[[1]]
             temp = switch(names.XMLNode(dimensionList[[len]]),
-				# TODO Support compensation together with other trasforms!
                 "fcs-dimension" = {
                     newId = createOrUseGml2Transformation(transformationRefs[[len]], compensationRefs[[len]], xmlGetAttr(subNodes, "name"), flowEnv)
                     transformReference(referenceId=newId, flowEnv)
@@ -93,7 +92,7 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
         len=len-1
     }
     
-    return(transformationList)
+    transformationList
 }
 
 createOrUseGml2Transformation <- function(genericTransformationId, compensationRef, parameterName, flowEnv)
@@ -106,85 +105,86 @@ createOrUseGml2Transformation <- function(genericTransformationId, compensationR
             # The generic transformation exists -> we will a transformation
             # applied to the specific FCS parameter based on the generic transformation
             appliedTransformation <- flowEnv[[genericTransformationId]]
-			
-			if (compensationRef == "FCS") 
-			{
-				tempParameter = compensatedParameter(
-						parameters=parameterName,
-						spillRefId="SpillFromFCS",
-						transformationId=paste(parameterName, "_compensated_according_to_FCS"),
-						searchEnv=flowEnv
-				)
-			}
-			else if (compensationRef == "uncompensated") tempParameter <- unitytransform(parameterName)
-			else 
-			{
-				if (exists(parameterName, envir=flowEnv) 
-						&& class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
-						&& flowEnv[[parameterName]]@spillRefId == compensationRef)
-					tempParameter = flowEnv[[parameterName]]
-				else 
-				{
-					write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
-					tempParameter = unitytransform(parameterName)
-				}
-			}
-			appliedTransformation@parameters = tempParameter
-			appliedTransformation@transformationId = appliedName
+
+            if (compensationRef == "FCS") 
+            {
+                tempParameter = compensatedParameter(
+                    parameters=parameterName,
+                    spillRefId="SpillFromFCS",
+                    transformationId=paste(parameterName, "_compensated_according_to_FCS"),
+                    searchEnv=flowEnv)
+            }
+            else if (compensationRef == "uncompensated") tempParameter <- unitytransform(parameterName)
+            else 
+            {
+                if (exists(parameterName, envir=flowEnv) 
+                    && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
+                    && flowEnv[[parameterName]]@spillRefId == compensationRef)
+                    tempParameter = flowEnv[[parameterName]]
+                else 
+                {
+                    write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
+                    tempParameter = unitytransform(parameterName)
+                }
+            }
+            appliedTransformation@parameters = tempParameter
+            appliedTransformation@transformationId = appliedName
             flowEnv[[appliedName]] <- appliedTransformation
         }
         else
         {
-			write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())
+            write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())
         }
     }
     appliedName
 }
 
-#createMissingAppliedTransforms <- function(flowEnv)
-#{
-#    if (exists('transformationsToCreate', envir=flowEnv))
-#    {
-#        for (genericTransformationId in names(flowEnv[['transformationsToCreate']]))
-#        {
-#            if (exists(genericTransformationId, envir=flowEnv))
-#            {
-#                for (parameterName in flowEnv[['transformationsToCreate']][[genericTransformationId]]) 
-#                { 
-#                    appliedName <- paste(genericTransformationId, parameterName, sep = ".")
-#                    if (!exists(appliedName, envir=flowEnv))
-#                    {
-#                        # Create applied transformation based on the generic transformation by copying it and 
-#                        # changing the FCS parameters and transformationId 
-#                        appliedTransformation <- flowEnv[[genericTransformationId]]
-#                        appliedTransformation@parameters = unitytransform(parameterName)
-#                        appliedTransformation@transformationId = appliedName
-#                        flowEnv[[appliedName]] <- appliedTransformation
-#                    }
-#                }
-#            }
-#            else
-#            {
-#                write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())    
-#            }
-#        }
-#        rm('transformationsToCreate', envir=flowEnv)
-#    }
-#}
-
-# TODO: This should be done properly
-getTransformationListForQuadrantGate <- function(quadrant, dividers, flowEnv) 
+getTransformationListForQuadrantGate <- function(quadrant, dividers, transformations, compensations, flowEnv) 
 {
     len <- length(quadrant)
     transformationList <- list()
+
     while(len > 0)
     {   
         name <- names(quadrant)[[len]]
         parameterName <- dividers[[name]][[length(dividers[[name]])]]
-        transformationList[[len]] <- unitytransform(parameterName)
+        transformationRef <- transformations[[name]]
+        compensationRef <- compensations[[name]]
+
+        if (transformationRef == "unitytransform")
+        {
+            if (compensationRef == "FCS") 
+            {
+                transformationList[[len]] <- compensatedParameter(
+                    parameters=parameterName,
+                    spillRefId="SpillFromFCS",
+                    transformationId=paste(parName, "_compensated_according_to_FCS"),
+                    searchEnv=flowEnv)
+            }
+            else if (compensationRef == "uncompensated") transformationList[[len]] <- unitytransform(parameterName)
+            else 
+            {
+                if (exists(parameterName, envir=flowEnv) 
+                    && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
+                    && flowEnv[[parameterName]]@spillRefId == compensationRef)
+                    transformationList[[len]] <- flowEnv[[parameterName]]
+                else 
+                {
+                    write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
+                    transformationList[[len]] <- unitytransform(parameterName)
+                }
+            }
+        }
+        else
+        {
+            newId = createOrUseGml2Transformation(transformationRef, compensationRef, parameterName, flowEnv)
+            transformationList[[len]] <- transformReference(referenceId=newId, flowEnv)
+        }
+
         len <- len-1
     }
-    return(transformationList)
+
+    transformationList
 }
 
 getElementValueAsNumeric <- function(element)
@@ -235,36 +235,38 @@ getParameterList<-function(node,type,flowEnv)
     return(parameters)
 }
 
-getFluorochromeList<-function(node,flowEnv)
-{   parameters=list()
-	nodeNames=names.XMLNode(node[[1]])
-	len=length(nodeNames)
-	subNodes=xmlChildren(node[[1]])
-	
-	for (i in seq(len))
-	{
-		temp=switch(nodeNames[i],
-				"fcs-dimension"=unitytransform(xmlGetAttr(subNodes[[i]],"name"))
-		) 
-		parameters[[i]]=temp
-	}
-	return(parameters)
+getFluorochromeList<-function(node, flowEnv)
+{   
+    parameters=list()
+    nodeNames=names.XMLNode(node[[1]])
+    len=length(nodeNames)
+    subNodes=xmlChildren(node[[1]])
+
+    for (i in seq(len))
+    {
+        temp=switch(nodeNames[i],
+            "fcs-dimension"=unitytransform(xmlGetAttr(subNodes[[i]], "name"))
+        ) 
+        parameters[[i]]=temp
+    }
+    return(parameters)
 }
 
-getDetectorList<-function(node,flowEnv)
-{   parameters=list()
-	nodeNames=names.XMLNode(node[[2]])
-	len=length(nodeNames)
-	subNodes=xmlChildren(node[[2]])
-	
-	for (i in seq(len))
-	{
-		temp=switch(nodeNames[i],
-				"fcs-dimension"=unitytransform(xmlGetAttr(subNodes[[i]],"name"))
-		) 
-		parameters[[i]]=temp
-	}
-	return(parameters)
+getDetectorList<-function(node, flowEnv)
+{   
+    parameters=list()
+    nodeNames=names.XMLNode(node[[2]])
+    len=length(nodeNames)
+    subNodes=xmlChildren(node[[2]])
+
+    for (i in seq(len))
+    {
+        temp=switch(nodeNames[i],
+            "fcs-dimension"=unitytransform(xmlGetAttr(subNodes[[i]],"name"))
+        ) 
+        parameters[[i]]=temp
+    }
+    return(parameters)
 }
 
 getSide = function(g,side) 
