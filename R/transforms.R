@@ -13,7 +13,8 @@ dispatchGatingML2Transform <- function(transName, node, flowEnv)
 {
     temp = switch(transName,
                 "fasinh" = fasinh(node, flowEnv),
-				"flin" = flin(node, flowEnv)
+				"flin" = flin(node, flowEnv),
+				"flog" = flog(node, flowEnv)
                 )
 
     name=as.character(slot(temp,"transformationId"))
@@ -94,6 +95,22 @@ flin <- function(node, flowEnv)
         transformationId = transformationId))
 }
 
+####----------- fasinh transformation --------------
+flog <- function(node, flowEnv)
+{       
+	transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
+	coefficientList = xmlElementsByTagName(node, "flog", recursive=FALSE)
+	pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use defaults
+	pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # here or just let the method fail...
+	
+	# Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
+	# "placeholder" transformation with parameters = "any" and later on, when a transformation is 
+	# actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
+	# fill out the parameters accodingly.
+	
+	return(logtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+					transformationId = transformationId))
+}
 
 
 ####################################################
