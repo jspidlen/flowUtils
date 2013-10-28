@@ -13,8 +13,9 @@ dispatchGatingML2Transform <- function(transName, node, flowEnv)
 {
     temp = switch(transName,
                 "fasinh" = fasinh(node, flowEnv),
-				"flin" = flin(node, flowEnv),
-				"flog" = flog(node, flowEnv)
+                "flin" = flin(node, flowEnv),
+                "flog" = flog(node, flowEnv),
+                "logicle" = logicle(node, flowEnv)
                 )
 
     name=as.character(slot(temp,"transformationId"))
@@ -110,6 +111,24 @@ flog <- function(node, flowEnv)
 	
 	return(logtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
 					transformationId = transformationId))
+}
+
+logicle <- function(node, flowEnv)
+{       
+    transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
+    coefficientList = xmlElementsByTagName(node, "logicle", recursive=FALSE)
+    pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use
+    pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
+    pW = sapply(coefficientList, xmlGetAttr, "W", default=0.5)    # method fail...
+    pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
+
+    # Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
+    # "placeholder" transformation with parameters = "any" and later on, when a transformation is 
+    # actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
+    # fill out the parameters accodingly.
+
+    return(logicletGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
 }
 
 
