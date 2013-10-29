@@ -12,10 +12,11 @@ setMethod("identifyNode", "http...www.isac.net.org.std.Gating.ML.v2.0.transforma
 dispatchGatingML2Transform <- function(transName, node, flowEnv)
 {
     temp = switch(transName,
-                "fasinh" = fasinh(node, flowEnv),
-                "flin" = flin(node, flowEnv),
-                "flog" = flog(node, flowEnv),
-                "logicle" = logicle(node, flowEnv)
+                "fasinh" = fasinhTr(node, flowEnv),
+                "flin" = flinTr(node, flowEnv),
+                "flog" = flogTr(node, flowEnv),
+                "logicle" = logicleTr(node, flowEnv),
+				"hyperlog" = hyperlogTr(node, flowEnv)
                 )
 
     name=as.character(slot(temp,"transformationId"))
@@ -61,59 +62,49 @@ dispatchTransform<-function(transName,node,flowEnv)
 ####--------- Gating-ML 2.0 transforms -------------
 ####################################################
 
+# NOTE TO ALL Gating-ML 2.0 scale transforms:
+# *******************************************
+# Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
+# "placeholder" transformation with parameters = "any" and later on, when a transformation is 
+# actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
+# fill out the parameters accodingly.
+
 ####----------- fasinh transformation --------------
-fasinh <- function(node, flowEnv)
+fasinhTr <- function(node, flowEnv)
 {       
     transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
     coefficientList = xmlElementsByTagName(node, "fasinh", recursive=FALSE)
     pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use
     pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # method fail...
-
-    # Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
-    # "placeholder" transformation with parameters = "any" and later on, when a transformation is 
-    # actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
-    # fill out the parameters accodingly.
-	
     return(asinhtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
         A = as.numeric(pA), transformationId = transformationId))
 }
 
-####----------- fasinh transformation --------------
-flin <- function(node, flowEnv)
+####----------- flin transformation --------------
+flinTr <- function(node, flowEnv)
 {       
     transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
     coefficientList = xmlElementsByTagName(node, "flin", recursive=FALSE)
     pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use defaults
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # here or just let the method fail...
-
-    # Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
-    # "placeholder" transformation with parameters = "any" and later on, when a transformation is 
-    # actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
-    # fill out the parameters accodingly.
-
     return(lintGml2(parameters = "any", T = as.numeric(pT), A = as.numeric(pA), 
         transformationId = transformationId))
 }
 
-####----------- fasinh transformation --------------
-flog <- function(node, flowEnv)
+####----------- flog transformation --------------
+flogTr <- function(node, flowEnv)
 {       
 	transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
 	coefficientList = xmlElementsByTagName(node, "flog", recursive=FALSE)
 	pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use defaults
 	pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # here or just let the method fail...
-	
-	# Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
-	# "placeholder" transformation with parameters = "any" and later on, when a transformation is 
-	# actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
-	# fill out the parameters accodingly.
-	
 	return(logtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
 					transformationId = transformationId))
 }
 
-logicle <- function(node, flowEnv)
+####----------- Logicle transformation --------------
+logicleTr <- function(node, flowEnv)
 {       
     transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
     coefficientList = xmlElementsByTagName(node, "logicle", recursive=FALSE)
@@ -121,16 +112,22 @@ logicle <- function(node, flowEnv)
     pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
     pW = sapply(coefficientList, xmlGetAttr, "W", default=0.5)    # method fail...
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
-
-    # Gating-ML 2.0 transforms are defined as applicable to any FCS parameters, so we will create one
-    # "placeholder" transformation with parameters = "any" and later on, when a transformation is 
-    # actually needed (i.e., paired with FCS parameters), then we will "copy" this transformation and
-    # fill out the parameters accodingly.
-
     return(logicletGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
         W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
 }
 
+####----------- Hyperlog transformation --------------
+hyperlogTr <- function(node, flowEnv)
+{       
+	transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
+	coefficientList = xmlElementsByTagName(node, "hyperlog", recursive=FALSE)
+	pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use
+	pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
+	pW = sapply(coefficientList, xmlGetAttr, "W", default=0.5)    # method fail...
+	pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
+	return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+					W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
+}
 
 ####################################################
 ####--------- Gating-ML 1.5 transforms -------------
