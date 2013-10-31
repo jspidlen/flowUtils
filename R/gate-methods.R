@@ -171,9 +171,6 @@ setMethod(
     }
 )
 
-# TODO: look into why is the filterId slot left as NULL for Boolean gates, this is the case for
-# Gating-ML 1.5 so keeping it the same for Gating-ML 2.0 for now, but try to find out whether this
-# was purposely done so, it it is a bug? 
 setMethod(
     "identifyNode",
     "http...www.isac.net.org.std.Gating.ML.v2.0.gating_BooleanGate",

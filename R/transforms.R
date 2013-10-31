@@ -11,14 +11,15 @@ setMethod("identifyNode", "http...www.isac.net.org.std.Gating.ML.v2.0.transforma
 
 dispatchGatingML2Transform <- function(transName, node, flowEnv)
 {
+	if (length(transName) > 1) transName = transName[[1]]
     temp = switch(transName,
                 "fasinh" = fasinhTr(node, flowEnv),
                 "flin" = flinTr(node, flowEnv),
                 "flog" = flogTr(node, flowEnv),
                 "logicle" = logicleTr(node, flowEnv),
-				"hyperlog" = hyperlogTr(node, flowEnv)
+				"hyperlog" = hyperlogTr(node, flowEnv),
+                "fratio" = fratioTr(node, flowEnv)
                 )
-
     name=as.character(slot(temp,"transformationId"))
     flowEnv[[name]]=temp
     temp
@@ -127,6 +128,23 @@ hyperlogTr <- function(node, flowEnv)
 	pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
 	return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
 					W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
+}
+
+####----------- Ratio transformation --------------
+# Note that unlike the scale transformations above, the Gating-ML 2.0
+# ratio (fratio) transformation is not applicable on arbitrary parameters.
+# Instead, the parameters are specified when the transformation is defined.
+# Therefore, we don't need to do create the generic version with "any" parameters.
+fratioTr <- function(node, flowEnv)
+{
+    transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
+    coefficientList = xmlElementsByTagName(node, "fratio", recursive=FALSE)
+    pA = sapply(coefficientList, xmlGetAttr, "A", default=1) # It's questionable whether to use
+    pB = sapply(coefficientList, xmlGetAttr, "B", default=0) # defaults here or just let the
+    pC = sapply(coefficientList, xmlGetAttr, "C", default=0) # method fail...
+    parameters <- getGatingML2RatioParameterList(node, flowEnv)
+    ratiotGml2(numerator = parameters[[1]], denominator = parameters[[2]], pA = as.numeric(pA),
+        pB = as.numeric(pB), pC = as.numeric(pC), transformationId = transformationId)
 }
 
 ####################################################
