@@ -11,7 +11,7 @@ getTransformationList <- function(dimensionList, flowEnv)
                               dispatchTransform(transName,subNodes,flowEnv)
                              },
             "parameter"=unitytransform(xmlGetAttr(subNodes,"name")),
-            "fcs-dimension"=unitytransform(xmlGetAttr(subNodes,"name")), # TODO Gating-ML 2.0, transformations work differently
+            "fcs-dimension"=unitytransform(xmlGetAttr(subNodes,"name")),
             "transformationReference"=transformReference(referenceId=as.character(xmlGetAttr(subNodes,"ref")),flowEnv)
                    ) 
         transformationList[[len]]=temp
@@ -74,7 +74,11 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
                         }
                     }
                 },
-                "new-dimension" = unitytransform("TODO") #TODO
+                "new-dimension" =
+                {
+					newId = createOrUseGml2RatioTransformation(transformationRefs[[len]], compensationRefs[[len]], xmlGetAttr(subNodes, "transformation-ref"), flowEnv)
+					transformReference(referenceId=newId, flowEnv)
+                }
             )
         }
         else
@@ -85,7 +89,11 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
                     newId = createOrUseGml2Transformation(transformationRefs[[len]], compensationRefs[[len]], xmlGetAttr(subNodes, "name"), flowEnv)
                     transformReference(referenceId=newId, flowEnv)
                 },
-                "new-dimension" = unitytransform("TODO") #TODO
+                "new-dimension" = 
+                {
+                    newId = createOrUseGml2RatioTransformation(transformationRefs[[len]], compensationRefs[[len]], xmlGetAttr(subNodes, "transformation-ref"), flowEnv)
+                    transformReference(referenceId=newId, flowEnv)
+                }
             )
         }
         transformationList[[len]]=temp
@@ -100,44 +108,71 @@ createOrUseGml2Transformation <- function(genericTransformationId, compensationR
     appliedName <- paste(genericTransformationId, compensationRef, parameterName, sep = ".")
     if (!exists(appliedName, envir=flowEnv))
     {
-        if (exists(genericTransformationId, envir=flowEnv))
+        if (compensationRef == "FCS")
+            tempParameter = compensatedParameter(parameters=parameterName, spillRefId="SpillFromFCS", 
+                transformationId=paste(parameterName, "_compensated_according_to_FCS"), searchEnv=flowEnv)
+        else if (compensationRef == "uncompensated") tempParameter <- unitytransform(parameterName)
+        else 
         {
-            # The generic transformation exists -> we will a transformation
-            # applied to the specific FCS parameter based on the generic transformation
-            appliedTransformation <- flowEnv[[genericTransformationId]]
-
-            if (compensationRef == "FCS") 
-            {
-                tempParameter = compensatedParameter(
-                    parameters=parameterName,
-                    spillRefId="SpillFromFCS",
-                    transformationId=paste(parameterName, "_compensated_according_to_FCS"),
-                    searchEnv=flowEnv)
-            }
-            else if (compensationRef == "uncompensated") tempParameter <- unitytransform(parameterName)
+            if (exists(parameterName, envir=flowEnv) && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
+                && flowEnv[[parameterName]]@spillRefId == compensationRef)
+                tempParameter = flowEnv[[parameterName]]
             else 
             {
-                if (exists(parameterName, envir=flowEnv) 
-                    && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
-                    && flowEnv[[parameterName]]@spillRefId == compensationRef)
-                    tempParameter = flowEnv[[parameterName]]
-                else 
-                {
-                    write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
-                    tempParameter = unitytransform(parameterName)
-                }
+                write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, 
+                    ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
+                tempParameter = unitytransform(parameterName)
             }
-            appliedTransformation@parameters = tempParameter
-            appliedTransformation@transformationId = appliedName
-            flowEnv[[appliedName]] <- appliedTransformation
+        }
+
+        if (genericTransformationId == "unitytransform")
+        {
+            resultTransformation = tempParameter
+        }
+        else if (exists(genericTransformationId, envir=flowEnv))
+        {
+            resultTransformation <- flowEnv[[genericTransformationId]]
+            resultTransformation@parameters = tempParameter
+            resultTransformation@transformationId = appliedName
         }
         else
         {
-            write(paste("Failed to locate transformation ", genericTransformationId, ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", sep=""), stderr())
+            write(paste("Failed to locate transformation ", genericTransformationId, 
+                ". It seems that the transformation was not defined in the Gating-ML file. You won't be able to apply gates that are using this transformation.\n", 
+                sep=""), stderr())
+            resultTransformation = tempParameter
         }
+        flowEnv[[appliedName]] = resultTransformation
     }
     appliedName
 }
+
+
+createOrUseGml2RatioTransformation <- function(genericTransformationId, compensationRef, ratioTransformationRef, flowEnv)
+{
+    if (genericTransformationId == "unitytransform" && compensationRef == "uncompensated") 
+        ratioTransformationRef
+    else
+    {
+        myRatioTr <- flowEnv[[ratioTransformationRef]]
+        numeratorName <- myRatioTr@numerator@parameters
+        denominatorName <- myRatioTr@denominator@parameters
+        fullRatioTransformationRef <- paste(genericTransformationId, compensationRef, ratioTransformationRef, sep = ".")
+        if (exists(fullRatioTransformationRef, envir=flowEnv))
+            fullRatioTransformationRef
+        else
+        {
+            fullNumeratorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, numeratorName, flowEnv)
+            fullDenominatorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, denominatorName, flowEnv)
+            appliedRatioTr <- myRatioTr
+            appliedRatioTr@numerator <- flowEnv[[fullNumeratorName]]
+            appliedRatioTr@denominator <- flowEnv[[fullDenominatorName]]
+            flowEnv[[fullRatioTransformationRef]] <- appliedRatioTr
+            fullRatioTransformationRef
+        }
+    }
+}
+
 
 getTransformationListForQuadrantGate <- function(quadrant, dividers, transformations, compensations, flowEnv) 
 {
@@ -233,6 +268,43 @@ getParameterList<-function(node,type,flowEnv)
         parameters[[i]]=temp
     }
     return(parameters)
+}
+
+# Note that there is a typo in examples 45,46, and 47 in the Gating-ML 2.0 (Version 2.0 – 2013-01-22) PDF
+# Therefore, this function is made to be able to parse the fratio transformation with fcs-dimension
+# elements being either childern of "fratio", or childern of the parent "transformation" element.
+# So we can parse parameters from either this
+# <transforms:transformation transforms:id="myRatio">
+#   <transforms:fratio transforms:A="5" transforms:B="1" transforms:C="2">
+#     <data-type:custom_info>Custom info may be part of any transformation definition.</data-type:custom_info>
+#     <data-type:fcs-dimension data-type:name="PE-A" />
+#     <data-type:fcs-dimension data-type:name="APC-A" />
+#   </transforms:fratio>
+# </transforms:transformation>
+# or this
+# <transforms:transformation transforms:id="myRatio">
+#   <transforms:fratio transforms:A="5" transforms:B="1" transforms:C="2" />
+#   <data-type:custom_info>Custom info may be part of any transformation definition.</data-type:custom_info>
+#   <data-type:fcs-dimension data-type:name="PE-A" />
+#   <data-type:fcs-dimension data-type:name="APC-A" />
+# </transforms:transformation>
+# (the custom info element is always optional) 
+getGatingML2RatioParameterList <- function(node, flowEnv)
+{
+    parameters = list()
+    if (length(node) == 1) 
+        node = xmlChildren(node[[1]])
+    len = length(node)
+    if (len < 2 || len > 4)
+    {
+        stop("Failed to parse ratio tranformation. It seems that it wasn't defined properly in the Gating-ML file.\n")
+    } 
+    else
+    {
+        parameters[[1]] = unitytransform(xmlGetAttr(node[[len-1]], "name"))
+        parameters[[2]] = unitytransform(xmlGetAttr(node[[len]], "name"))
+    }
+	parameters
 }
 
 getFluorochromeList<-function(node, flowEnv)
