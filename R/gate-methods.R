@@ -127,9 +127,18 @@ setMethod(
             compensations <- list()
             for (i in seq(length(dividerList)))
             {
-                dividerValues <- list()
                 fcsDimension = xmlElementsByTagName(dividerList[[i]], "fcs-dimension")
-                name = xmlGetAttr(fcsDimension[[1]], "name")
+                itIsRatio = FALSE
+                if (length(fcsDimension) == 0) 
+                {
+                    fcsDimension = xmlElementsByTagName(dividerList[[i]], "new-dimension")
+					name = xmlGetAttr(fcsDimension[[1]], "transformation-ref")
+                    itIsRatio = TRUE
+                }
+                else 
+                    name = xmlGetAttr(fcsDimension[[1]], "name")
+				
+				dividerValues <- list()
                 dividerId = (xmlGetAttr(dividerList[[i]], "id", genid(flowEnv)))
                 transformationRef = (xmlGetAttr(dividerList[[i]], "transformation-ref", "unitytransform"))
                 compensationRef = (xmlGetAttr(dividerList[[i]], "compensation-ref", "FCS"))
@@ -139,6 +148,7 @@ setMethod(
                     dividerValues[[j]] = getElementValueAsNumeric(values[[j]]) 
                 }
                 dividerValues[[j + 1]] = as.character(name)
+				dividerValues[[j + 2]] = itIsRatio
                 dividers[[as.character(dividerId)]] = dividerValues
                 transformations[[as.character(dividerId)]] = transformationRef
                 compensations[[as.character(dividerId)]] = compensationRef
@@ -155,7 +165,10 @@ setMethod(
                 {
                     gateLimits[,i] = getBounds(quadrant[[i]], names(quadrant)[[i]], dividers)
                 }
+
                 transformationList <- getTransformationListForQuadrantGate(quadrant, dividers, transformations, compensations, flowEnv)
+				flowEnv[['transformationList']] <- transformationList
+				flowEnv[['gateLimits']] <- gateLimits
                 filt = rectangleGate(filterId=quadrantId, .gate=gateLimits, transformationList)
                 if (parentId == "NULL")
                 {
