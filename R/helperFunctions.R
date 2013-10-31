@@ -76,8 +76,8 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
                 },
                 "new-dimension" =
                 {
-					newId = createOrUseGml2RatioTransformation(transformationRefs[[len]], compensationRefs[[len]], xmlGetAttr(subNodes, "transformation-ref"), flowEnv)
-					transformReference(referenceId=newId, flowEnv)
+                    newId = createOrUseGml2RatioTransformation(transformationRefs[[len]], compensationRefs[[len]], xmlGetAttr(subNodes, "transformation-ref"), flowEnv)
+                    transformReference(referenceId=newId, flowEnv)
                 }
             )
         }
@@ -150,14 +150,17 @@ createOrUseGml2Transformation <- function(genericTransformationId, compensationR
 
 createOrUseGml2RatioTransformation <- function(genericTransformationId, compensationRef, ratioTransformationRef, flowEnv)
 {
+    fullRatioTransformationRef <- paste(genericTransformationId, compensationRef, ratioTransformationRef, sep = ".")
     if (genericTransformationId == "unitytransform" && compensationRef == "uncompensated") 
-        ratioTransformationRef
+    {
+        flowEnv[[fullRatioTransformationRef]] <- flowEnv[[ratioTransformationRef]]
+        fullRatioTransformationRef
+    }
     else
     {
         myRatioTr <- flowEnv[[ratioTransformationRef]]
         numeratorName <- myRatioTr@numerator@parameters
         denominatorName <- myRatioTr@denominator@parameters
-        fullRatioTransformationRef <- paste(genericTransformationId, compensationRef, ratioTransformationRef, sep = ".")
         if (exists(fullRatioTransformationRef, envir=flowEnv))
             fullRatioTransformationRef
         else
@@ -182,38 +185,47 @@ getTransformationListForQuadrantGate <- function(quadrant, dividers, transformat
     while(len > 0)
     {   
         name <- names(quadrant)[[len]]
-        parameterName <- dividers[[name]][[length(dividers[[name]])]]
+        parameterName <- dividers[[name]][[length(dividers[[name]])-1]]
+        itIsRatio = dividers[[name]][[length(dividers[[name]])]]
         transformationRef <- transformations[[name]]
         compensationRef <- compensations[[name]]
 
-        if (transformationRef == "unitytransform")
+        if (itIsRatio)
         {
-            if (compensationRef == "FCS") 
-            {
-                transformationList[[len]] <- compensatedParameter(
-                    parameters=parameterName,
-                    spillRefId="SpillFromFCS",
-                    transformationId=paste(parName, "_compensated_according_to_FCS"),
-                    searchEnv=flowEnv)
-            }
-            else if (compensationRef == "uncompensated") transformationList[[len]] <- unitytransform(parameterName)
-            else 
-            {
-                if (exists(parameterName, envir=flowEnv) 
-                    && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
-                    && flowEnv[[parameterName]]@spillRefId == compensationRef)
-                    transformationList[[len]] <- flowEnv[[parameterName]]
-                else 
-                {
-                    write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
-                    transformationList[[len]] <- unitytransform(parameterName)
-                }
-            }
+            referencedName <- createOrUseGml2RatioTransformation(transformationRef, compensationRef, parameterName, flowEnv)
+            transformationList[[len]] <- flowEnv[[referencedName]]
         }
         else
         {
-            newId = createOrUseGml2Transformation(transformationRef, compensationRef, parameterName, flowEnv)
-            transformationList[[len]] <- transformReference(referenceId=newId, flowEnv)
+            if (transformationRef == "unitytransform")
+            {
+                if (compensationRef == "FCS") 
+                {
+                    transformationList[[len]] <- compensatedParameter(
+                        parameters=parameterName,
+                        spillRefId="SpillFromFCS",
+                        transformationId=paste(parameterName, "_compensated_according_to_FCS"),
+                        searchEnv=flowEnv)
+                }
+                else if (compensationRef == "uncompensated") transformationList[[len]] <- unitytransform(parameterName)
+                else 
+                {
+                    if (exists(parameterName, envir=flowEnv) 
+                        && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
+                        && flowEnv[[parameterName]]@spillRefId == compensationRef)
+                        transformationList[[len]] <- flowEnv[[parameterName]]
+                    else 
+                    {
+                        write(paste("Failed to use spillover/spectrum matrix ", compensationRef, " for compensated parameter ", parameterName, ". It seems that the matrix was not properly defined in the Gating-ML file.\n", sep=""), stderr())
+                        transformationList[[len]] <- unitytransform(parameterName)
+                    }
+                }
+            }
+            else
+            {
+                newId = createOrUseGml2Transformation(transformationRef, compensationRef, parameterName, flowEnv)
+                transformationList[[len]] <- transformReference(referenceId=newId, flowEnv)
+            }
         }
 
         len <- len-1
@@ -233,11 +245,11 @@ getBounds <- function(value, name, dividers)
 {
     lowerBound = -Inf
     upperBound = +Inf
-    for (i in seq(length(dividers[[name]])-1))
+    for (i in seq(length(dividers[[name]])-2))
     {
         if (dividers[[name]][[i]] < value) lowerBound = dividers[[name]][[i]] 
     }
-    for (i in (length(dividers[[name]])-1):1)
+    for (i in (length(dividers[[name]])-2):1)
     {
         if (dividers[[name]][[i]] > value) upperBound = dividers[[name]][[i]] 
     }
@@ -304,7 +316,7 @@ getGatingML2RatioParameterList <- function(node, flowEnv)
         parameters[[1]] = unitytransform(xmlGetAttr(node[[len-1]], "name"))
         parameters[[2]] = unitytransform(xmlGetAttr(node[[len]], "name"))
     }
-	parameters
+    parameters
 }
 
 getFluorochromeList<-function(node, flowEnv)
