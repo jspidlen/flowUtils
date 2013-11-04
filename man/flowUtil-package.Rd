@@ -9,8 +9,7 @@
   This package includes functions to import Gates,transformations and 
   compensations defined in compliance with Gating-ML specification version 1.5 
   and 2.0. This package depends on the flowCore package for methods to evaluate 
-  the gatingML files read into the workspace.
-  Note: Gating-ML 2.0 support in progress.
+  the Gating-ML files read into the workspace.
 }
 
 \details{
