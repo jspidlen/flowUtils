@@ -214,7 +214,17 @@ setMethod(
     function(object, flowEnv, ...)
     {     
         gateRefId = getParameters(object)
-        new("filterReference", name=gateRefId, env=flowEnv, filterId=gateRefId)
+        useAsComplement = xmlGetAttr(object, "use-as-complement")
+        gRef <- new("filterReference", name=gateRefId, env=flowEnv, filterId=gateRefId)
+        if ((!is.null(useAsComplement)) && (useAsComplement == "true" || useAsComplement == "1"))
+        {
+            complFiltId = paste("Not", gateRefId, sep="_")
+            complFilter <- new("complementFilter", filterId=complFiltId, filters=list(gRef))
+            flowEnv[[complFiltId]] = complFilter
+            new("filterReference", name=complFiltId, env=flowEnv, filterId=complFiltId)
+        }
+        else
+            gRef
     }
 )
 
