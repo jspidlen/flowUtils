@@ -9,6 +9,12 @@ setGeneric(
 
 setMethod(
     "identifyNode",
+    "http...www.isac.net.org.std.Gating.ML.v2.0.datatypes_custom_info",
+    function(object, flowEnv, ...) { }
+)
+
+setMethod(
+    "identifyNode",
     "http...www.isac.net.org.std.Gating.ML.v2.0.gating_PolygonGate",
     function(object, flowEnv, ...)
     {
