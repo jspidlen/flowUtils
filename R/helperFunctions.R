@@ -458,15 +458,34 @@ performGateTest<-function(gateId,fcs,expectedResult,flowEnv)
 
 testGatingMLCompliance <- function(file = "GatingMLComplianceReport", version = 2.0)
 {
-  testsuite <- defineTestSuite(
-  "GatingTestSuite",
-  dirs=system.file("RUnitScript_Files", package="flowUtils"),
-  testFileRegexp="^runit.+\\.[rR]$", 
-  testFuncRegexp="^test.+")
-
-  testResult <- runTestSuite(testsuite)
-
-  printHTMLProtocol(testResult,fileName=paste(file,".html",sep=""))
-
+    if(!require(RUnit))
+        stop("You need to have 'RUnit' package in order to run the Gating-ML compliance tests.", call.=FALSE)
+    if(!require(flowCore))
+        stop("You need to have 'flowCore' package in order to run the Gating-ML compliance tests.", call.=FALSE)
+    if(!require(gatingMLData))
+        stop("You need to have 'gatingMLData' package in order to run the Gating-ML compliance tests.", call.=FALSE)
+    if ((version == 1.5) || (version == "1.5")) 
+        testGatingML1.5Compliance(file)
+    else
+        testGatingML2.0Compliance(file)
 }
 
+testGatingML1.5Compliance <- function(file)
+{
+    testsuite <- defineTestSuite(
+        "GatingML 1.5 Complliance Test Suite",
+        dirs = system.file("RUnitScript_Files", package="flowUtils"),
+        testFileRegexp = "^runit.+\\.[rR]$", testFuncRegexp = "^test.+")
+	testResult <- runTestSuite(testsuite)
+	printHTMLProtocol(testResult, fileName = paste(file, ".html", sep=""))
+}
+
+testGatingML2.0Compliance <- function(file)
+{
+    testsuite <- defineTestSuite(
+        "Gating-ML 2.0 Test Suite",
+        dirs = system.file("RUnitGml2Script_Files", package = "flowUtils"), 
+        testFileRegexp = "^runit.+\\.[rR]$", testFuncRegexp = "^test.+")
+    testResult <- runTestSuite(testsuite)
+    printHTMLProtocol(testResult, fileName = paste(file, ".html", sep=""))
+}
