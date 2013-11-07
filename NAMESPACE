@@ -1,4 +1,4 @@
-export("read.gatingML","testGatingCompliance")
+export("read.gatingML","testGatingMLCompliance")
 
 
 importClassesFrom(flowCore, transformReference, unitytransform,
