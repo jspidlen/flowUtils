@@ -456,16 +456,17 @@ performGateTest<-function(gateId,fcs,expectedResult,flowEnv)
           checkTrue(eventsCorrect, message)
  }
 
-testGatingCompliance<-function(file)
+testGatingMLCompliance <- function(file = "GatingMLComplianceReport", version = 2.0)
 {
   testsuite <- defineTestSuite(
   "GatingTestSuite",
-  dir=system.file("RUnitScript_Files", package="flowUtils"),
+  dirs=system.file("RUnitScript_Files", package="flowUtils"),
   testFileRegexp="^runit.+\\.[rR]$", 
   testFuncRegexp="^test.+")
 
   testResult <- runTestSuite(testsuite)
 
-  printHTMLProtocol(testResult,file=paste(file,".html",sep=""))
+  printHTMLProtocol(testResult,fileName=paste(file,".html",sep=""))
 
 }
+
