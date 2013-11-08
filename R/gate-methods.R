@@ -199,7 +199,8 @@ setMethod(
         {
             gateId = (xmlGetAttr(object, "id", genid(flowEnv)))
             parentId = (xmlGetAttr(object, "parent_id", "NULL"))
-            filt <- identifyNode(xmlChildren(object)[[1]], flowEnv)
+            childern = xmlChildren(object)
+            filt <- identifyNode(childern[[length(childern)]], flowEnv)
             if (parentId == "NULL")
             {
                 filt@filterId = as.character(gateId)
