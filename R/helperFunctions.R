@@ -56,7 +56,7 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
                         compensatedParameter(
                             parameters=parName,
                             spillRefId="SpillFromFCS",
-                            transformationId=paste(parName, "_compensated_according_to_FCS"),
+                            transformationId=paste(parName, "_compensated_according_to_FCS", sep=""),
                             searchEnv=flowEnv
                         )
                     }
@@ -110,7 +110,7 @@ createOrUseGml2Transformation <- function(genericTransformationId, compensationR
     {
         if (compensationRef == "FCS")
             tempParameter = compensatedParameter(parameters=parameterName, spillRefId="SpillFromFCS", 
-                transformationId=paste(parameterName, "_compensated_according_to_FCS"), searchEnv=flowEnv)
+                transformationId=paste(parameterName, "_compensated_according_to_FCS", sep=""), searchEnv=flowEnv)
         else if (compensationRef == "uncompensated") tempParameter <- unitytransform(parameterName)
         else 
         {
@@ -204,7 +204,7 @@ getTransformationListForQuadrantGate <- function(quadrant, dividers, transformat
                     transformationList[[len]] <- compensatedParameter(
                         parameters=parameterName,
                         spillRefId="SpillFromFCS",
-                        transformationId=paste(parameterName, "_compensated_according_to_FCS"),
+                        transformationId=paste(parameterName, "_compensated_according_to_FCS", sep=""),
                         searchEnv=flowEnv)
                 }
                 else if (compensationRef == "uncompensated") transformationList[[len]] <- unitytransform(parameterName)
