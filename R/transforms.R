@@ -11,7 +11,7 @@ setMethod("identifyNode", "http...www.isac.net.org.std.Gating.ML.v2.0.transforma
 
 dispatchGatingML2Transform <- function(transName, node, flowEnv)
 {
-	if (length(transName) > 1) transName = transName[[1]]
+    if (length(transName) > 1) transName = transName[[length(transName)]]
     temp = switch(transName,
                 "fasinh" = fasinhTr(node, flowEnv),
                 "flin" = flinTr(node, flowEnv),
@@ -119,15 +119,15 @@ logicleTr <- function(node, flowEnv)
 
 ####----------- Hyperlog transformation --------------
 hyperlogTr <- function(node, flowEnv)
-{       
-	transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
-	coefficientList = xmlElementsByTagName(node, "hyperlog", recursive=FALSE)
-	pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use
-	pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
-	pW = sapply(coefficientList, xmlGetAttr, "W", default=0.5)    # method fail...
-	pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
-	return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-					W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
+{   
+    transformationId = (xmlGetAttr(node, "id", genid(flowEnv)))
+    coefficientList = xmlElementsByTagName(node, "hyperlog", recursive=FALSE)
+    pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use
+    pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
+    pW = sapply(coefficientList, xmlGetAttr, "W", default=0.5)    # method fail...
+    pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
+    return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
 }
 
 ####----------- Ratio transformation --------------
