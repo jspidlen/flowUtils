@@ -165,13 +165,45 @@ createOrUseGml2RatioTransformation <- function(genericTransformationId, compensa
             fullRatioTransformationRef
         else
         {
-            fullNumeratorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, numeratorName, flowEnv)
-            fullDenominatorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, denominatorName, flowEnv)
+			## The code below is doing somethink like log(x)/log(y)
+			#######################################################
+            # fullNumeratorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, numeratorName, flowEnv)
+            # fullDenominatorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, denominatorName, flowEnv)
+            # appliedRatioTr <- myRatioTr
+            # appliedRatioTr@numerator <- flowEnv[[fullNumeratorName]]
+            # appliedRatioTr@denominator <- flowEnv[[fullDenominatorName]]
+            # flowEnv[[fullRatioTransformationRef]] <- appliedRatioTr
+            # fullRatioTransformationRef
+            
+            ## The code below is doing somethink like log(x/y)
+            ## (this is what Gating-ML 2.0 asks for right now)
+			fullNumeratorName <- createOrUseGml2Transformation("unitytransform", compensationRef, numeratorName, flowEnv)
+			fullDenominatorName <- createOrUseGml2Transformation("unitytransform", compensationRef, denominatorName, flowEnv)
             appliedRatioTr <- myRatioTr
             appliedRatioTr@numerator <- flowEnv[[fullNumeratorName]]
             appliedRatioTr@denominator <- flowEnv[[fullDenominatorName]]
-            flowEnv[[fullRatioTransformationRef]] <- appliedRatioTr
-            fullRatioTransformationRef
+			appliedRatioTrRef <- paste("unitytransform", compensationRef, ratioTransformationRef, sep = ".")
+			if (genericTransformationId == "unitytransform")
+			{
+				flowEnv[[fullRatioTransformationRef]] <- appliedRatioTr
+				fullRatioTransformationRef
+			}
+			else
+			{
+				if (exists(genericTransformationId, envir=flowEnv))
+				{
+					resultTransformation <- flowEnv[[genericTransformationId]]
+					resultTransformation@parameters = appliedRatioTr
+					resultTransformation@transformationId = fullRatioTransformationRef
+					flowEnv[[fullRatioTransformationRef]] = resultTransformation
+					fullRatioTransformationRef
+				}
+				else
+				{
+					stop(paste("Failed to locate transformation ", genericTransformationId, 
+									". It seems that the transformation was not defined in the Gating-ML file.", sep=""))
+				}	
+			}
         }
     }
 }
