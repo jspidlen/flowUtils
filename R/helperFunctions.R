@@ -165,8 +165,8 @@ createOrUseGml2RatioTransformation <- function(genericTransformationId, compensa
             fullRatioTransformationRef
         else
         {
-			## The code below is doing somethink like log(x)/log(y)
-			#######################################################
+            ## The code below is doing somethink like log(x)/log(y)
+            #######################################################
             # fullNumeratorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, numeratorName, flowEnv)
             # fullDenominatorName <- createOrUseGml2Transformation(genericTransformationId, compensationRef, denominatorName, flowEnv)
             # appliedRatioTr <- myRatioTr
@@ -177,33 +177,33 @@ createOrUseGml2RatioTransformation <- function(genericTransformationId, compensa
             
             ## The code below is doing somethink like log(x/y)
             ## (this is what Gating-ML 2.0 asks for right now)
-			fullNumeratorName <- createOrUseGml2Transformation("unitytransform", compensationRef, numeratorName, flowEnv)
-			fullDenominatorName <- createOrUseGml2Transformation("unitytransform", compensationRef, denominatorName, flowEnv)
+            fullNumeratorName <- createOrUseGml2Transformation("unitytransform", compensationRef, numeratorName, flowEnv)
+            fullDenominatorName <- createOrUseGml2Transformation("unitytransform", compensationRef, denominatorName, flowEnv)
             appliedRatioTr <- myRatioTr
             appliedRatioTr@numerator <- flowEnv[[fullNumeratorName]]
             appliedRatioTr@denominator <- flowEnv[[fullDenominatorName]]
-			appliedRatioTrRef <- paste("unitytransform", compensationRef, ratioTransformationRef, sep = ".")
-			if (genericTransformationId == "unitytransform")
-			{
-				flowEnv[[fullRatioTransformationRef]] <- appliedRatioTr
-				fullRatioTransformationRef
-			}
-			else
-			{
-				if (exists(genericTransformationId, envir=flowEnv))
-				{
-					resultTransformation <- flowEnv[[genericTransformationId]]
-					resultTransformation@parameters = appliedRatioTr
-					resultTransformation@transformationId = fullRatioTransformationRef
-					flowEnv[[fullRatioTransformationRef]] = resultTransformation
-					fullRatioTransformationRef
-				}
-				else
-				{
-					stop(paste("Failed to locate transformation ", genericTransformationId, 
-									". It seems that the transformation was not defined in the Gating-ML file.", sep=""))
-				}	
-			}
+            appliedRatioTrRef <- paste("unitytransform", compensationRef, ratioTransformationRef, sep = ".")
+            if (genericTransformationId == "unitytransform")
+            {
+                flowEnv[[fullRatioTransformationRef]] <- appliedRatioTr
+                fullRatioTransformationRef
+            }
+            else
+            {
+                if (exists(genericTransformationId, envir=flowEnv))
+                {
+                    resultTransformation <- flowEnv[[genericTransformationId]]
+                    resultTransformation@parameters = appliedRatioTr
+                    resultTransformation@transformationId = fullRatioTransformationRef
+                    flowEnv[[fullRatioTransformationRef]] = resultTransformation
+                    fullRatioTransformationRef
+                }
+                else
+                {
+                    stop(paste("Failed to locate transformation ", genericTransformationId, 
+                                    ". It seems that the transformation was not defined in the Gating-ML file.", sep=""))
+                }    
+            }
         }
     }
 }
@@ -508,8 +508,8 @@ testGatingML1.5Compliance <- function(file)
         "GatingML 1.5 Complliance Test Suite",
         dirs = system.file("RUnitScript_Files", package="flowUtils"),
         testFileRegexp = "^runit.+\\.[rR]$", testFuncRegexp = "^test.+")
-	testResult <- runTestSuite(testsuite)
-	printHTMLProtocol(testResult, fileName = paste(file, ".html", sep=""))
+    testResult <- runTestSuite(testsuite)
+    printHTMLProtocol(testResult, fileName = paste(file, ".html", sep=""))
 }
 
 testGatingML2.0Compliance <- function(file)
