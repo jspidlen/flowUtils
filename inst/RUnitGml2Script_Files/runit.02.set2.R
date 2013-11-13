@@ -4,7 +4,7 @@ csvFile <-  system.file("extdata/Gml2/ExpectedResults/set_2", package = "gatingM
 
 flowEnv=new.env()
 read.gatingML(gateFile, flowEnv)
-fcs <- read.FCS(fcsFile)
+fcs <- read.FCS(fcsFile, transformation="linearize-with-PnG-scaling")
 
 test.Cube3Du <- function()
 {
