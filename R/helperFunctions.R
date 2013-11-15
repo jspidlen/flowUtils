@@ -479,8 +479,8 @@ performGateTest<-function(gateId,fcs,expectedResult,flowEnv)
 
     evMatch <- as.logical(unlist(expectedResult) == result)
     eventsCorrect<-TRUE
-    message<-paste("Numbers in gate and expected numbers don't match:<br>")
-    message<-paste(message,"\t", sum(expectedResult), "vs", sum(result))
+    message<-paste("Calculated and expected events in gate do not match:")
+    message<-paste(message,"\texpected:", sum(expectedResult), "vs. detected", sum(result))
     if(!all(evMatch)) 
         {
         eventsCorrect<-FALSE
