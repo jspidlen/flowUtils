@@ -134,14 +134,6 @@ test.Poly1cl <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1l <- function()
-{
-    gateId  <- "Poly1l"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
 test.Poly1u <- function()
 {
     gateId  <- "Poly1u"
@@ -164,6 +156,14 @@ test.Poly1uh <- function()
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.Poly1ul <- function()
+{
+	gateId  <- "Poly1ul"
+	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+	expectedResult <- read.csv(csvFile, header = FALSE)
+	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.Rectch <- function()
