@@ -1,3 +1,8 @@
+#############################################################
+## This set implements the official compliance tests that are
+## included with Gating-ML 2.0 in its set 1
+#############################################################
+
 fcsFile <-  system.file("extdata/Gml2/FCSFiles", "data1.fcs", package = "gatingMLData")
 gateFile <- system.file("extdata/Gml2/Gating-MLFiles","gates1.xml", package = "gatingMLData")
 csvFile <-  system.file("extdata/Gml2/ExpectedResults/set_1", package = "gatingMLData")

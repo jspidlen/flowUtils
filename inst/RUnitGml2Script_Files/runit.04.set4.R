@@ -1,251 +1,183 @@
 #############################################################
-## This set implements the official compliance tests that are
-## included with Gating-ML 2.0 in its set 2
+## This set implements additional compliance tests that are
+## were not included with Gating-ML 2.0. We have used R to
+## generate the expected results and therefore, these tests
+## are more just a sanity check whether the results are 
+## consistent. Also, here, we are checking a few concepts
+## that are not checked with the official tests.
 #############################################################
 
-fcsFile <-  system.file("extdata/Gml2/FCSFiles", "data2.fcs", package = "gatingMLData")
-gateFile <- system.file("extdata/Gml2/Gating-MLFiles","gates2.xml", package = "gatingMLData")
-csvFile <-  system.file("extdata/Gml2/ExpectedResults/set_2", package = "gatingMLData")
+fcsFile <-  system.file("extdata/Gml2/FCSFiles", "9399_1_3_NKR.fcs", package = "gatingMLData")
+gateFile <- system.file("extdata/Gml2/Gating-MLFiles","gates4.xml", package = "gatingMLData")
+csvFile <-  system.file("extdata/Gml2/ExpectedResults/set_4", package = "gatingMLData")
 
 flowEnv=new.env()
 read.gatingML(gateFile, flowEnv)
 fcs <- read.FCS(fcsFile, transformation="linearize-with-PnG-scaling")
 
-test.Cube3Du <- function()
+test.myQuadrant_NN <- function()
 {
-    gateId  <- "Cube3Du"
+    gateId  <- "myQuadrant_NN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Cube3Dul <- function()
+test.myQuadrant_NP <- function()
 {
-    gateId  <- "Cube3Dul"
+    gateId  <- "myQuadrant_NP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Cube3DuP <- function()
+test.myQuadrant_PN <- function()
 {
-    gateId  <- "Cube3DuP"
+    gateId  <- "myQuadrant_PN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Cube3DuPAsBool <- function()
+test.myQuadrant_PP <- function()
 {
-    gateId  <- "Cube3DuPAsBool"
+    gateId  <- "myQuadrant_PP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Ellipseca <- function()
+test.myQuadrant2_NN <- function()
 {
-    gateId  <- "Ellipseca"
+    gateId  <- "myQuadrant2_NN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Ellipsech <- function()
+test.myQuadrant2_NP <- function()
 {
-    gateId  <- "Ellipsech"
+    gateId  <- "myQuadrant2_NP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Ellipsecl <- function()
+test.myQuadrant2_PN <- function()
 {
-    gateId  <- "Ellipsecl"
+    gateId  <- "myQuadrant2_PN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Ellipseua <- function()
+test.myQuadrant2_PP <- function()
 {
-    gateId  <- "Ellipseua"
+    gateId  <- "myQuadrant2_PP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Ellipseuh <- function()
+test.myQuadrant3_NN <- function()
 {
-    gateId  <- "Ellipseuh"
+    gateId  <- "myQuadrant3_NN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Ellipseul <- function()
+test.myQuadrant3_NP <- function()
 {
-    gateId  <- "Ellipseul"
+    gateId  <- "myQuadrant3_NP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.HyperCube1 <- function()
+test.myQuadrant3_PN <- function()
 {
-    gateId  <- "HyperCube1"
+    gateId  <- "myQuadrant3_PN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.NotRectcl <- function()
+test.myQuadrant3_PP <- function()
 {
-    gateId  <- "NotRectcl"
+    gateId  <- "myQuadrant3_PP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1c <- function()
+test.myQuadrant4_NN <- function()
 {
-    gateId  <- "Poly1c"
+    gateId  <- "myQuadrant4_NN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1ca <- function()
+test.myQuadrant4_NP <- function()
 {
-    gateId  <- "Poly1ca"
+    gateId  <- "myQuadrant4_NP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1ch <- function()
+test.myQuadrant4_PN <- function()
 {
-    gateId  <- "Poly1ch"
+    gateId  <- "myQuadrant4_PN"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1cl <- function()
+test.myQuadrant4_PP <- function()
 {
-    gateId  <- "Poly1cl"
+    gateId  <- "myQuadrant4_PP"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1u <- function()
+test.myRange1 <- function()
 {
-    gateId  <- "Poly1u"
+    gateId  <- "myRange1"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1ua <- function()
+test.myRange2 <- function()
 {
-    gateId  <- "Poly1ua"
+    gateId  <- "myRange2"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1uh <- function()
+test.myRange3 <- function()
 {
-    gateId  <- "Poly1uh"
+    gateId  <- "myRange3"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.Poly1ul <- function()
+test.myRange4 <- function()
 {
-	gateId  <- "Poly1ul"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.Rectch <- function()
-{
-    gateId  <- "Rectch"
+    gateId  <- "myRange4"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
-test.RectchAndNotRectcl <- function()
+test.myRange5 <- function()
 {
-    gateId  <- "RectchAndNotRectcl"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.RectchAndNotRectcl2 <- function()
-{
-    gateId  <- "RectchAndNotRectcl2"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.Rectcl <- function()
-{
-    gateId  <- "Rectcl"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.RectclAgain <- function()
-{
-    gateId  <- "RectclAgain"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.RectclAndRectch <- function()
-{
-    gateId  <- "RectclAndRectch"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.RectclOrRectch <- function()
-{
-    gateId  <- "RectclOrRectch"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.RectMix1 <- function()
-{
-    gateId  <- "RectMix1"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.Rectuh <- function()
-{
-    gateId  <- "Rectuh"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-    expectedResult <- read.csv(csvFile, header = FALSE)
-    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
-}
-
-test.Rectul <- function()
-{
-    gateId  <- "Rectul"
+    gateId  <- "myRange5"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
