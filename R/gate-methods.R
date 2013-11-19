@@ -173,8 +173,6 @@ setMethod(
                 }
 
                 transformationList <- getTransformationListForQuadrantGate(quadrant, dividers, transformations, compensations, flowEnv)
-				flowEnv[['transformationList']] <- transformationList
-				flowEnv[['gateLimits']] <- gateLimits
                 filt = rectangleGate(filterId=quadrantId, .gate=gateLimits, transformationList)
                 if (parentId == "NULL")
                 {

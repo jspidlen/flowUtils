@@ -3,7 +3,7 @@
 \alias{internal.read.gatingML}
 
 \title{
-  Function to parse a Gating-ML XML file into objects in the R enviroment
+  Function to parse a Gating-ML XML file into objects in the R environment
 }
 
 \description{
@@ -27,7 +27,6 @@
   The Gating-ML specification has been developed as an interchange format for the description of
   gates relevant to a flow cytometry experiment. Presently, we can read Gating-ML versions 1.5 and 2.0 
   of the specification. Version 2.0 is the most recent at the time of this writing.
-  Note: Gating-ML 2.0 support in progress.
 }
 
 \references{
@@ -42,29 +41,55 @@
   \url{http://flowcyt.sf.net/gating/Gating-ML.v1.5.081030.Compliance-tests.081030.zip}
 
   Spidlen J, ISAC DSTF, Brinkman RR. 2013.
-  Gating-ML 2.0.
+  Gating-ML 2.0. International Society for Advancement of Cytometry (ISAC) standard for 
+  representing gating descriptions in flow cytometry.
   \url{http://flowcyt.sf.net/gating/20130122.pdf}
-  \url{http://flowcyt.sf.net/gating/20130122.full.zip}  
+  \url{http://flowcyt.sf.net/gating/20130122.full.zip}
+    
 }
 
 \author{N. Gopalakrishnan, J. Spidlen}
 
+\seealso{
+\code{\link{write.gatingML}}
+}
+
 \examples{
 
- flowEnv=new.env()
+#######################
+# Gating-ML 2.0 example
+#######################
+flowEnv <- new.env()
 
- fcsFile<-system.file("extdata/List-modeDataFiles","fcs2_int16_13367ev_8par_GvHD.fcs",package="gatingMLData")
- fcs <- read.FCS(fcsFile,transformation=FALSE)
- 
- gateFile <- system.file("extdata/Gating-MLFiles","02CtSRectangular.xml",package="gatingMLData")
- read.gatingML(gateFile,flowEnv)
- 
- ls(flowEnv)
+fcsFile <- system.file("extdata/Gml2/FCSFiles", 
+  "data1.fcs", package="gatingMLData")
+fcs <- read.FCS(fcsFile, 
+  transformation="linearize-with-PnG-scaling")
+
+gateFile <- system.file("extdata/Gml2/Gating-MLFiles", 
+  "gates1.xml", package="gatingMLData")
+read.gatingML(gateFile, flowEnv)
+ls(flowEnv)
+
+result = filter(fcs, flowEnv$Polygon1)
+summary(result)
+
+#######################
+# Gating-ML 1.5 example
+#######################
+flowEnv <- new.env()
+
+fcsFile <- system.file("extdata/List-modeDataFiles",
+  "fcs2_int16_13367ev_8par_GvHD.fcs", package="gatingMLData")
+fcs <- read.FCS(fcsFile, transformation=FALSE)
+
+gateFile <- system.file("extdata/Gating-MLFiles",
+  "02CtSRectangular.xml", package="gatingMLData")
+read.gatingML(gateFile, flowEnv)
+ls(flowEnv)
   
- result=filter(fcs,flowEnv$CtSR_03)
- summary(result)
-
- #TODO Add Gating-ML 2.0 examples
+result <- filter(fcs, flowEnv$CtSR_03)
+summary(result)
 
 }
 
