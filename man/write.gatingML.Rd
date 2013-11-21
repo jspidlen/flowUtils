@@ -14,12 +14,13 @@
 }
 
 \usage{
-  write.gatingML(file, flowEnv)
+  write.gatingML(flowEnv, file = NULL)
 }
 
 \arguments{
-  \item{file}{The name of the output Gating-ML XML file}
   \item{flowEnv}{The R environment that is being searched for gating objects and transformations}
+  \item{file}{The name of the output Gating-ML XML file. The standard output will be used if file
+    is NULL.}  
 }
 
 \details{
