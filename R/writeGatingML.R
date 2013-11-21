@@ -39,8 +39,9 @@ write.gatingML <- function(flowEnv, file = NULL)
             "ellipsoidGate" = addEllipsoidGateNode(gatingMLNode, x, flowEnv),
 			"intersectFilter" = addBooleanAndGateNode(gatingMLNode, x, flowEnv),
 			"unionFilter" = addBooleanOrGateNode(gatingMLNode, x, flowEnv),
-			"compensatedParameter" = ignore(), # Nothing to do about these
-			"numeric" = ignore(), # Nothing to do about these
+			"complementFilter" = addBooleanNotGateNode(gatingMLNode, x, flowEnv),
+			"compensatedParameter" = ignore(),
+			"numeric" = ignore(),
             cat(paste("!", x, ": class", class(flowEnv[[x]]), "- not supported yet.\n"))
 			# TODO Add quadGate support
         )
@@ -155,6 +156,22 @@ addBooleanOrGateNode <- function(gatingMLNode, x, flowEnv)
 		# since and/or gates require at least two arguments in Gating-ML 2.0
 		gatingMLNode$addNode("gating:gateReference", attrs = attrs)
 	} 
+	gatingMLNode$closeTag() # </gating:or>
+	gatingMLNode$closeTag() # </gating:BooleanGate>	
+}
+#TODO Check errors for Boolean gates not having enough pars. 
+addBooleanNotGateNode <- function(gatingMLNode, x, flowEnv)
+{
+	cat(paste("- Working on ", x, ".\n", sep=""))
+	gate = flowEnv[[x]]
+	attrs = c("gating:id" = filterIdtoXMLId(gate@filterId))
+	gatingMLNode$addNode("gating:BooleanGate", attrs = attrs, close = FALSE)
+	gatingMLNode$addNode("gating:not", close = FALSE)
+	if(length(gate@filters)  == 1) 
+	{
+		attrs = c("gating:ref" = filterIdtoXMLId(gate@filters[[1]]@filterId))
+		gatingMLNode$addNode("gating:gateReference", attrs = attrs)
+	}
 	gatingMLNode$closeTag() # </gating:or>
 	gatingMLNode$closeTag() # </gating:BooleanGate>	
 }
