@@ -2,6 +2,9 @@
 ## Code related to writing Gating-ML files ##
 #############################################
 
+# TODO Consider writing this in an Object-oriented fashion... 
+# Maybe, if there is extra time :-)
+
 write.gatingML <- function(flowEnv, file = NULL)
 {
     # TODO Drop this note when done.
@@ -50,8 +53,9 @@ addObjectToGatingML <- function(gatingMLNode, x, flowEnv, addParent = NULL, forc
 		"unionFilter" = addBooleanOrGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
 		"complementFilter" = addBooleanNotGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
 		"subsetFilter" = addGateWithParent(gatingMLNode, x, flowEnv),
-		"compensatedParameter" = ignore(),
-		"numeric" = ignore(),
+		"compensation" = addCompensation(gatingMLNode, x, flowEnv),
+		"compensatedParameter" = NA,
+		"numeric" = NA,
 		cat(paste("!", x, ": class", class(object), "- not supported yet.\n"))
 	# TODO Add quadGate support
 	)
@@ -61,8 +65,8 @@ addRectangleGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
 {
 	if(is(x, "character")) gate = flowEnv[[x]]
 	else gate = x
-	if(!is(gate, "rectangleGate")) stop(paste("Unexpected object insted of a rectangleGate - ", class(gate), )) 
-	cat(paste("- Working on rectangleGate", gate@filterId, ".\n", sep=""))
+	if(!is(gate, "rectangleGate")) stop(paste("Unexpected object insted of a rectangleGate - ", class(gate))) 
+	cat(paste("- Working on rectangleGate ", gate@filterId, ".\n", sep=""))
 
 	if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId))
 	else attrs = c("gating:id" = filterIdtoXMLId(forceGateId))
@@ -76,8 +80,8 @@ addPolygonGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateId)
 {
 	if(is(x, "character")) gate = flowEnv[[x]]
 	else gate = x
-	if(!is(gate, "polygonGate")) stop(paste("Unexpected object insted of a polygonGate - ", class(gate), )) 
-	cat(paste("- Working on polygonGate", gate@filterId, ".\n", sep=""))
+	if(!is(gate, "polygonGate")) stop(paste("Unexpected object insted of a polygonGate - ", class(gate))) 
+	cat(paste("- Working on polygonGate ", gate@filterId, ".\n", sep=""))
 	
 	if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId))
 	else attrs = c("gating:id" = filterIdtoXMLId(forceGateId))
@@ -100,8 +104,8 @@ addEllipsoidGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
 {
 	if(is(x, "character")) gate = flowEnv[[x]]
 	else gate = x
-	if(!is(gate, "ellipsoidGate")) stop(paste("Unexpected object insted of an ellipsoidGate - ", class(gate), )) 
-	cat(paste("- Working on ellipsoidGate", gate@filterId, ".\n", sep=""))
+	if(!is(gate, "ellipsoidGate")) stop(paste("Unexpected object insted of an ellipsoidGate - ", class(gate))) 
+	cat(paste("- Working on ellipsoidGate ", gate@filterId, ".\n", sep=""))
 	
 	if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId))
 	else attrs = c("gating:id" = filterIdtoXMLId(forceGateId))
@@ -140,8 +144,8 @@ addBooleanAndGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGate
 {
 	if(is(x, "character")) gate = flowEnv[[x]]
 	else gate = x
-	if(!is(gate, "intersectFilter")) stop(paste("Unexpected object insted of an intersectFilter - ", class(gate), )) 
-	cat(paste("- Working on intersectFilter", gate@filterId, ".\n", sep=""))
+	if(!is(gate, "intersectFilter")) stop(paste("Unexpected object insted of an intersectFilter - ", class(gate))) 
+	cat(paste("- Working on intersectFilter ", gate@filterId, ".\n", sep=""))
 	
 	if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId))
 	else attrs = c("gating:id" = filterIdtoXMLId(forceGateId))
@@ -167,8 +171,8 @@ addBooleanOrGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
 {
 	if(is(x, "character")) gate = flowEnv[[x]]
 	else gate = x
-	if(!is(gate, "unionFilter")) stop(paste("Unexpected object insted of a unionFilter - ", class(gate), )) 
-	cat(paste("- Working on unionFilter", gate@filterId, ".\n", sep=""))
+	if(!is(gate, "unionFilter")) stop(paste("Unexpected object insted of a unionFilter - ", class(gate))) 
+	cat(paste("- Working on unionFilter ", gate@filterId, ".\n", sep=""))
 	
 	if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId))
 	else attrs = c("gating:id" = filterIdtoXMLId(forceGateId))
@@ -195,8 +199,8 @@ addBooleanNotGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGate
 {
 	if(is(x, "character")) gate = flowEnv[[x]]
 	else gate = x
-	if(!is(gate, "complementFilter")) stop(paste("Unexpected object insted of a complementFilter - ", class(gate), )) 
-	cat(paste("- Working on complementFilter", gate@filterId, ".\n", sep=""))
+	if(!is(gate, "complementFilter")) stop(paste("Unexpected object insted of a complementFilter - ", class(gate))) 
+	cat(paste("- Working on complementFilter ", gate@filterId, ".\n", sep=""))
 	
 	if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId))
 	else attrs = c("gating:id" = filterIdtoXMLId(forceGateId))
@@ -227,6 +231,67 @@ addGateWithParent <- function(gatingMLNode, x, flowEnv)
 	{
 		cat(paste("This should not happen; unexpected length of filters for", x, "class", class(gate))) # TODO
 	}
+}
+
+addCompensation <- function(gatingMLNode, x, flowEnv)
+{
+	if(is(x, "character")) myComp = flowEnv[[x]]
+	else myComp = x
+	if(!is(myComp, "compensation")) stop(paste("Unexpected object insted of a compensation - ", class(myComp))) 
+	cat(paste("- Working on compensation ", myComp@compensationId, ".\n", sep=""))
+	
+	detectors <- colnames(myComp@spillover)
+	if (is.null(detectors)) 
+	{
+		cat(paste("Cannot export a spillover matrix without column names (", myComp@compensationId, ").", sep="")) # TODO
+		return
+	}
+	
+	fluorochromes <- rownames(myComp@spillover)
+	if(is.null(fluorochromes))
+	{
+		if(nrow(myComp@spillover) != ncol(myComp@spillover)) 
+		{
+			cat(paste("Cannot export a non-sqaure spillover matrix without row names (", myComp@compensationId, ").", sep="")) # TODO
+			return
+		}
+		else
+		{
+			fluorochromes <- detectors
+		}
+	}
+	
+	attrs = c("transforms:id" = filterIdtoXMLId(myComp@compensationId))
+	gatingMLNode$addNode("transforms:spectrumMatrix", attrs = attrs, close = FALSE)
+	
+	gatingMLNode$addNode("transforms:fluorochromes", close = FALSE)
+	for (fname in fluorochromes) 
+	{
+		attrs = c("data-type:name" = fname)
+		gatingMLNode$addNode("data-type:fcs-dimension", attrs = attrs)
+	}
+	gatingMLNode$closeTag() # </transforms:fluorochromes>
+	
+	gatingMLNode$addNode("transforms:detectors", close = FALSE)
+	for (dname in detectors) 
+	{
+		attrs = c("data-type:name" = dname)
+		gatingMLNode$addNode("data-type:fcs-dimension", attrs = attrs)
+	}
+	gatingMLNode$closeTag() # </transforms:detectors>
+	
+	for (rowNo in 1:nrow(myComp@spillover))
+	{
+		gatingMLNode$addNode("transforms:spectrum", close = FALSE)
+		for (colNo in 1:ncol(myComp@spillover)) 
+		{
+			attrs = c("transforms:value" = myComp@spillover[rowNo,colNo])
+			gatingMLNode$addNode("transforms:coefficient", attrs = attrs)
+		}
+		gatingMLNode$closeTag() # </transforms:spectrum>
+	}
+	
+	gatingMLNode$closeTag() # </transforms:spectrumMatrix>
 }
 
 addDimensions <- function(gatingMLNode, x, flowEnv)
