@@ -2,20 +2,19 @@
 ## Code related to writing Gating-ML files ##
 #############################################
 
-# TODO Consider writing this in an Object-oriented fashion... 
-# Maybe, if there is extra time :-)
+# TODO If somebody has the time, it may be nice to 
+# rewrite this in an object-oriented fashion. 
 
 write.gatingML <- function(flowEnv, file = NULL)
 {
-    # TODO Drop this note when done.
-    cat("Please do not use this function, it is currently under development!!\n--------------------------------------------------------------------\n\n")
-    
     if(!is.null(file) && !is(file, "character")) 
         stop("A file has to be either NULL or a character string.", call. = FALSE)
     if(is.null(flowEnv) || !is.environment(flowEnv))
         stop("A flowEnv environment with objects to be saved is requred.", call. = FALSE)
     if(!is.null(file) && substr(file, nchar(file) - 3, nchar(file)) != ".xml")
         file <- paste(file, "xml", sep=".")
+    
+    flowEnv[['.debugMessages']] = c()
 
     namespaces <- c(
         "gating" = "http://www.isac-net.org/std/Gating-ML/v2.0/gating", 
@@ -34,21 +33,20 @@ write.gatingML <- function(flowEnv, file = NULL)
     gatingMLNode$addNode("XML-version", as.character(packageVersion("XML")))
     gatingMLNode$closeTag()
 
-	flowEnv[['.singleParTransforms']] = new.env() # Use this env to collect transformations
-	for (x in ls(flowEnv)) if(is(flowEnv[[x]], "singleParameterTransform")) collectTransform(x, flowEnv)
-	
-	# For the output, singleParameterTransform go first unless they can be skipped all together
-	for (x in ls(flowEnv)) if(is(flowEnv[[x]], "singleParameterTransform"))
-		if(!shouldTransformationBeSkipped(x, flowEnv)) addObjectToGatingML(gatingMLNode, x, flowEnv)
-	for (x in ls(flowEnv)) if(!is(flowEnv[[x]], "singleParameterTransform")) addObjectToGatingML(gatingMLNode, x, flowEnv)
+    flowEnv[['.singleParTransforms']] = new.env() # Use this env to collect transformations
+    for (x in ls(flowEnv)) if(is(flowEnv[[x]], "singleParameterTransform")) collectTransform(x, flowEnv)
+    
+    # For the output, singleParameterTransform go first unless they can be skipped all together
+    for (x in ls(flowEnv)) if(is(flowEnv[[x]], "singleParameterTransform"))
+        if(!shouldTransformationBeSkipped(x, flowEnv)) addObjectToGatingML(gatingMLNode, x, flowEnv)
+    for (x in ls(flowEnv)) if(!is(flowEnv[[x]], "singleParameterTransform")) addObjectToGatingML(gatingMLNode, x, flowEnv)
     
     if(!is.null(file)) sink(file = file)
     cat(saveXML(gatingMLNode$value(), encoding = "UTF-8"))
     if(!is.null(file)) sink()
-	
-	
-	#rm(list = ls(flowEnv[['.singleParTransforms']], all.names = TRUE), envir = flowEnv[['.singleParTransforms']])
-	#rm('.singleParTransforms', envir = flowEnv) 
+    
+    rm(list = ls(flowEnv[['.singleParTransforms']], all.names = TRUE), envir = flowEnv[['.singleParTransforms']])
+    rm('.singleParTransforms', envir = flowEnv) 
 }
 
 addObjectToGatingML <- function(gatingMLNode, x, flowEnv, addParent = NULL, forceGateId = NULL)
@@ -59,6 +57,7 @@ addObjectToGatingML <- function(gatingMLNode, x, flowEnv, addParent = NULL, forc
         "rectangleGate" = addRectangleGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
         "polygonGate" = addPolygonGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
         "ellipsoidGate" = addEllipsoidGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
+        "quadGate" = addQuadGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
         "intersectFilter" = addBooleanAndGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
         "unionFilter" = addBooleanOrGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
         "complementFilter" = addBooleanNotGateNode(gatingMLNode, x, flowEnv, addParent, forceGateId),
@@ -71,8 +70,8 @@ addObjectToGatingML <- function(gatingMLNode, x, flowEnv, addParent = NULL, forc
         "logicletGml2" = addLogicletGml2(gatingMLNode, x, flowEnv),
         "compensatedParameter" = NA,
         "numeric" = NA,
-        cat(paste("!", x, ": class", class(object), "- not supported yet.\n"))
-    # TODO Add quadGate support
+        warning(paste("Class", class(object), "is not supported in Gating-ML 2.0 output."), call. = FALSE)
+		# TODO Add ratio support
     )
 }
 
@@ -81,11 +80,11 @@ addRectangleGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
     if(is(x, "character")) gate = flowEnv[[x]]
     else gate = x
     if(!is(gate, "rectangleGate")) stop(paste("Unexpected object insted of a rectangleGate - ", class(gate))) 
-    cat(paste("- Working on rectangleGate ", gate@filterId, ".\n", sep=""))
+    addDebugMessage(paste("Working on rectangleGate ", gate@filterId, sep=""), flowEnv)
 
     if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId, flowEnv))
     else attrs = c("gating:id" = filterIdtoXMLId(forceGateId, flowEnv))
-    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = addParent)
+    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))
     gatingMLNode$addNode("gating:RectangleGate", attrs = attrs, close = FALSE)
     addDimensions(gatingMLNode, x, flowEnv)
     gatingMLNode$closeTag() # </gating:RectangleGate>
@@ -96,11 +95,11 @@ addPolygonGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateId)
     if(is(x, "character")) gate = flowEnv[[x]]
     else gate = x
     if(!is(gate, "polygonGate")) stop(paste("Unexpected object insted of a polygonGate - ", class(gate))) 
-    cat(paste("- Working on polygonGate ", gate@filterId, ".\n", sep=""))
+    addDebugMessage(paste("Working on polygonGate ", gate@filterId, sep=""), flowEnv)
     
     if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId, flowEnv))
     else attrs = c("gating:id" = filterIdtoXMLId(forceGateId, flowEnv))
-    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = addParent)    
+    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))    
     gatingMLNode$addNode("gating:PolygonGate", attrs = attrs, close = FALSE)
     addDimensions(gatingMLNode, x, flowEnv)
     for (i in 1:length(gate@boundaries[,1]))
@@ -120,11 +119,11 @@ addEllipsoidGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
     if(is(x, "character")) gate = flowEnv[[x]]
     else gate = x
     if(!is(gate, "ellipsoidGate")) stop(paste("Unexpected object insted of an ellipsoidGate - ", class(gate))) 
-    cat(paste("- Working on ellipsoidGate ", gate@filterId, ".\n", sep=""))
+    addDebugMessage(paste("Working on ellipsoidGate ", gate@filterId, sep=""), flowEnv)
     
     if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId, flowEnv))
     else attrs = c("gating:id" = filterIdtoXMLId(forceGateId, flowEnv))
-    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = addParent)    
+    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))    
     gatingMLNode$addNode("gating:EllipsoidGate", attrs = attrs, close = FALSE)
     addDimensions(gatingMLNode, x, flowEnv)
     
@@ -160,13 +159,17 @@ addBooleanAndGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGate
     if(is(x, "character")) gate = flowEnv[[x]]
     else gate = x
     if(!is(gate, "intersectFilter")) stop(paste("Unexpected object insted of an intersectFilter - ", class(gate))) 
-    cat(paste("- Working on intersectFilter ", gate@filterId, ".\n", sep=""))
+    addDebugMessage(paste("Working on intersectFilter ", gate@filterId, sep=""), flowEnv)
     
     if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId, flowEnv))
     else attrs = c("gating:id" = filterIdtoXMLId(forceGateId, flowEnv))
-    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = addParent)    
+    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))    
     gatingMLNode$addNode("gating:BooleanGate", attrs = attrs, close = FALSE)
     gatingMLNode$addNode("gating:and", close = FALSE)
+    if(length(gate@filters) == 0) 
+    {
+        #TODO
+    }
     for (i in 1:length(gate@filters))
     {
         attrs = c("gating:ref" = filterIdtoXMLId(gate@filters[[i]]@filterId, flowEnv))
@@ -187,11 +190,11 @@ addBooleanOrGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
     if(is(x, "character")) gate = flowEnv[[x]]
     else gate = x
     if(!is(gate, "unionFilter")) stop(paste("Unexpected object insted of a unionFilter - ", class(gate))) 
-    cat(paste("- Working on unionFilter ", gate@filterId, ".\n", sep=""))
+    addDebugMessage(paste("Working on unionFilter ", gate@filterId, sep=""), flowEnv)
     
     if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId, flowEnv))
     else attrs = c("gating:id" = filterIdtoXMLId(forceGateId, flowEnv))
-    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = addParent)    
+    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))    
     gatingMLNode$addNode("gating:BooleanGate", attrs = attrs, close = FALSE)
     gatingMLNode$addNode("gating:or", close = FALSE)
     for (i in 1:length(gate@filters))
@@ -215,11 +218,11 @@ addBooleanNotGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGate
     if(is(x, "character")) gate = flowEnv[[x]]
     else gate = x
     if(!is(gate, "complementFilter")) stop(paste("Unexpected object insted of a complementFilter - ", class(gate))) 
-    cat(paste("- Working on complementFilter ", gate@filterId, ".\n", sep=""))
+    addDebugMessage(paste("Working on complementFilter ", gate@filterId, sep=""), flowEnv)
     
     if (is.null(forceGateId)) attrs = c("gating:id" = filterIdtoXMLId(gate@filterId, flowEnv))
     else attrs = c("gating:id" = filterIdtoXMLId(forceGateId, flowEnv))
-    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = addParent)    
+    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))    
     gatingMLNode$addNode("gating:BooleanGate", attrs = attrs, close = FALSE)
     gatingMLNode$addNode("gating:not", close = FALSE)
     if(length(gate@filters)  == 1) 
@@ -227,13 +230,71 @@ addBooleanNotGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGate
         attrs = c("gating:ref" = filterIdtoXMLId(gate@filters[[1]]@filterId, flowEnv))
         gatingMLNode$addNode("gating:gateReference", attrs = attrs)
     }
-    gatingMLNode$closeTag() # </gating:or>
+    gatingMLNode$closeTag() # </gating:not>
     gatingMLNode$closeTag() # </gating:BooleanGate>    
+}
+
+addQuadGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateId)
+{
+    if(is(x, "character")) gate = flowEnv[[x]]
+    else gate = x
+    if(!is(gate, "quadGate")) stop(paste("Unexpected object insted of a quadGate - ", class(gate))) 
+    addDebugMessage(paste("Working on quadGate ", gate@filterId, sep=""), flowEnv)
+    
+    if (is.null(forceGateId)) myFilterId = filterIdtoXMLId(gate@filterId, flowEnv)
+    else myFilterId = filterIdtoXMLId(forceGateId, flowEnv)
+    attrs = c("gating:id" = myFilterId)
+    if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))
+    
+    gatingMLNode$addNode("gating:QuadrantGate", attrs = attrs, close = FALSE)
+    addDimensions(gatingMLNode, x, flowEnv, myFilterId)
+    
+    attrs = c("gating:id" = paste(myFilterId, ".PP", sep = ""))
+    gatingMLNode$addNode("gating:Quadrant", attrs = attrs, close = FALSE)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D1", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[1] + 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D2", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[2] + 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    gatingMLNode$closeTag() # </gating:Quadrant>
+ 
+    attrs = c("gating:id" = paste(myFilterId, ".PN", sep = ""))
+    gatingMLNode$addNode("gating:Quadrant", attrs = attrs, close = FALSE)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D1", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[1] + 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D2", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[2] - 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    gatingMLNode$closeTag() # </gating:Quadrant>
+    
+    attrs = c("gating:id" = paste(myFilterId, ".NP", sep = ""))
+    gatingMLNode$addNode("gating:Quadrant", attrs = attrs, close = FALSE)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D1", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[1] - 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D2", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[2] + 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    gatingMLNode$closeTag() # </gating:Quadrant>
+    
+    attrs = c("gating:id" = paste(myFilterId, ".NN", sep = ""))
+    gatingMLNode$addNode("gating:Quadrant", attrs = attrs, close = FALSE)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D1", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[1] - 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    attrs = c("gating:divider_ref" = paste(myFilterId, ".D2", sep = ""))
+    attrs = c(attrs, "gating:location" = as.character(gate@boundary[2] - 1))
+    gatingMLNode$addNode("gating:position", attrs = attrs)
+    gatingMLNode$closeTag() # </gating:Quadrant>
+    
+    gatingMLNode$closeTag() # </gating:QuadrantGate>
 }
 
 addGateWithParent <- function(gatingMLNode, x, flowEnv)
 {
-    cat(paste("- Working on ", x, ".\n", sep=""))
+    addDebugMessage(paste("Working on ", x, sep=""), flowEnv)
     gate = flowEnv[[x]]
     if (length(gate@filters) == 2){
         newX = gate@filters[[1]]
@@ -253,7 +314,7 @@ addCompensation <- function(gatingMLNode, x, flowEnv)
     if(is(x, "character")) myComp = flowEnv[[x]]
     else myComp = x
     if(!is(myComp, "compensation")) stop(paste("Unexpected object insted of a compensation - ", class(myComp))) 
-    cat(paste("- Working on compensation ", myComp@compensationId, ".\n", sep=""))
+    addDebugMessage(paste("Working on compensation ", myComp@compensationId, sep=""), flowEnv)
     
     detectors <- colnames(myComp@spillover)
     if (is.null(detectors)) 
@@ -316,7 +377,7 @@ addAsinhtGml2 <- function(gatingMLNode, x, flowEnv)
     if(is(x, "character")) myTrans = flowEnv[[x]]
     else myTrans = x
     if(!is(myTrans, "asinhtGml2")) stop(paste("Unexpected object insted of asinhtGml2 - ", class(myTrans))) 
-    cat(paste("- Working on asinhtGml2 ", myTrans@transformationId, ".\n", sep=""))
+    addDebugMessage(paste("Working on asinhtGml2 ", myTrans@transformationId, sep=""), flowEnv)
     
     attrs = c("transforms:id" = filterIdtoXMLId(myTrans@transformationId, flowEnv))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
@@ -330,7 +391,7 @@ addHyperlogtGml2 <- function(gatingMLNode, x, flowEnv)
     if(is(x, "character")) myTrans = flowEnv[[x]]
     else myTrans = x
     if(!is(myTrans, "hyperlogtGml2")) stop(paste("Unexpected object insted of hyperlogtGml2 - ", class(myTrans))) 
-    cat(paste("- Working on hyperlogtGml2 ", myTrans@transformationId, ".\n", sep=""))
+    addDebugMessage(paste("Working on hyperlogtGml2 ", myTrans@transformationId, sep=""), flowEnv)
     
     attrs = c("transforms:id" = filterIdtoXMLId(myTrans@transformationId, flowEnv))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
@@ -344,7 +405,7 @@ addLogicletGml2 <- function(gatingMLNode, x, flowEnv)
     if(is(x, "character")) myTrans = flowEnv[[x]]
     else myTrans = x
     if(!is(myTrans, "logicletGml2")) stop(paste("Unexpected object insted of logicletGml2 - ", class(myTrans))) 
-    cat(paste("- Working on logicletGml2 ", myTrans@transformationId, ".\n", sep=""))
+    addDebugMessage(paste("Working on logicletGml2 ", myTrans@transformationId, sep=""), flowEnv)
     
     attrs = c("transforms:id" = filterIdtoXMLId(myTrans@transformationId, flowEnv))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
@@ -358,7 +419,7 @@ addLintGml2 <- function(gatingMLNode, x, flowEnv)
     if(is(x, "character")) myTrans = flowEnv[[x]]
     else myTrans = x
     if(!is(myTrans, "lintGml2")) stop(paste("Unexpected object insted of lintGml2 - ", class(myTrans))) 
-    cat(paste("- Working on lintGml2 ", myTrans@transformationId, ".\n", sep=""))
+    addDebugMessage(paste("Working on lintGml2 ", myTrans@transformationId, sep=""), flowEnv)
     
     attrs = c("transforms:id" = filterIdtoXMLId(myTrans@transformationId, flowEnv))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
@@ -372,7 +433,7 @@ addLogtGml2 <- function(gatingMLNode, x, flowEnv)
     if(is(x, "character")) myTrans = flowEnv[[x]]
     else myTrans = x
     if(!is(myTrans, "logtGml2")) stop(paste("Unexpected object insted of logtGml2 - ", class(myTrans))) 
-    cat(paste("- Working on logtGml2 ", myTrans@transformationId, ".\n", sep=""))
+    addDebugMessage(paste("Working on logtGml2 ", myTrans@transformationId, sep=""), flowEnv)
     
     attrs = c("transforms:id" = filterIdtoXMLId(myTrans@transformationId, flowEnv))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
@@ -381,7 +442,7 @@ addLogtGml2 <- function(gatingMLNode, x, flowEnv)
     gatingMLNode$closeTag() # </transforms:transformation>    
 }
 
-addDimensions <- function(gatingMLNode, x, flowEnv)
+addDimensions <- function(gatingMLNode, x, flowEnv, quadGateDividerIdBasedName = NULL)
 {
     if(is(x, "character")) gate = flowEnv[[x]]
     else gate = x
@@ -392,7 +453,6 @@ addDimensions <- function(gatingMLNode, x, flowEnv)
 
         if (is(gate, "rectangleGate"))
         {
-            # TODO Refactor this piece of code?
             min = gate@min[[i]]
             max = gate@max[[i]]
             if(min != -Inf) attrs = c(attrs, "gating:min" = min)
@@ -430,10 +490,20 @@ addDimensions <- function(gatingMLNode, x, flowEnv)
             if(is(parameter, "transformReference")) parameter = resolveTransformationReference(parameter)
         }
         
-        gatingMLNode$addNode("gating:dimension", attrs = attrs, close = FALSE)
-        addDimensionContents(gatingMLNode, parameter, flowEnv)
-        gatingMLNode$closeTag() # </gating:dimension>
+        if (is(gate, "quadGate")) 
+        {
+            attrs = c(attrs, "gating:id" = paste(quadGateDividerIdBasedName, ".D", i, sep = ""))
+            gatingMLNode$addNode("gating:divider", attrs = attrs, close = FALSE)
+        }
+        else
+            gatingMLNode$addNode("gating:dimension", attrs = attrs, close = FALSE)
         
+        addDimensionContents(gatingMLNode, parameter, flowEnv)
+        if (is(gate, "quadGate")) 
+        {
+            gatingMLNode$addNode("gating:value", as.character(gate@boundary[i]))
+        }
+        gatingMLNode$closeTag() # </gating:dimension> or </gating:divider>
     }
 }
 
@@ -457,15 +527,15 @@ addDimensionContents <- function(gatingMLNode, parameter, flowEnv)
 
 filterIdtoXMLId <- function(x, flowEnv)
 {
-	trEnv = flowEnv[['.singleParTransforms']]
-	trans = flowEnv[[x]]
-	if(!is.null(trEnv) && !is.null(trans) && is(trans, "singleParameterTransform"))
-	{
-		key = createTransformIdentifier(trans)
-		if (!is.null(trEnv[[key]])) x = trEnv[[key]]		
-	}
-	
-	# TODO figure out something safe
+    trEnv = flowEnv[['.singleParTransforms']]
+    trans = flowEnv[[x]]
+    if(!is.null(trEnv) && !is.null(trans) && is(trans, "singleParameterTransform"))
+    {
+        key = createTransformIdentifier(trans)
+        if (!is.null(trEnv[[key]])) x = trEnv[[key]]        
+    }
+    
+    # TODO figure out something safe
     x
 }
 
@@ -481,16 +551,16 @@ filterIdtoXMLId <- function(x, flowEnv)
 # transforms before shouldTransformationBeSkipped can be used.
 shouldTransformationBeSkipped <- function(x, flowEnv)
 {
-	trEnv = flowEnv[['.singleParTransforms']]
-	trans = flowEnv[[x]]
-	if(!is.null(trEnv) && !is.null(trans) && is(trans, "singleParameterTransform"))
-	{
-		key = createTransformIdentifier(trans)
-		if (!is.null(trEnv[[key]])){
-			if (x == trEnv[[key]]) FALSE
-			else TRUE
-		} else FALSE
-	} else FALSE
+    trEnv = flowEnv[['.singleParTransforms']]
+    trans = flowEnv[[x]]
+    if(!is.null(trEnv) && !is.null(trans) && is(trans, "singleParameterTransform"))
+    {
+        key = createTransformIdentifier(trans)
+        if (!is.null(trEnv[[key]])){
+            if (x == trEnv[[key]]) FALSE
+            else TRUE
+        } else FALSE
+    } else FALSE
 }
 
 resolveTransformationReference <- function(trRef)
@@ -510,19 +580,19 @@ resolveTransformationReference <- function(trRef)
 # transformation in the Gating-ML 2.0 output.
 createTransformIdentifier <- function(trans)
 {
-	name <- class(trans)
-	for (slotName in slotNames(trans))
-	{
-		if(slotName != ".Data" && slotName != "parameters" && slotName != "transformationId")
-		{
-			slotValue = slot(trans, slotName)
-			if(is(slotValue, "numeric") || is(slotValue, "character"))
-			{
-				name <- paste(name, slotName, slot(trans, slotName), sep = "_")
-			}
-		}
-	}
-	name
+    name <- class(trans)
+    for (slotName in slotNames(trans))
+    {
+        if(slotName != ".Data" && slotName != "parameters" && slotName != "transformationId")
+        {
+            slotValue = slot(trans, slotName)
+            if(is(slotValue, "numeric") || is(slotValue, "character"))
+            {
+                name <- paste(name, slotName, slot(trans, slotName), sep = "_")
+            }
+        }
+    }
+    name
 }
 
 # The flowEnv[['.singleParTransforms']] environment will serve as a hashmap
@@ -532,9 +602,13 @@ createTransformIdentifier <- function(trans)
 # a single one in Gating-ML.
 collectTransform <- function(x, flowEnv)
 {
-	trEnv = flowEnv[['.singleParTransforms']]
-	trans = flowEnv[[x]]
-	key = createTransformIdentifier(trans)
-	if (is.null(trEnv[[key]]) || length(trEnv[[key]]) > trans@transformationId) trEnv[[key]] = trans@transformationId   
+    trEnv = flowEnv[['.singleParTransforms']]
+    trans = flowEnv[[x]]
+    key = createTransformIdentifier(trans)
+    if (is.null(trEnv[[key]]) || length(trEnv[[key]]) > trans@transformationId) trEnv[[key]] = trans@transformationId   
 }
 
+addDebugMessage <- function(msg, flowEnv)
+{
+    flowEnv[['.debugMessages']] = c(flowEnv[['.debugMessages']], msg)
+}
