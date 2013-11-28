@@ -167,9 +167,7 @@ addBooleanAndGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGate
     gatingMLNode$addNode("gating:BooleanGate", attrs = attrs, close = FALSE)
     gatingMLNode$addNode("gating:and", close = FALSE)
     if(length(gate@filters) == 0) 
-    {
-        #TODO
-    }
+		stop("Boolean AND gates (intersectFilter) have to reference some arguments.", call. = FALSE)
     for (i in 1:length(gate@filters))
     {
         attrs = c("gating:ref" = filterIdtoXMLId(gate@filters[[i]]@filterId, flowEnv))
@@ -197,6 +195,8 @@ addBooleanOrGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
     if (!is.null(addParent)) attrs = c(attrs, "gating:parent_id" = filterIdtoXMLId(addParent, flowEnv))    
     gatingMLNode$addNode("gating:BooleanGate", attrs = attrs, close = FALSE)
     gatingMLNode$addNode("gating:or", close = FALSE)
+	if(length(gate@filters) == 0) 
+		stop("Boolean OR gates (unionFilter) have to reference some arguments.", call. = FALSE)
     for (i in 1:length(gate@filters))
     {
         attrs = c("gating:ref" = filterIdtoXMLId(gate@filters[[i]]@filterId, flowEnv))
@@ -212,7 +212,6 @@ addBooleanOrGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
     gatingMLNode$closeTag() # </gating:BooleanGate>    
 }
 
-#TODO Check errors for Boolean gates not having enough pars. 
 addBooleanNotGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateId)
 {
     if(is(x, "character")) gate = flowEnv[[x]]
@@ -229,7 +228,7 @@ addBooleanNotGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGate
     {
         attrs = c("gating:ref" = filterIdtoXMLId(gate@filters[[1]]@filterId, flowEnv))
         gatingMLNode$addNode("gating:gateReference", attrs = attrs)
-    }
+    } else stop("Boolean NOT gates (complementFilter) have to reference exactly one argument.", call. = FALSE)
     gatingMLNode$closeTag() # </gating:not>
     gatingMLNode$closeTag() # </gating:BooleanGate>    
 }
@@ -303,10 +302,7 @@ addGateWithParent <- function(gatingMLNode, x, flowEnv)
         else parentName = parent@filterId
         addObjectToGatingML(gatingMLNode, newX, flowEnv, parentName, gate@filterId)    
     }
-    else
-    {
-        cat(paste("This should not happen; unexpected length of filters for", x, "class", class(gate))) # TODO
-    }
+    else stop(paste("Unexpected length of filters for class", class(gate)))
 }
 
 addCompensation <- function(gatingMLNode, x, flowEnv)
@@ -319,7 +315,7 @@ addCompensation <- function(gatingMLNode, x, flowEnv)
     detectors <- colnames(myComp@spillover)
     if (is.null(detectors)) 
     {
-        cat(paste("Cannot export a spillover matrix without column names (", myComp@compensationId, ").", sep="")) # TODO
+        stop(paste("Cannot export a spillover matrix without column names (", myComp@compensationId, ").", sep=""))
         return
     }
     
@@ -328,7 +324,7 @@ addCompensation <- function(gatingMLNode, x, flowEnv)
     {
         if(nrow(myComp@spillover) != ncol(myComp@spillover)) 
         {
-            cat(paste("Cannot export a non-sqaure spillover matrix without row names (", myComp@compensationId, ").", sep="")) # TODO
+			stop(paste("Cannot export a non-sqaure spillover (spectrum) matrix without row names (", myComp@compensationId, ").", sep=""))
             return
         }
         else
@@ -370,7 +366,6 @@ addCompensation <- function(gatingMLNode, x, flowEnv)
     gatingMLNode$closeTag() # </transforms:spectrumMatrix>
 }
 
-# TODO Merge transformations that are the same except for the argument that they are applied to
 # TODO See what Gating-ML 1.0 transformations can be supported in Gating-ML 2.0 export
 addAsinhtGml2 <- function(gatingMLNode, x, flowEnv)
 {
@@ -484,11 +479,7 @@ addDimensions <- function(gatingMLNode, x, flowEnv, quadGateDividerIdBasedName =
             else 
                 attrs = c(attrs, "gating:compensation-ref" = "FCS")
         } 
-        else
-        {
-            cat(paste("This should not happen; unexpected parameter class", class(parameter))) # TODO
-            if(is(parameter, "transformReference")) parameter = resolveTransformationReference(parameter)
-        }
+        else stop(paste("Unexpected parameter class", class(parameter)))
         
         if (is(gate, "quadGate")) 
         {
@@ -518,16 +509,21 @@ addDimensionContents <- function(gatingMLNode, parameter, flowEnv)
     }
     else if(is(parameter, "unitytransform")) attrs = c("data-type:name" = parameter@parameters)
     else if(is(parameter, "character")) attrs = c("data-type:name" = parameter)
-    else {
-        cat("\nThis should not happen!\n\n") # TODO
-        attrs = c("data-type:name" = "????")
-    }
+    else stop(paste("Unrecognized parameter type, class", class(parameter)))
     gatingMLNode$addNode("data-type:fcs-dimension", attrs = attrs)
 }
 
+# This converts the identifier to an XML safe identifier and also,
+# if it is a singleParameterTransform and we have a different 
+# 'representative' transform for those (saved in flowEnv[['.singleParTransforms']])
+# then the identifier of the representative is used instead.
 filterIdtoXMLId <- function(x, flowEnv)
 {
-    trEnv = flowEnv[['.singleParTransforms']]
+	if(!(is.character(x))) stop(paste("Object of class", class(x), "cannot be converted to an XML identifier."))
+	if(length(x) <= 0) stop(paste("An empty string cannot be converted to an XML identifier."))
+	
+    # First, if it is a singleParameterTransform then check for a representative and use it instead eventually
+	trEnv = flowEnv[['.singleParTransforms']]
     trans = flowEnv[[x]]
     if(!is.null(trEnv) && !is.null(trans) && is(trans, "singleParameterTransform"))
     {
@@ -535,8 +531,29 @@ filterIdtoXMLId <- function(x, flowEnv)
         if (!is.null(trEnv[[key]])) x = trEnv[[key]]        
     }
     
-    # TODO figure out something safe
-    x
+    # Now make it a safe XML identifier
+	# 1) Put an underscore prefix if it starts with a number 
+	if(substr(x, 1, 1) >= "0" && substr(x, 1, 1) <= "9") x = paste("_", x, sep="")
+	# 2) Replace 'strange characters with '.'
+	for(i in 1:nchar(x)) {
+		if(!isNCNameChar(substr(x, i, i))) x <- paste(substr(x, 0, i - 1), '.', substr(x, i + 1, nchar(x)), sep= "")
+	}
+	x
+}
+
+# Return true if you are sure that the character is safe to be placed in
+# an XML identifier.
+isNCNameChar <- function(char)
+{
+	# Based on the ASCII table and XML NCName syntax
+	asciiValue = as.numeric(charToRaw(char))
+	if(asciiValue < 45) return(FALSE) 
+	if(asciiValue == 47) return(FALSE)
+	if(asciiValue >= 58 && asciiValue <= 64) return(FALSE)
+	if(asciiValue >= 91 && asciiValue <= 94) return(FALSE)
+	if(asciiValue == 96) return(FALSE)
+	if(asciiValue >= 123) return(FALSE)
+	TRUE	
 }
 
 # Returns TRUE if and only if x is a singleParameterTransform
