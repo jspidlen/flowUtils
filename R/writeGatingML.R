@@ -37,7 +37,8 @@ write.gatingML <- function(flowEnv, file = NULL)
     
     flowEnv[['.objectIDsWrittenToXMLOutput']] = list() # Use this list to collect XML Ids
 
-    # TODO: Not sure if we should go over everything and add transformations to flowEnv if they are missing???
+    # Go over everything and temporarily add transformations and argument gates to flowEnv
+	# if they are not saved in flowEnv directly, but they are being used in other objects
     flowEnv[['.addedObjects']] = list() # List of object identifiers of objects that we have to temporarily add to flowEnv
     for (x in ls(flowEnv)) addReferencedObjectsToEnv(x, flowEnv) 
     
