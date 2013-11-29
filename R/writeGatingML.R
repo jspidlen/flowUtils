@@ -556,11 +556,11 @@ addDimensions <- function(gatingMLNode, x, flowEnv, quadGateDividerIdBasedName =
             if(is(parameter, "unitytransform")) attrs = c(attrs, "gating:compensation-ref" = "uncompensated")
             else if(is(parameter, "compensatedParameter")) attrs = addCompensationRef(attrs, parameter, flowEnv)
             else if(is(parameter, "ratiotGml2") || is(parameter, "ratio")) attrs = addCompensationRef(attrs, parameter@numerator, flowEnv)
-            else stop(paste("Unexpected parameter class", class(parameter)))
+            else stop(paste("Unexpected parameter class ", class(parameter), ", compound transformations are not supported in Gating-ML 2.0.", sep=""))
         } 
         else if(is(parameter, "compensatedParameter")) attrs = addCompensationRef(attrs, parameter, flowEnv)
         else if(is(parameter, "ratiotGml2") || is(parameter, "ratio")) attrs = addCompensationRef(attrs, parameter@numerator, flowEnv)
-        else stop(paste("Unexpected parameter class", class(parameter)))
+        else stop(paste("Unexpected parameter class", class(parameter), "- not supported in Gating-ML 2.0 output)."))
         
         if(is(gate, "quadGate")) 
         {
@@ -592,7 +592,7 @@ addDimensionContents <- function(gatingMLNode, parameter, flowEnv)
         attrs = c("data-type:transformation-ref" = parameter@transformationId)
         newDimension = TRUE
     }
-    else stop(paste("Unrecognized parameter type, class", class(parameter)))
+    else stop(paste("Unrecognized parameter type, class ", class(parameter), ". Note that compound transformations are not supported in Gating-ML 2.0.", sep=""))
     
     if(newDimension)
         gatingMLNode$addNode("data-type:new-dimension", attrs = attrs)
@@ -821,7 +821,7 @@ doubleCheckExistanceOfParameter <- function(par, flowEnv)
 {
     if(is(par, "transform")) 
     {
-        if(!exists(par@transformationId, envir=flowEnv)) 
+        if(!is.null(par@transformationId) && par@transformationId != "" && !exists(par@transformationId, envir=flowEnv)) 
         {
             flowEnv[[par@transformationId]] <- par
             flowEnv[['.addedObjects']][[par@transformationId]] <- par@transformationId
@@ -836,7 +836,7 @@ doubleCheckExistanceOfFilter <- function(filt, flowEnv)
 {
     if(is(filt, "concreteFilter")) 
     {
-        if(!exists(filt@filterId, envir=flowEnv)) 
+        if(!is.null(filt@filterId) && filt@filterId != "" && !exists(filt@filterId, envir=flowEnv)) 
         {
             flowEnv[[filt@filterId]] <- filt
             flowEnv[['.addedObjects']][[filt@filterId]] <- filt@filterId
