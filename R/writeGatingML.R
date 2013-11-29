@@ -42,10 +42,10 @@ write.gatingML <- function(flowEnv, file = NULL)
     flowEnv[['.singleParTransforms']] = new.env() # Use this env to collect transformations
     for (x in ls(flowEnv)) if(is(flowEnv[[x]], "singleParameterTransform")) collectTransform(x, flowEnv)
     
-    # For the output, singleParameterTransform go first unless they can be skipped all together
-    for (x in ls(flowEnv)) if(is(flowEnv[[x]], "singleParameterTransform"))
+    # Transforms go first unless they can be skipped all together
+    for (x in ls(flowEnv)) if(is(flowEnv[[x]], "transform"))
         if(!shouldTransformationBeSkipped(x, flowEnv)) addObjectToGatingML(gatingMLNode, x, flowEnv)
-    for (x in ls(flowEnv)) if(!is(flowEnv[[x]], "singleParameterTransform")) addObjectToGatingML(gatingMLNode, x, flowEnv)
+    for (x in ls(flowEnv)) if(!is(flowEnv[[x]], "transform")) addObjectToGatingML(gatingMLNode, x, flowEnv)
     
     if(!is.null(file)) sink(file = file)
     cat(saveXML(gatingMLNode$value(), encoding = "UTF-8"))
@@ -78,6 +78,7 @@ addObjectToGatingML <- function(gatingMLNode, x, flowEnv, addParent = NULL, forc
         "logtGml2" = addLogtGml2(gatingMLNode, x, flowEnv),
         "logicletGml2" = addLogicletGml2(gatingMLNode, x, flowEnv),
         "ratiotGml2" = addRatiotGml2(gatingMLNode, x, flowEnv),
+		"ratio" = addRatioGml1.5(gatingMLNode, x, flowEnv),
         "compensatedParameter" = NA,
         "unitytransform" = NA,
         "numeric" = NA,
@@ -499,6 +500,29 @@ addRatiotGml2 <- function(gatingMLNode, x, flowEnv)
     gatingMLNode$closeTag() # </transforms:transformation>    
 }
 
+# Add a ratio transformation (from Gating-ML 1.5) named x 
+# to the the Gating-ML node. This will be translated to how "fratio" of Gating-ML 2.0
+# (When we set A = 1, B = 0, C = 0 then ratio of Gating-ML 1.5 == fratio of Gating-ML 2.0)
+addRatioGml1.5 <- function(gatingMLNode, x, flowEnv)
+{
+	myTrans = objectNameToObject(x, flowEnv)
+	if(!is(myTrans, "ratio")) stop(paste("Unexpected object insted of ratio - ", class(myTrans))) 
+	addDebugMessage(paste("Working on ratio ", myTrans@transformationId, sep=""), flowEnv)
+	
+	myID = getObjectId(myTrans, NULL, flowEnv)
+	if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
+	
+	attrs = c("transforms:id" = myID)
+	gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
+	attrs = c("transforms:A" = "1", "transforms:B" = "0", "transforms:C" = "0")
+	gatingMLNode$addNode("transforms:fratio", attrs = attrs, close = FALSE)
+	addDimensionContents(gatingMLNode, myTrans@numerator, flowEnv)
+	addDimensionContents(gatingMLNode, myTrans@denominator, flowEnv)
+	gatingMLNode$closeTag() # </transforms:fratio>
+	gatingMLNode$closeTag() # </transforms:transformation>    
+}
+
+
 # Add a Gating-ML dimension to a Gating-ML node
 addDimensions <- function(gatingMLNode, x, flowEnv, quadGateDividerIdBasedName = NULL)
 {
@@ -526,11 +550,11 @@ addDimensions <- function(gatingMLNode, x, flowEnv, quadGateDividerIdBasedName =
             
             if(is(parameter, "unitytransform")) attrs = c(attrs, "gating:compensation-ref" = "uncompensated")
             else if(is(parameter, "compensatedParameter")) attrs = addCompensationRef(attrs, parameter, flowEnv)
-            else if(is(parameter, "ratiotGml2")) attrs = addCompensationRef(attrs, parameter@numerator, flowEnv)
+            else if(is(parameter, "ratiotGml2") || is(parameter, "ratio")) attrs = addCompensationRef(attrs, parameter@numerator, flowEnv)
             else stop(paste("Unexpected parameter class", class(parameter)))
         } 
         else if(is(parameter, "compensatedParameter")) attrs = addCompensationRef(attrs, parameter, flowEnv)
-        else if(is(parameter, "ratiotGml2")) attrs = addCompensationRef(attrs, parameter@numerator, flowEnv)
+        else if(is(parameter, "ratiotGml2") || is(parameter, "ratio")) attrs = addCompensationRef(attrs, parameter@numerator, flowEnv)
         else stop(paste("Unexpected parameter class", class(parameter)))
         
         if(is(gate, "quadGate")) 
@@ -559,7 +583,7 @@ addDimensionContents <- function(gatingMLNode, parameter, flowEnv)
     }
     else if(is(parameter, "unitytransform")) attrs = c("data-type:name" = parameter@parameters)
     else if(is(parameter, "character")) attrs = c("data-type:name" = parameter)
-    else if(is(parameter, "ratiotGml2")) {
+    else if(is(parameter, "ratiotGml2") || is(parameter, "ratio")) {
         attrs = c("data-type:transformation-ref" = parameter@transformationId)
         newDimension = TRUE
     }
