@@ -105,7 +105,8 @@ test.myPolygonGate3LogLin <- function()
 test.myPolygonGateWithCustomInvertedAlreadySpillover <- function()
 {
     gateId  <- "myPolygonGateWithCustomInvertedAlreadySpillover"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myPolygonWithCustInvAlrSpil", ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
@@ -113,7 +114,8 @@ test.myPolygonGateWithCustomInvertedAlreadySpillover <- function()
 test.myPolygonGateWithCustomNonSquareSpectrumMatrix <- function()
 {
     gateId  <- "myPolygonGateWithCustomNonSquareSpectrumMatrix"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myPolygonWithCustNonSqSpecMat", ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
@@ -121,7 +123,8 @@ test.myPolygonGateWithCustomNonSquareSpectrumMatrix <- function()
 test.myPolygonGateWithCustomNonSquareSpectrumMatrixInvertedAlready <- function()
 {
     gateId  <- "myPolygonGateWithCustomNonSquareSpectrumMatrixInvertedAlready"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myPolygonWCustNonSqSpecInvAlrd", ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
@@ -129,7 +132,8 @@ test.myPolygonGateWithCustomNonSquareSpectrumMatrixInvertedAlready <- function()
 test.myPolygonGateWithCustomNonSquareSpectrumMatrixOnArcSinH <- function()
 {
     gateId  <- "myPolygonGateWithCustomNonSquareSpectrumMatrixOnArcSinH"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myPolygonWCustNonSqSpecArcSinH", ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
@@ -145,7 +149,8 @@ test.myPolygonGateWithCustomSpillover <- function()
 test.myPolygonGateWithCustomSpilloverAndArcSinH <- function()
 {
     gateId  <- "myPolygonGateWithCustomSpilloverAndArcSinH"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myPolygonWCustSpillAndArcSinH", ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
@@ -161,7 +166,8 @@ test.myPolygonGateWithFCSSpillover <- function()
 test.myPolygonGateWithFCSSpilloverAndArcSinH <- function()
 {
     gateId  <- "myPolygonGateWithFCSSpilloverAndArcSinH"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myPolygonWFCSSpillAndArcSinH", ".txt", sep="")	
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
@@ -241,7 +247,8 @@ test.myRectangleGate3LogicleArcSinH <- function()
 test.myRectangleGate4bHyperlogArcSinHFCSCompensated <- function()
 {
     gateId  <- "myRectangleGate4bHyperlogArcSinHFCSCompensated"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myRect4bHyperlogArcSinHFCSComp", ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
@@ -249,7 +256,8 @@ test.myRectangleGate4bHyperlogArcSinHFCSCompensated <- function()
 test.myRectangleGate4LogicleArcSinHFCSCompensated <- function()
 {
     gateId  <- "myRectangleGate4LogicleArcSinHFCSCompensated"
-    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    # csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", "myRect4LogicleArcSinHFCSComp", ".txt", sep="")	
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
