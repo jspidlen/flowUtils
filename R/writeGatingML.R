@@ -765,7 +765,7 @@ addRectGateMinMax <- function(attrs, gate, i)
         max = gate@max[[i]]
         if(min != -Inf) attrs = c(attrs, "gating:min" = min)
         if(max != Inf) attrs = c(attrs, "gating:max" = max)
-    } else stop(paste("Unexpected gate class", class(parameter), "- expected a rectangleGate."))
+    } else stop(paste("Unexpected gate class", class(gate), "- expected a rectangleGate."))
 
     attrs
 }
@@ -787,7 +787,7 @@ getObjectId <- function(object, forceGateId, flowEnv)
         else myID = filterIdtoXMLId(forceGateId, flowEnv)
     }
     
-    else stop(paste("Unexpected objec to get id from, class", class(parameter)))
+    else stop(paste("Unexpected object to get id from, class", class(object)))
     myID
 }
 
