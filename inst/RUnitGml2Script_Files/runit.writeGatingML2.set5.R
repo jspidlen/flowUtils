@@ -24,104 +24,104 @@ fcs <- read.FCS(fcsFile, transformation="linearize-with-PnG-scaling")
 
 test.myAnd1 <- function()
 {
-	gateId  <- "myAnd1"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myAnd1"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myAnd2 <- function()
 {
-	gateId  <- "myAnd2"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myAnd2"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myAnd3 <- function()
 {
-	gateId  <- "myAnd3"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myAnd3"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myAnd4 <- function()
 {
-	gateId  <- "myAnd4"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myAnd4"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myNotNot <- function()
 {
-	gateId  <- "myNotNot"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myNotNot"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myOr1 <- function()
 {
-	gateId  <- "myOr1"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myOr1"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myOr2 <- function()
 {
-	gateId  <- "myOr2"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myOr2"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myOr3 <- function()
 {
-	gateId  <- "myOr3"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myOr3"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myOr4 <- function()
 {
-	gateId  <- "myOr4"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myOr4"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myPolygon1 <- function()
 {
-	gateId  <- "myPolygon1"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myPolygon1"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.myPolygon2 <- function()
 {
-	gateId  <- "myPolygon2"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "myPolygon2"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.Not_myPolygon1 <- function()
 {
-	gateId  <- "Not_myPolygon1"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "Not_myPolygon1"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.Not_myPolygon2 <- function()
 {
-	gateId  <- "Not_myPolygon2"
-	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
-	expectedResult <- read.csv(csvFile, header = FALSE)
-	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+    gateId  <- "Not_myPolygon2"
+    csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+    expectedResult <- read.csv(csvFile, header = FALSE)
+    flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
