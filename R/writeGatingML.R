@@ -38,7 +38,7 @@ write.gatingML <- function(flowEnv, file = NULL)
     flowEnv[['.objectIDsWrittenToXMLOutput']] = list() # Use this list to collect XML Ids
 
     # Go over everything and temporarily add transformations and argument gates to flowEnv
-	# if they are not saved in flowEnv directly, but they are being used in other objects
+    # if they are not saved in flowEnv directly, but they are being used in other objects
     flowEnv[['.addedObjects']] = list() # List of object identifiers of objects that we have to temporarily add to flowEnv
     for (x in ls(flowEnv)) addReferencedObjectsToEnv(x, flowEnv) 
     
@@ -85,10 +85,17 @@ addObjectToGatingML <- function(gatingMLNode, x, flowEnv, addParent = NULL, forc
         "logicletGml2" = addLogicletGml2(gatingMLNode, x, flowEnv),
         "ratiotGml2" = addRatiotGml2(gatingMLNode, x, flowEnv),
         "ratio" = addRatioGml1.5(gatingMLNode, x, flowEnv),
+        "asinht" = addAsinhtGml1.5(gatingMLNode, x, flowEnv),
         "compensatedParameter" = NA,
         "unitytransform" = NA,
         "numeric" = NA,
-        warning(paste("Class", class(object), "is not supported in Gating-ML 2.0 output."), call. = FALSE)
+        {
+            errMessage <- paste("Class \'", class(object), "\' is not supported in Gating-ML 2.0 output.", sep="")
+            if(is(object, "singleParameterTransform"))
+                errMessage <- paste(errMessage, " Only Gating-ML 2.0 compatible transformations are supported by Gating-ML 2.0 output. Transformation \'", 
+                    object@transformationId, "\' is not among those and will be skipped. Therefore, any gate referencing this transformation will be referencing a non-existent transformation in the Gating-ML output.", sep="")
+            warning(errMessage, call. = FALSE)
+        }
     )
 }
 
@@ -400,7 +407,6 @@ addCompensation <- function(gatingMLNode, x, flowEnv)
     gatingMLNode$closeTag() # </transforms:spectrumMatrix>
 }
 
-# TODO See what Gating-ML 1.0 transformations can be supported in Gating-ML 2.0 export
 # Add an asinhtGml2 transformation named x to the the Gating-ML node
 addAsinhtGml2 <- function(gatingMLNode, x, flowEnv)
 {
@@ -414,6 +420,41 @@ addAsinhtGml2 <- function(gatingMLNode, x, flowEnv)
     attrs = c("transforms:id" = myID)
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
     attrs = c("transforms:T" = myTrans@T, "transforms:M" = myTrans@M, "transforms:A" = myTrans@A)
+    gatingMLNode$addNode("transforms:fasinh", attrs = attrs)
+    gatingMLNode$closeTag() # </transforms:transformation>    
+}
+
+# Add an asinht transformation named x to the the Gating-ML node.
+# Encode asinht from Gating-ML 1.5 compatible parameterization using Gating-ML 2.0
+# compatible parameterization as follows:
+#
+# asinht (ASinH from Gating-ML 1.5) is defined as 
+# f(x) = asinh(a*x)*b
+# asinhtGml2 (fasinh from Gating-ML 2.0) is defined as:
+# f(x) = (asinh(x*sinh(M*log(10))/T) + A*log(10)) / ((M+A)*log(10))
+# Therefore, we will encode asinht as asinhtGml2 by stating
+# A = 0
+# M = 1 / (b * log(10))
+# T = (sinh(1/b)) / a
+# which will give us exactly the right transformation in the Gating-ML 2.0 
+# compatible parameterization. Btw. log is natural logarithm, i.e., based e
+addAsinhtGml1.5 <- function(gatingMLNode, x, flowEnv)
+{
+    myTrans = objectNameToObject(x, flowEnv)
+    if(!is(myTrans, "asinht")) stop(paste("Unexpected object insted of asinht - ", class(myTrans))) 
+    addDebugMessage(paste("Working on asinht ", myTrans@transformationId, sep=""), flowEnv)
+
+    myID = getObjectId(myTrans, NULL, flowEnv)
+    if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
+    
+    attrs = c("transforms:id" = myID)
+    gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
+    
+    A = 0
+    M = 1 / (myTrans@b * log(10))
+    T = (sinh(1/myTrans@b)) / myTrans@a
+    attrs = c("transforms:T" = T, "transforms:M" = M, "transforms:A" = A)
+
     gatingMLNode$addNode("transforms:fasinh", attrs = attrs)
     gatingMLNode$closeTag() # </transforms:transformation>    
 }
