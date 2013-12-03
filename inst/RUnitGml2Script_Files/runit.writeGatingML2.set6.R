@@ -11,7 +11,8 @@
 ## as Gating-ML 2.0 fratio with the same results.
 ## Additional tests include asinhtGml2 with a directly 
 ## embedded (rather than referenced) ratio, filters rather 
-## than filter references for Boolean gates
+## than filter references for Boolean gates,  
+## asinht from Gating-ML 1.5
 #############################################################
 
 csvFile <-  system.file("extdata/Gml2/ExpectedResults/set_6", package = "gatingMLData")
@@ -89,6 +90,12 @@ flowEnv[['notGate']] <- notGate
 parentGate <- new("subsetFilter", filterId="parentGate", filters=list(rg1, rg2))
 flowEnv[['parentGate']] <- parentGate
 rm(list=c('rg1', 'rg2', 'orGate', 'andGate', 'notGate', 'parentGate'))
+
+trArcSinHGml1.5 = asinht(parameters = "APC-A", a = 1, b = 1, transformationId="trArcSinHGml1.5")
+gateAsinhGml1.5 <- rectangleGate(filterId="gateAsinhGml1.5", "trArcSinHGml1.5"=c(0.3, 4.7))
+gateAsinhGml1.5@parameters = new("parameters", list(trArcSinHGml1.5))
+flowEnv[['gateAsinhGml1.5']] <- gateAsinhGml1.5
+rm(list=c('gateAsinhGml1.5', 'trArcSinHGml1.5'))
 
 gateFile <- tempfile(fileext=".gating-ml2.xml")
 write.gatingML(flowEnv, gateFile)
@@ -307,3 +314,12 @@ test.failNicelyWithCompoundTransformsLogicle <- function()
     expectedError = x$message == "Unexpected parameter class logicletGml2, compound transformations are not supported in Gating-ML 2.0."
     checkTrue(expectedError, "Did not get the error message that we were hoping for.")
 }
+
+test.gateAsinhGml1.5 <- function()
+{
+	gateId  <- "gateAsinhGml1.5"
+	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+	expectedResult <- read.csv(csvFile, header = FALSE)
+	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
