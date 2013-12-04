@@ -1,0 +1,41 @@
+% NOTE -- ONLY EDIT THE .Rnw FILE!!!  The .tex file is
+% likely to be overwritten.
+%
+%\VignetteIndexEntry{Gating-ML support in R}
+%\VignetteDepends{flowUtils, flowCore}
+%\VignetteKeywords{Gating-ML}
+%\VignettePackage{flowUtils}
+\documentclass[11pt]{article}
+
+\usepackage{times}
+\usepackage{hyperref}
+\usepackage[authoryear,round]{natbib}
+\usepackage{times}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{subfigure}
+
+\textwidth=6.2in
+\textheight=8.5in
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textsf{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+
+
+\title{flowUtils: Gating-ML support for gating interchange in flow cytometry}
+\author{J. Spidlen}
+
+\begin{document}
+\maketitle
+
+
+
+\end{document}
