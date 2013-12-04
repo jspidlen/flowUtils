@@ -2,7 +2,7 @@
 % likely to be overwritten.
 %
 %\VignetteIndexEntry{Gating-ML support in R}
-%\VignetteDepends{flowUtils, flowCore}
+%\VignetteDepends{flowUtils,flowCore,gatingMLData}
 %\VignetteKeywords{Gating-ML}
 %\VignettePackage{flowUtils}
 \documentclass[11pt]{article}
@@ -30,12 +30,146 @@
 \newcommand{\Rclass}[1]{{\textit{#1}}}
 
 
-\title{flowUtils: Gating-ML support for gating interchange in flow cytometry}
+\title{flowUtils: Gating-ML Support in Flow Cytometry}
 \author{J. Spidlen}
 
 \begin{document}
 \maketitle
 
+\begin{abstract}
+\noindent 
+Gating in flow cytometry is a highly important process for selecting
+populations of interests by defining the characteristics of particles 
+for further data acquisition or analysis. Gating-ML represents 
+a specification on how to form unambiguous 
+XML-based gate definitions. Such a description of gates facilitates
+the interchange and validation of data and analysis between different
+software packages with the potential for significant increase of 
+hardware and software interoperability.\\
 
+\noindent The \Rpackage{flowUtils} package supports reading of Gating-ML 
+version 1.5, and both, reading and writing of Gating-ML 2.0. 
+Gating-ML 2.0 is currently (December 2013) the latest version 
+of Gating-ML.\\
+
+\noindent \textbf{Keywords:} Flow cytometry, gating, XML, data standard
+\end{abstract}
+
+<<loadPackage, echo=false,results=hide>>=
+library(flowUtils)
+@
+
+\section{Introduction}
+\subsection{Background}
+Gating in flow cytometry is a highly important process for selecting
+populations of interests by defining the characteristics of particles 
+for further data acquisition or analysis. A gate is a filter (set of
+boundaries) that serve to isolate a specific group of cytometric 
+events (e.g. cells) from a larger set. A standard formal way of 
+exchanging unambiguous descriptions of gates is crucial for 
+interoperability among analytical hardware and software applications.\\
+
+Gating-ML represents a specification on how to form unambiguous 
+XML-based gate definitions. Such a description of gates facilitates
+the interchange and validation of data and analysis between different
+software packages with the potential for significant increase of 
+hardware and software interoperability. 
+
+\subsection{Gating-ML 1.5}
+Gating-ML has undergone several revisions since the first public 
+release in February 2006. In January 2008, Gating-ML version
+1.5\citep{Spidlen2008} 
+became an International Society for Advancement of Cytometry (ISAC)
+Candidate Recommendation.
+Gating-ML 1.5 supports rectangular gates in $n$ dimensions
+(i.e., from one--dimensional range gates up to n--dimensional
+hyper-rectangular regions), polygon gates in two (and more) dimensions,
+ellipsoid gates in $n$ dimensions, decision tree structures, and 
+Boolean collections of any of the types of gates. Gates are 
+uniquely identified and may be ordered into a hierarchical structure 
+to describe a gating strategy. Gates may be applied on parameters
+(\textit{i.e.}, dimensions) as in list mode data files (\textit{e.g.}, FCS
+files) or on transformed parameters as described by a data transformation.
+Supported transformations include logarithmic, polynomial of degree one 
+(\textit{i.e.}, linear combination with translation), square root, asinh
+(inverse hyperbolic sin), split-scale, Hyperlog, and ratio of two 
+parameters, as well as inverse transformations wherever these exist, 
+\textit{i.e.}, exponential, quadratic transformation, hyperbolic sin, 
+inverse split scale, and EH transformations, and compensation.
+Arbitrary compound transformations may be created. Gates are 
+applicable on raw ``channel'' values of the list mode data
+files unless transformations are explicitely specified. 
+
+\subsection{Gating-ML 2.0}
+Based on feedback gathered from the implementors and development 
+in the field, Gating-ML version 2.0 has been developed and 
+adoped as a candidate for an ISAC Recommendation in January 2013. 
+Gating-ML 2.0 significantly simplifies several aspects of Gating-ML 
+by focusing on gates, data transformations and workflows that are 
+useful in flow cytometry, rather than asking implementors to 
+support a very generic approach.
+Gating-ML 2.0 supports rectangular gates in $n$ dimensions 
+(\textit{i.e.}, from one-dimensional range gates up to $n$-dimensional 
+hyper-rectangular regions), quadrant gates in $n$ dimensions, polygon 
+gates, ellipsoid gates in $n$ dimensions, and Boolean collections of 
+any of the types of gates. Supported gate types have been selected 
+based on feedback on Gating-ML 1.5 in order to keep the specification
+simple while accommodate future innovations in automated 
+multidimensional gating and clustering in a generic way.
+Gates are uniquely identified and may be ordered
+into a hierarchical structure to describe a gating strategy.
+Gates may be applied on list mode data files (\textit{e.g.}, FCS files), 
+which may be transformed as explicitly described. Gating-ML 2.0 
+specification supports open transformations (i.e., published and 
+free to use) which have been shown useful for display or 
+analysis of cytometry data, such as Logicle and Hyperlog. 
+In addition, transformations such as linear, logarithmic, 
+and inverse hyperbolic sine are supported and have been extended 
+to allow for additional parameterization and tweaking specifically 
+for the display of flow cytometry data. In Gating-ML 2.0, these 
+extensions are called FLin, FLog and FASinH, respectively. Finally, a
+parametrized ratio of two FCS dimensions (i.e., FRatio) and fluorescence 
+compensation complete the list of supported transformations.
+Compared to Gating-ML 1.5, the list of Gating-ML 2.0 supported
+transformations has been shortened by omitting transformations 
+that have not been found particularly useful or are no longer
+necessary due to additional design changes. In addition, values from 
+FCS files are referenced as scale ``values'' (used to be channel 
+values in Gating-ML 1.5), which eliminates the necessity to encode the ``channel
+to scale'' transformation in Gating-ML (this transformation is unambiguously
+captured by keywords in the FCS data file standard). Finally, Gating-ML 2.0 
+no longer supports compound transformations in general. Instead, each gate 
+dimension can be defined referencing up to one ``scale'' transformation 
+plus an optional fluorescence compensation description applied on an FCS
+dimension, which may be an FCS dimension from a list mode data file,
+or the result of an additional transformation, i.e., the ratio of two FCS
+dimensions. All these changes have been made based on community feedback
+in order to significantly simplify the Gating-ML specification, 
+especially for Gating-ML consumers (readers).
+
+\subsection{Gating-ML support}
+The \Rpackage{flowUtils} package supports reading of Gating-ML 
+version 1.5 (implemented by N. Gopalakrishnan in 2008), and both
+reading and writing of Gating-ML 2.0 (implemented by J. Spidlen in
+2013). Gating-ML 2.0 is currently (December 2013) the latest version 
+of Gating-ML. This vignette is being prapared by J. Spidlen in 
+December 2013 and will therefore be biased towards Gating-ML 2.0
+support.
+
+\section{Reading Gating-ML files}
+TODO
+\section{Classes used to capture Gating-ML elements}
+TODO
+\section{Applying gates on data}
+TODO
+\section{Writing Gating-ML files}
+TODO
+\section{Testing Gating-ML compliance}
+TODO
+
+% TODO Add more citations
+\clearpage
+\bibliographystyle{plainnat} 
+\bibliography{flowUtilsRefs}
 
 \end{document}
