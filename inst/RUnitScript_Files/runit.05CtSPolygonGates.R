@@ -1,6 +1,6 @@
-  fcsFile<-system.file("extdata/List-modeDataFiles","fcs2_int16_13367ev_8par_GvHD.fcs",package="gatingML")
-  gateFile <- system.file("extdata/Gating-MLFiles","05CtSPolygonGates.xml",package="gatingML")
-  csvFile<-paste(system.file("extdata/ExpectedResults/05CtSPolygonGates",package="gatingML"))
+  fcsFile<-system.file("extdata/List-modeDataFiles","fcs2_int16_13367ev_8par_GvHD.fcs",package="gatingMLData")
+  gateFile <- system.file("extdata/Gating-MLFiles","05CtSPolygonGates.xml",package="gatingMLData")
+  csvFile<-paste(system.file("extdata/ExpectedResults/05CtSPolygonGates",package="gatingMLData"))
  
   flowEnv=new.env()
   read.gatingML(gateFile,flowEnv)
