@@ -156,11 +156,45 @@ of Gating-ML. This vignette is being prapared by J. Spidlen in
 December 2013 and will therefore be biased towards Gating-ML 2.0
 support.
 
-\section{Reading Gating-ML files}
-TODO
+\section{Reading and applying Gating-ML files}
+\subsection{Reading Gating-ML files}
+Any Gating-ML 1.5 or Gating-ML 2.0 compliant XML file can be read by the
+\Rfunction{read.gatingML} function. As arguments, this function takes
+a file name and an environment. Objects parsed from the Gating-ML
+file will be stored in the provided environment.
+
+<<ReadGatingML, echo=true, results=verbatim>>=
+gateFile <- system.file("extdata", "GatingML2.0_Example1.xml", 
+    package = "flowUtils")
+flowEnv  <- new.env()
+read.gatingML(gateFile, flowEnv)
+for (x in ls(flowEnv)) 
+    if (is(flowEnv[[x]], "filter"))
+        cat(paste("Gate", x, "of class", class(flowEnv[[x]]), "\n"))
+@
+
+Examples of additional Gating-ML files can be found in the
+\Rpackage{gatingMLData} package under
+\texttt{extdata/Gating-MLFiles} (for Gating-ML 1.5) and under 
+\texttt{extdata/Gml2/Gating-MLFiles} (for Gating-ML 2.0).
+Additional Gating-ML file examples are included with
+the Gating-ML specification.
+
+\subsection{Applying Gating-ML files}
+Once the elements from a Gating-ML file are saved in an environment, the
+``filters'' can be used to gate an FCS data file as shown below: 
+
+<<ApplyGatingML, echo=true, results=verbatim>>=
+fcsFile <- system.file("extdata/Gml2/FCSFiles", "data1.fcs", 
+    package = "gatingMLData")
+myFrame <- read.FCS(fcsFile, transformation="linearize-with-PnG-scaling")
+for (x in ls(flowEnv)) if (is(flowEnv[[x]], "filter")) {
+    result <- filter(myFrame, flowEnv[[x]])
+    print(summary(result))
+}
+@
+
 \section{Classes used to capture Gating-ML elements}
-TODO
-\section{Applying gates on data}
 TODO
 \section{Writing Gating-ML files}
 TODO
