@@ -29,9 +29,8 @@
 \newcommand{\Rpackage}[1]{{\textsf{#1}}}
 \newcommand{\Rclass}[1]{{\textit{#1}}}
 
-
 \title{flowUtils: Gating-ML Support in Flow Cytometry}
-\author{J. Spidlen}
+\author{Josef Spidlen}
 
 \begin{document}
 \maketitle
@@ -55,8 +54,9 @@ of Gating-ML.\\
 \noindent \textbf{Keywords:} Flow cytometry, gating, XML, data standard
 \end{abstract}
 
-<<loadPackage, echo=false,results=hide>>=
+<<loadPackage, echo=FALSE, results=hide>>=
 library(flowUtils)
+options(width=60)
 @
 
 \section{Introduction}
@@ -78,7 +78,7 @@ hardware and software interoperability.
 \subsection{Gating-ML 1.5}
 Gating-ML has undergone several revisions since the first public 
 release in February 2006. In January 2008, Gating-ML version
-1.5\citep{Spidlen2008} 
+1.5 \citep{Spidlen2008} 
 became an International Society for Advancement of Cytometry (ISAC)
 Candidate Recommendation.
 Gating-ML 1.5 supports rectangular gates in $n$ dimensions
@@ -147,23 +147,21 @@ dimensions. All these changes have been made based on community feedback
 in order to significantly simplify the Gating-ML specification, 
 especially for Gating-ML consumers (readers).
 
-\subsection{Gating-ML support}
+\subsection{Gating-ML support in flowUtils}
 The \Rpackage{flowUtils} package supports reading of Gating-ML 
 version 1.5 (implemented by N. Gopalakrishnan in 2008), and both
 reading and writing of Gating-ML 2.0 (implemented by J. Spidlen in
-2013). Gating-ML 2.0 is currently (December 2013) the latest version 
-of Gating-ML. This vignette is being prapared by J. Spidlen in 
-December 2013 and will therefore be biased towards Gating-ML 2.0
-support.
+2013). Gating-ML 2.0 is currently (as of December 2013) the latest version
+of Gating-ML.
 
-\section{Reading and applying Gating-ML files}
+\section{Reading, applying and writing Gating-ML files}
 \subsection{Reading Gating-ML files}
 Any Gating-ML 1.5 or Gating-ML 2.0 compliant XML file can be read by the
 \Rfunction{read.gatingML} function. As arguments, this function takes
 a file name and an environment. Objects parsed from the Gating-ML
 file will be stored in the provided environment.
 
-<<ReadGatingML, echo=true, results=verbatim>>=
+<<ReadGatingML, echo=TRUE, results=verbatim>>=
 gateFile <- system.file("extdata", "GatingML2.0_Example1.xml", 
     package = "flowUtils")
 flowEnv  <- new.env()
@@ -181,10 +179,31 @@ Additional Gating-ML file examples are included with
 the Gating-ML specification.
 
 \subsection{Applying Gating-ML files}
+\label{sec:ApplyingGatingMLfiles}
 Once the elements from a Gating-ML file are saved in an environment, the
-``filters'' can be used to gate an FCS data file as shown below: 
+``filters'' can be used to gate an FCS data file (\textit{i.e.,} a 
+\Robject{flowFrame}), or a set of FCS files (\textit{i.e.,} a
+\Robject{flowSet}).\\
 
-<<ApplyGatingML, echo=true, results=verbatim>>=
+Please pay attention to the \texttt{transformation} argument when
+reading the FCS files. Gating-ML 1.5 specifies that data shall be used as
+channel values by default, and any additional transformation shall be
+explicitely specified in the Gating-ML 1.5 file. Therefore, you will need to
+prevent R from applying the default ``channel-to-scale'' transformation when
+reading your data with the intention of applying a Gating-ML 1.5 file to it.
+This can be done by specifying \texttt{transformation=FALSE} in the 
+\Rfunction{read.FCS} or \Rfunction{read.flowSet} functions. 
+
+Gating-ML 2.0 specifies that data shall be used as scale values by default.
+This means that the ``channel-to-scale'' transformation (as defined by the
+keywords within the FCS data file) shell be applied prior applying
+any additional scaling transformations described in the Gating-ML 2.0 file. 
+Therefore, you should specify \texttt{transformation=linearize-with-PnG-scaling}
+in the \Rfunction{read.FCS} or \Rfunction{read.flowSet} functions if
+you will be working with Gating-ML 2.0 files.
+An example of applying a Gating-ML 2.0 file on an FCS file is shown bellow:
+
+<<ApplyGatingML, echo=TRUE, results=verbatim>>=
 fcsFile <- system.file("extdata/Gml2/FCSFiles", "data1.fcs", 
     package = "gatingMLData")
 myFrame <- read.FCS(fcsFile, transformation="linearize-with-PnG-scaling")
@@ -194,12 +213,162 @@ for (x in ls(flowEnv)) if (is(flowEnv[[x]], "filter")) {
 }
 @
 
-\section{Classes used to capture Gating-ML elements}
-TODO
-\section{Writing Gating-ML files}
-TODO
+\subsection{Writing Gating-ML files}
+Gating-ML 2.0 compatible objects and workflows stored in an environment may be
+written to a Gating-ML 2.0 file using the \Rfunction{write.gatingML}
+function. These objects may have been created by a previous
+\Rfunction{read.gatingML} call, or in any other way. A simple example of
+manually creating a rectangular gate and saving the result in Gating-ML 2.0 is
+shown below.
+
+<<WriteGatingML, echo=TRUE, eval=FALSE, results=verbatim>>=
+flowEnv <- new.env()
+flowEnv[['myGate']] <- rectangleGate(filterId="myGate", 
+    list("FSC-H"=c(150, 300), "SSC-H"=c(200, 600)))
+write.gatingML(flowEnv, "Gating-ML_output.xml")
+@
+
+\section{Gating-ML-related R classes}
+
+Table \ref{tab:gatingMLClasses} summarizes what R classes are used to
+capture various Gating-ML concepts (\textit{i.e.,} gates, transformations,
+compensation, etc.). 
+In summary, \Rpackage{flowCore} filters are
+created when Gating-ML is read, and the same types of
+filters can be saved in Gating-ML. Data driven filters (\textit{e.g.},
+norm2Filter, kmeansFilter, etc.) are not supported by Gating-ML.\\
+
+The Quadrant gate in Gating-ML 2.0 allows for arbitrary splits of
+$n$-dimensional space, including more than one ``cut'' per dimension, and
+with the option of merging several of these ``cuts'' into a resulting quadrant.
+The quadGate filter in R is a less flexible structure implementing the
+traditional two-dimensional quadrant gate concept (\textit{i.e., } with each 
+dimension split exactly once, and always resulting in 4 quadrants).
+Therefore, a quadGate filter is saved as a Quadrant gate in Gating-ML,
+however, if a Quadrant gate is read from Gating-ML, then generally a set of
+appropriate rectangleGate filters is created.
+
+\begin{table}
+\caption{Summary of Gating-ML concepts and related R classes}
+\label{tab:gatingMLClasses}
+\centering
+\begin{tabular}{| l | l | l | }
+\hline                        
+\textbf{Gating-ML concept} & \textbf{R Class} & \textbf{Gating-ML version}\\
+\hline
+RectangleGate & rectangleGate & 1.5, 2.0 \\
+\hline
+Quadrant & rectangleGate (read), quadGate(write) & 2.0 \\
+\hline
+PolygonGate & polygonGate & 1.5, 2.0\\
+\hline
+PolytopeGate & polytopeGate & 1.5\\
+\hline
+EllipsoidGate & ellipsoidGate & 1.5, 2.0 \\
+\hline
+DecisionTreeGate & expressionFilter & 1.5 \\
+\hline
+Boolean ``or'' gate & unionFilter & 1.5, 2.0 \\
+\hline
+Boolean ``and'' gate & intersectFilter & 1.5, 2.0 \\
+\hline
+Boolean ``not'' gate & complementFilter & 1.5, 2.0 \\
+\hline
+Gate with a parent & subsetFilter & 1.5, 2.0 \\
+\hline
+Referenced gate & filterReference & 1.5, 2.0 \\
+\hline
+flin & lintGml2 & 2.0 \\
+\hline
+flog & logtGml2 & 2.0 \\
+\hline
+fasinh & asinhtGml2 & 2.0 \\
+\hline
+logicle & logicletGml2 & 2.0 \\
+\hline
+hyperlog & hyperlog (v 1.5), hyperlogtGml2 (v 2.0) & 1.5, 2.0 \\
+\hline
+
+\end{tabular}
+\end{table}
+
+Class "quadratic"
+Class "squareroot"
+Class "logarithm"
+Class "exponential", by class "singleParameterTransform", distance 2
+Class "asinht", by class "singleParameterTransform", distance 2
+Class "sinht", by class "singleParameterTransform", distance 2
+Class "EHtrans", by class "singleParameterTransform", distance 2
+Class "splitscale", by class "singleParameterTransform", distance 2
+Class "invsplitscale", by class "singleParameterTransform", distance 2
+
+
+
+
+
 \section{Testing Gating-ML compliance}
-TODO
+<<WriteGatingML, eval=FALSE, echo=TRUE, results=verbatim>>=
+testGatingMLCompliance("ComplianceReport1.5", version=1.5)
+testGatingMLCompliance("ComplianceReport2.0", version=2.0)
+@
+
+\section{Using Gating-ML to exchange gates with other software tools}
+To the best of our knowledge, R, FlowRepository and Cytobank are the first
+Gating-ML compatible software tools. FlowJo (and other tools) also
+implemented most of Gating-ML, but are still working on adjusting some of the data
+transformations to make Gating-ML based gating properly interoperable.
+
+\subsection{Implicit FCS transformations}
+As mentioned in section \ref{sec:ApplyingGatingMLfiles}, the
+\texttt{transformation=FALSE} option should be used when
+applying Gating-ML 1.5, and
+the \texttt{transformation=linearize-with-PnG-scaling} option when applying
+Gating-ML 2.0. This is because Gating-ML 2.0 specifies that the
+``channel-to-scale'' transformation shall be performed after reading the
+``channel'' values from the FCS data file. The ``channel-to-scale''
+transformation includes:
+\begin{itemize}
+\item The ``linearization'' of FCS parameters stored on log scale, \textit{i.e.,} 
+with \$P$n$E values different from ``0,0''.
+\item The ``correction'' for gain of FCS parameters stored
+with \$P$n$G values different from ``1''.
+\end{itemize}
+The latter one means nothing more than the division of the parameter value by
+the appropriate \$P$n$G value. According to our experience, in the majority of 
+cases, there are no \$P$n$G values in the FCS data files, and if these are
+present and different from ``1'', the data file has usually been produced by one
+of the older instruments. Also, as this is just a linear transformation, 
+it may be ignored by some analysis tools as data is scaled based on the 
+size of the display with little meaning of the actual absolute expression
+values. However, this details is significant for being able to exchange
+gates using Gating-ML. 
+Therefore, should you be working with data files with \$P$n$G values different
+from ``1'', and should you observe compatibility issues with third party
+software tools (gates of wrong sizes or in wrong positions), you may want to
+try reading your data with the \texttt{transformation=linearize} option.
+
+\subsection{Precision issues}
+
+<<PrecisionIssues, echo=true, results=verbatim>>=
+fcsFile  <- system.file("extdata/examples", "166889.fcs", 
+    package = "gatingMLData")
+gateFile <- system.file("extdata/examples", "GatingML2.0_Export_166889.xml", 
+    package = "gatingMLData")
+myFrame  <- read.FCS(fcsFile, transformation="linearize-with-PnG-scaling")
+flowEnv  <- new.env()
+read.gatingML(gateFile, flowEnv)
+for (x in ls(flowEnv)) if (is(flowEnv[[x]], "filter")) {
+    result <- filter(myFrame, flowEnv[[x]])
+    print(summary(result))
+}
+ls(flowEnv)
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.25\textwidth]{166889}
+\end{figure}
+
 
 % TODO Add more citations
 \clearpage
