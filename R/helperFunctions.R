@@ -492,8 +492,6 @@ testGatingMLCompliance <- function(file = "GatingMLComplianceReport", version = 
 {
     if(!require(RUnit))
         stop("You need to have 'RUnit' package in order to run the Gating-ML compliance tests.", call.=FALSE)
-    if(!require(flowCore))
-        stop("You need to have 'flowCore' package in order to run the Gating-ML compliance tests.", call.=FALSE)
     if(!require(gatingMLData))
         stop("You need to have 'gatingMLData' package in order to run the Gating-ML compliance tests.", call.=FALSE)
     if ((version == 1.5) || (version == "1.5")) 

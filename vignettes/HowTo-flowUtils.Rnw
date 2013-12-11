@@ -160,7 +160,7 @@ Any Gating-ML 1.5 or Gating-ML 2.0 compliant XML file can be read by the
 \Rfunction{read.gatingML} function. This function requires an input 
 file name and an environment to save objects parsed from the Gating-ML file. 
 
-<<ReadGatingML, echo=TRUE, results=verbatim>>=
+<<ReadGatingML1, echo=TRUE, results=verbatim>>=
 gateFile <- system.file("extdata", "GatingML2.0_Example1.xml", 
     package = "flowUtils")
 flowEnv  <- new.env()
@@ -204,7 +204,7 @@ in the \Rfunction{read.FCS} or \Rfunction{read.flowSet} functions if
 you will be working with Gating-ML 2.0 files.
 An example of applying a Gating-ML 2.0 file on an FCS file is shown bellow:
 
-<<ApplyGatingML, echo=TRUE, results=verbatim>>=
+<<ApplyGatingML1, echo=TRUE, results=verbatim>>=
 fcsFile <- system.file("extdata/Gml2/FCSFiles", "data1.fcs", 
     package = "gatingMLData")
 myFrame <- read.FCS(fcsFile, transformation="linearize-with-PnG-scaling")
@@ -224,7 +224,7 @@ compatible objects. These objects may have been created by a previous
 manually creating a rectangular gate and saving the result in Gating-ML 2.0 is
 shown below.
 
-<<WriteGatingML, echo=TRUE, eval=FALSE, results=verbatim>>=
+<<WriteGatingML1, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
 flowEnv[['myGate']] <- rectangleGate(filterId="myGate", 
     list("FSC-H"=c(150, 300), "SSC-H"=c(200, 600)))
@@ -398,7 +398,7 @@ TODO: explain asinh and ratio conversion.
 
 
 \section{Testing Gating-ML compliance}
-<<WriteGatingML, eval=FALSE, echo=TRUE, results=verbatim>>=
+<<TestGatingMLCompliance, eval=FALSE, echo=TRUE, results=verbatim>>=
 testGatingMLCompliance("ComplianceReport1.5", version=1.5)
 testGatingMLCompliance("ComplianceReport2.0", version=2.0)
 @
@@ -440,7 +440,7 @@ try reading your data with the \texttt{transformation=linearize} option.
 
 \subsection{Precision issues}
 
-<<PrecisionIssues, echo=true, results=verbatim>>=
+<<PrecisionIssuesDemo, echo=true, results=verbatim>>=
 fcsFile  <- system.file("extdata/examples", "166889.fcs", 
     package = "gatingMLData")
 gateFile <- system.file("extdata/examples", "GatingML2.0_Export_166889.xml", 
