@@ -78,7 +78,7 @@ hardware and software interoperability.
 \subsection{Gating-ML 1.5}
 Gating-ML has undergone several revisions since the first public 
 release in February 2006. In January 2008, Gating-ML version
-1.5 \citep{Spidlen2008} 
+1.5 \citep{paper:GatingML1.5} 
 became an International Society for Advancement of Cytometry (ISAC)
 Candidate Recommendation.
 Gating-ML 1.5 supports rectangular gates in $n$ dimensions
@@ -102,8 +102,8 @@ files unless transformations are explicitely specified.
 
 \subsection{Gating-ML 2.0}
 Based on feedback gathered from the implementors and development 
-in the field, Gating-ML version 2.0 has been developed and 
-adoped as a candidate for an ISAC Recommendation in January 2013. 
+in the field, Gating-ML version 2.0 \citep{spec:GatingML2.0} has been developed
+and adoped as a candidate for an ISAC Recommendation in January 2013. 
 Gating-ML 2.0 significantly simplifies several aspects of Gating-ML 
 by focusing on gates, data transformations and workflows that are 
 useful in flow cytometry, rather than asking implementors to 
@@ -157,9 +157,8 @@ of Gating-ML.
 \section{Reading, applying and writing Gating-ML files}
 \subsection{Reading Gating-ML files}
 Any Gating-ML 1.5 or Gating-ML 2.0 compliant XML file can be read by the
-\Rfunction{read.gatingML} function. As arguments, this function takes
-a file name and an environment. Objects parsed from the Gating-ML
-file will be stored in the provided environment.
+\Rfunction{read.gatingML} function. This function requires an input 
+file name and an environment to save objects parsed from the Gating-ML file. 
 
 <<ReadGatingML, echo=TRUE, results=verbatim>>=
 gateFile <- system.file("extdata", "GatingML2.0_Example1.xml", 
@@ -177,6 +176,8 @@ Examples of additional Gating-ML files can be found in the
 \texttt{extdata/Gml2/Gating-MLFiles} (for Gating-ML 2.0).
 Additional Gating-ML file examples are included with
 the Gating-ML specification.
+
+TODO: other objects created, transformations applied to FCS parameters vs. any
 
 \subsection{Applying Gating-ML files}
 \label{sec:ApplyingGatingMLfiles}
@@ -214,9 +215,11 @@ for (x in ls(flowEnv)) if (is(flowEnv[[x]], "filter")) {
 @
 
 \subsection{Writing Gating-ML files}
-Gating-ML 2.0 compatible objects and workflows stored in an environment may be
+\label{sec:WritingGatingML}
+Gating-ML 2.0 compatible objects stored in an environment may be
 written to a Gating-ML 2.0 file using the \Rfunction{write.gatingML}
-function. These objects may have been created by a previous
+function. Please see table \ref{tab:gatingMLClasses} for details about Gating-ML
+compatible objects. These objects may have been created by a previous
 \Rfunction{read.gatingML} call, or in any other way. A simple example of
 manually creating a rectangular gate and saving the result in Gating-ML 2.0 is
 shown below.
@@ -228,79 +231,163 @@ flowEnv[['myGate']] <- rectangleGate(filterId="myGate",
 write.gatingML(flowEnv, "Gating-ML_output.xml")
 @
 
-\section{Gating-ML-related R classes}
+The second argument of the \Rfunction{write.gatingML} function (\textit{i.e.},
+the filename is optional. The output is written to standard output if filename
+is not provided.
 
 Table \ref{tab:gatingMLClasses} summarizes what R classes are used to
 capture various Gating-ML concepts (\textit{i.e.,} gates, transformations,
 compensation, etc.). 
-In summary, \Rpackage{flowCore} filters are
-created when Gating-ML is read, and the same types of
-filters can be saved in Gating-ML. Data driven filters (\textit{e.g.},
-norm2Filter, kmeansFilter, etc.) are not supported by Gating-ML.\\
-
-The Quadrant gate in Gating-ML 2.0 allows for arbitrary splits of
-$n$-dimensional space, including more than one ``cut'' per dimension, and
-with the option of merging several of these ``cuts'' into a resulting quadrant.
-The quadGate filter in R is a less flexible structure implementing the
-traditional two-dimensional quadrant gate concept (\textit{i.e., } with each 
-dimension split exactly once, and always resulting in 4 quadrants).
-Therefore, a quadGate filter is saved as a Quadrant gate in Gating-ML,
-however, if a Quadrant gate is read from Gating-ML, then generally a set of
-appropriate rectangleGate filters is created.
+Corresponding \Rpackage{flowCore} filters and transformations are
+created when Gating-ML 1.5 or 2.0 is read, and the same types of
+filters and transformations can be saved in Gating-ML 2.0 as long as they are
+Gating-ML 2.0 compatible and the
+``workflow'' is expressible in Gating-ML 2.0 (see below).
+Data driven filters (\textit{e.g.}, \Rclass{norm2Filter}, 
+\Rclass{kmeansFilter}, etc.) are not supported by Gating-ML. 
 
 \begin{table}
 \caption{Summary of Gating-ML concepts and related R classes}
 \label{tab:gatingMLClasses}
 \centering
-\begin{tabular}{| l | l | l | }
+\begin{tabular}{| l | l | l | } 
 \hline                        
-\textbf{Gating-ML concept} & \textbf{R Class} & \textbf{Gating-ML version}\\
-\hline
-RectangleGate & rectangleGate & 1.5, 2.0 \\
-\hline
-Quadrant & rectangleGate (read), quadGate(write) & 2.0 \\
-\hline
-PolygonGate & polygonGate & 1.5, 2.0\\
-\hline
-PolytopeGate & polytopeGate & 1.5\\
-\hline
-EllipsoidGate & ellipsoidGate & 1.5, 2.0 \\
-\hline
-DecisionTreeGate & expressionFilter & 1.5 \\
-\hline
-Boolean ``or'' gate & unionFilter & 1.5, 2.0 \\
-\hline
-Boolean ``and'' gate & intersectFilter & 1.5, 2.0 \\
-\hline
-Boolean ``not'' gate & complementFilter & 1.5, 2.0 \\
-\hline
-Gate with a parent & subsetFilter & 1.5, 2.0 \\
-\hline
-Referenced gate & filterReference & 1.5, 2.0 \\
-\hline
-flin & lintGml2 & 2.0 \\
-\hline
-flog & logtGml2 & 2.0 \\
-\hline
-fasinh & asinhtGml2 & 2.0 \\
-\hline
-logicle & logicletGml2 & 2.0 \\
-\hline
-hyperlog & hyperlog (v 1.5), hyperlogtGml2 (v 2.0) & 1.5, 2.0 \\
-\hline
-
+\textbf{Gating-ML concept} & \textbf{R Class} & \textbf{Gating-ML version} \\ \hline
+RectangleGate & rectangleGate & 1.5, 2.0 \\ \hline
+Quadrant & rectangleGate (read), quadGate (write)$^{*}$ & 2.0 \\ \hline
+PolygonGate & polygonGate & 1.5, 2.0 \\ \hline
+EllipsoidGate & ellipsoidGate & 1.5, 2.0 \\ \hline
+Boolean ``or'' gate & unionFilter & 1.5, 2.0 \\ \hline
+Boolean ``and'' gate & intersectFilter & 1.5, 2.0 \\ \hline
+Boolean ``not'' gate & complementFilter & 1.5, 2.0 \\ \hline
+Gate with a parent & subsetFilter & 1.5, 2.0 \\ \hline
+PolytopeGate & polytopeGate & 1.5 \\ \hline
+DecisionTreeGate & expressionFilter & 1.5 \\ \hline
+Referenced gate & filterReference & 1.5, 2.0 \\ \hline
+flin & lintGml2 & 2.0 \\ \hline
+flog & logtGml2 & 2.0 \\ \hline
+fasinh & asinhtGml2 & 2.0 \\ \hline
+logicle & logicletGml2 & 2.0 \\ \hline
+hyperlog & hyperlog (v 1.5), hyperlogtGml2 (v 2.0) & 1.5, 2.0 \\ \hline
+fratio & ratiotGml2 & 2.0 \\ \hline
+dg1polynomial & dg1polynomial & 1.5 \\ \hline
+ratio & ratio & 1.5 (2.0$^{**}$) \\ \hline
+quadratic & quadratic & 1.5 \\ \hline
+sqrt & squareroot & 1.5 \\ \hline
+ln & logarithm & 1.5 \\ \hline
+exponential & exponential & 1.5 \\ \hline
+asinh & asinht & 1.5 (2.0$^{**}$) \\ \hline
+sinh & sinht & 1.5 \\ \hline
+EH & EHtrans & 1.5 \\ \hline
+split-scale & splitscale & 1.5 \\ \hline 
+inverse-split-scale & invsplitscale & 1.5 \\ \hline
+spilloverMatrix & compensation, compensatedParameter & 1.5 \\ \hline
+spectrumMatrix & compensation, compensatedParameter & 2.0 \\ \hline
+\multicolumn{3}{p{15cm}}{\vspace{1pt}$^{*}$ The Quadrant gate in Gating-ML 2.0
+allows for arbitrary splits of $n$-dimensional space, including more than one ``cut'' per dimension, and
+with the option of merging several of these ``cuts'' into a resulting quadrant.
+The quadGate filter in R is a less flexible structure implementing the
+traditional two-dimensional quadrant gate concept (\textit{i.e., } with each 
+dimension split exactly once, and always resulting in 4 quadrants).
+Therefore, a quadGate filter is saved as a Quadrant gate in Gating-ML,
+however, if a Quadrant gate is read from Gating-ML, then a set of
+appropriate rectangleGate filters is created.} \\
+\multicolumn{3}{p{15cm}}{$^{**}$ For Gating-ML 2.0 output, the ratio and asinht
+transformations from Gating-ML 1.5 will be converted to fratio and fasinh,
+respectively.} \\
 \end{tabular}
 \end{table}
 
-Class "quadratic"
-Class "squareroot"
-Class "logarithm"
-Class "exponential", by class "singleParameterTransform", distance 2
-Class "asinht", by class "singleParameterTransform", distance 2
-Class "sinht", by class "singleParameterTransform", distance 2
-Class "EHtrans", by class "singleParameterTransform", distance 2
-Class "splitscale", by class "singleParameterTransform", distance 2
-Class "invsplitscale", by class "singleParameterTransform", distance 2
+R is a powerful language allowing you to create and combine various data
+transformations and use these as dimensions (parameters) for your FCS data
+filters. However, Gating-ML 2.0 supports only the ``workflows'' that are
+considered meaningful for static gate based analysis of flow cytometry data.
+This design decision has been made in order to make Gating-ML 2.0 implementation feasible for
+common flow cytometry data analysis tools. In practice, Gating-ML 2.0
+compatible workflows consist of the following steps:
+\begin{enumerate}
+\item Read the FCS data file and apply the ``channel to scale'' transformations
+to FCS parameters as specified by the \$P$n$E and \$P$n$G keywords. (These
+transformations are not explicitely described in Gating-ML.)
+\item Optionally apply compensation based on either a compensation
+description in the FCS data file (\textit{e.g.}, the \texttt{\$SPILLOVER},
+\texttt{SPILL} or other keywords), or based on a ``spectrum'' matrix described
+in the Gating-ML 2.0 file. A spectrum matrix covers both, the traditional
+compensation based on square spillover matrices, as well as spectral unmixing,
+see \citep{spec:GatingML2.0}.
+\item For next steps, use either FCS parameters, or a ``fratio'' of two
+FCS parameters (``fratio'' in Gating-ML 2.0 is an extended ratio of two
+FCS parameters defined as $A\frac{x-B}{y-C}$, where $x,y$ are FCS parameters,
+A, B, and C are some real constants.)
+\item Optionally apply one of the Gating-ML 2.0 compatible scale
+transformation, \textit{i.e.,} parameterized linear, log, asinh, Logicle or Hyperlog.
+\item Apply Gating-ML 2.0 compatible gates in the data space created by previous
+steps. Gating-ML 2.0 supported gate types include range gates, rectangular and
+hyperrectangular gates, polygon gates, ellipsoid gates, quadrant gates and
+Boolean collections (\textit{or--union}, \textit{and--intersect} and
+\textit{not--complement}) of any of the gate types.
+\end{enumerate}
+
+Above, we have shown how a rectangular gate based on the FSC-H and SSC-H
+parameters can be written to a Gating-ML 2.0 file. Another small example below
+demonstrates the inclusion of compensation.  
+
+<<WriteGatingML2, echo=TRUE, eval=TRUE, results=verbatim>>=
+flowEnv <- new.env()
+covM <- matrix(c(62.5, 37.5, 37.5, 62.5), nrow = 2, byrow=TRUE)
+colnames(covM) <- c("FL1-H", "FL2-H")
+myEl <- ellipsoidGate(mean=c(12, 16), distance=1, .gate=covM, filterId="myEl")
+compPars = list(
+  compensatedParameter(parameters="FL1-H", spillRefId="SpillFromFCS", 
+    transformationId=paste("FL1-H", "_compensated_according_to_FCS", sep=""), 
+    searchEnv=flowEnv),
+  compensatedParameter(parameters="FL2-H", spillRefId="SpillFromFCS", 
+    transformationId=paste("FL2-H", "_compensated_according_to_FCS", sep=""), 
+    searchEnv=flowEnv)
+)
+myEl@parameters = new("parameters", compPars)
+flowEnv[['myEl']] <- myEl
+write.gatingML(flowEnv)
+@
+
+The \texttt{spillRefId="SpillFromFCS"} indicates that the FCS data file shall
+be searched for compenmsat 
+
+TODO Add example with transformation
+
+TODO Add example with ratio
+
+These were all examples of meaningful data transformations and analysis
+pipelines that can be saved in a Gating-ML 2.0 file. Below, we demonstrate...
+
+TODO
+
+TODO Add example with unsupported transformation type
+
+TODO
+
+<<WriteGatingML3, echo=TRUE, eval=TRUE, results=verbatim, split=TRUE>>=
+logicle1 = logicletGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, 
+  transformationId="logicle1")
+logicle2 = logicletGml2(parameters = "logicle1", T = 1000, M = 4.5, A = 0, 
+  transformationId="logicle2")
+logicle2@parameters = logicle1
+myRect <- rectangleGate(filterId="myRect", list("logicle2"=c(0, .6)))
+myRect@parameters = new("parameters", list(logicle2))
+flowEnv[['myRect']] <- myRect
+x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
+# Just printing out x$message with a new line inserted so that the
+# output does not run off the page in this vignetter
+cat(paste(substr(x$message, 1, 74), substr(x$message, 75, nchar(x$message)), 
+  sep = "\n"))
+@
+
+TODO show more examples of working stuff
+
+TODO: explain compensation
+
+TODO: explain asinh and ratio conversion.
+
 
 
 
