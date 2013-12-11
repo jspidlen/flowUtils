@@ -332,7 +332,7 @@ Above, we have shown how a rectangular gate based on the FSC-H and SSC-H
 parameters can be written to a Gating-ML 2.0 file. Another small example below
 demonstrates the inclusion of compensation.  
 
-<<WriteGatingML2, echo=TRUE, eval=TRUE, results=verbatim>>=
+<<WriteGatingML2, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
 covM <- matrix(c(62.5, 37.5, 37.5, 62.5), nrow = 2, byrow=TRUE)
 colnames(covM) <- c("FL1-H", "FL2-H")
@@ -350,8 +350,12 @@ flowEnv[['myEl']] <- myEl
 write.gatingML(flowEnv)
 @
 
-The \texttt{spillRefId="SpillFromFCS"} indicates that the FCS data file shall
-be searched for compenmsat 
+The \texttt{spillRefId="SpillFromFCS"} indicates that compensation according
+to the description in the FCS data file shall used. In the Gating-ML output,
+this will typically be described as \texttt{<gating:dimension
+gating:compensation-ref="FCS">} for the appropriate dimensions. 
+
+
 
 TODO Add example with transformation
 
