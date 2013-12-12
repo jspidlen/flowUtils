@@ -170,12 +170,40 @@ for (x in ls(flowEnv))
         cat(paste("Gate", x, "of class", class(flowEnv[[x]]), "\n"))
 @
 
-Examples of additional Gating-ML files can be found in the
+Additional Gating-ML file examples are included with
+the Gating-ML specifications as well as in the
 \Rpackage{gatingMLData} package under
 \texttt{extdata/Gating-MLFiles} (for Gating-ML 1.5) and under 
 \texttt{extdata/Gml2/Gating-MLFiles} (for Gating-ML 2.0).
-Additional Gating-ML file examples are included with
-the Gating-ML specification.
+You can read these files using the following code:
+<<ReadGatingML2, echo=TRUE, results=hide>>=
+flowEnv1.5  <- new.env()
+g1.5Example <- system.file("extdata/Gating-MLFiles", "01Rectangular.xml",
+  package="gatingMLData")
+read.gatingML(g1.5Example, flowEnv1.5)
+ls(flowEnv1.5)
+
+flowEnv2.0  <- new.env()
+g2.0Example <- system.file("extdata/Gml2/Gating-MLFiles",
+  "gates3.xml", package = "gatingMLData")
+read.gatingML(g2.0Example, flowEnv2.0)
+ls(flowEnv2.0)
+@
+
+We are not showing the output the \texttt{ls} commands since these contain over
+a 100 of different objects saved in the environments, including various gates 
+(data filters) and transformations (scale transformations, compensation, etc.).
+Users are encouraged to explore these objects further. For example, if we
+type
+<<ReadGatingML3, echo=TRUE, results=verbatim>>=
+flowEnv2.0[['myRectangleGate4LogicleArcSinHFCSCompensated']]
+@
+then we can see that \texttt{myRectangleGate4LogicleArcSinHFCSCompensated} is a
+rectangular gate. Let us use the \texttt{str} command to explore the details
+of this gate. 
+<<ReadGatingML3, echo=TRUE, results=verbatim>>=
+str(flowEnv2.0[['myRectangleGate4LogicleArcSinHFCSCompensated']])
+@
 
 TODO: other objects created, transformations applied to FCS parameters vs. any
 
@@ -228,7 +256,8 @@ shown below.
 flowEnv <- new.env()
 flowEnv[['myGate']] <- rectangleGate(filterId="myGate", 
     list("FSC-H"=c(150, 300), "SSC-H"=c(200, 600)))
-write.gatingML(flowEnv, "Gating-ML_output.xml")
+outputFile <- tempfile(fileext=".gating-ml2.xml")
+write.gatingML(flowEnv, outputFile)
 @
 
 The second argument of the \Rfunction{write.gatingML} function (\textit{i.e.},
@@ -337,7 +366,7 @@ flowEnv <- new.env()
 covM <- matrix(c(62.5, 37.5, 37.5, 62.5), nrow = 2, byrow=TRUE)
 colnames(covM) <- c("FL1-H", "FL2-H")
 myEl <- ellipsoidGate(mean=c(12, 16), distance=1, .gate=covM, filterId="myEl")
-compPars = list(
+compPars <- list(
   compensatedParameter(parameters="FL1-H", spillRefId="SpillFromFCS", 
     transformationId=paste("FL1-H", "_compensated_according_to_FCS", sep=""), 
     searchEnv=flowEnv),
@@ -345,7 +374,7 @@ compPars = list(
     transformationId=paste("FL2-H", "_compensated_according_to_FCS", sep=""), 
     searchEnv=flowEnv)
 )
-myEl@parameters = new("parameters", compPars)
+myEl@parameters <- new("parameters", compPars)
 flowEnv[['myEl']] <- myEl
 write.gatingML(flowEnv)
 @
@@ -353,7 +382,55 @@ write.gatingML(flowEnv)
 The \texttt{spillRefId="SpillFromFCS"} indicates that compensation according
 to the description in the FCS data file shall used. In the Gating-ML output,
 this will typically be described as \texttt{<gating:dimension
-gating:compensation-ref="FCS">} for the appropriate dimensions. 
+gating:compensation-ref="FCS">} for the appropriate dimensions.
+If we wanted to use compensation based on a custom spillover (or spectrum) 
+matrix instead, we could modify the code as follows: 
+
+<<WriteGatingML3, echo=TRUE, eval=TRUE, results=hide>>=
+spillM <- matrix(c(1, 0.03, 0.07, 1), nrow = 2, byrow=TRUE)
+colnames(spillM) <- c("FL1-H", "FL2-H")
+rownames(spillM) <- c("Comp-FL1-H", "Comp-FL2-H")
+pars <- new("parameters", list("FL1-H", "FL2-H"))
+myComp <- compensation(spillover=spillM, compensationId='spillM', pars)
+flowEnv[['myComp']] <- myComp
+compPars <- list(
+  compensatedParameter(parameters="FL1-H", spillRefId="myComp", 
+    transformationId="Comp-FL1-H", searchEnv=flowEnv),
+  compensatedParameter(parameters="FL2-H", spillRefId="myComp", 
+    transformationId="Comp-FL2-H", searchEnv=flowEnv)
+)
+myEl@parameters <- new("parameters", compPars)
+flowEnv[['myEl']] <- myEl
+write.gatingML(flowEnv)
+@
+
+Please note that new names are assigned to parameters compensated according to a
+custom spillover matrix (\textit{i.e.}, \texttt{Comp-FL1-H} and
+\texttt{Comp-FL2-H}).
+This is necessary due to the generic Gating-ML 2.0 design, which also supports 
+non-square spectrum matrices (where these is no one-to-one correspondence between 
+the measured and ``compensated'' values). Should you wish to experiment with
+non-square spectrum matrices, the following piece of code can be used to
+generate one.
+
+<<WriteGatingML4, echo=TRUE, eval=TRUE, results=hide>>=
+flowEnv <- new.env()
+specM <- matrix(c(0.78, 0.13, 0.22, 0.05, 0.57, 0.89), nrow = 2, byrow=TRUE)
+colnames(specM) <- c("FL1-H", "FL2-H", "FL3-H")
+rownames(specM) <- c("Deconvoluted-P1", "Deconvoluted-P2")
+pars <- new("parameters", list("FL1-H", "FL2-H", "FL3-H"))
+myComp <- compensation(spillover=specM, compensationId='specM', pars)
+flowEnv[['myComp']] <- myComp
+compPars <- list(
+  compensatedParameter(parameters="FL1-H", spillRefId="myComp", 
+    transformationId="Deconvoluted-P1", searchEnv=flowEnv),
+  compensatedParameter(parameters="FL2-H", spillRefId="myComp", 
+    transformationId="Deconvoluted-P2", searchEnv=flowEnv)
+)
+myEl@parameters <- new("parameters", compPars)
+flowEnv[['myEl']] <- myEl
+write.gatingML(flowEnv)
+@
 
 
 
@@ -370,14 +447,14 @@ TODO Add example with unsupported transformation type
 
 TODO
 
-<<WriteGatingML3, echo=TRUE, eval=TRUE, results=verbatim, split=TRUE>>=
-logicle1 = logicletGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, 
+<<WriteGatingMLIssue1, echo=TRUE, eval=TRUE, results=verbatim>>=
+logicle1 <- logicletGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, 
   transformationId="logicle1")
-logicle2 = logicletGml2(parameters = "logicle1", T = 1000, M = 4.5, A = 0, 
+logicle2 <- logicletGml2(parameters = "logicle1", T = 1000, M = 4.5, A = 0, 
   transformationId="logicle2")
-logicle2@parameters = logicle1
+logicle2@parameters <- logicle1
 myRect <- rectangleGate(filterId="myRect", list("logicle2"=c(0, .6)))
-myRect@parameters = new("parameters", list(logicle2))
+myRect@parameters <- new("parameters", list(logicle2))
 flowEnv[['myRect']] <- myRect
 x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
 # Just printing out x$message with a new line inserted so that the
