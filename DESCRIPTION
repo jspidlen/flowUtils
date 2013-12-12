@@ -1,12 +1,12 @@
 Package: flowUtils
 Type: Package
 Title: Utilities for flow cytometry
-Version: 1.25.21
+Version: 1.25.22
 Author: N. Gopalakrishnan, F. Hahne, B. Ellis, R. Gentleman, M. Dalphin, N. Le Meur, B. Purcell, J. Spidlen.
 Maintainer: Josef Spidlen <jspidlen@bccrc.ca>
 Description: Provides utilities for flow cytometry data. 
-Depends: R (>= 2.2.0), flowCore (>= 1.2.0), XML (>= 3.9.0)
-Imports: Biobase, flowCore, graph, methods, RUnit, stats, utils, XML, flowViz, corpcor
+Depends: R (>= 2.2.0), flowCore (>= 1.29.20), XML (>= 3.9.0)
+Imports: Biobase, graph, methods, RUnit, stats, utils, flowViz, corpcor
 Suggests: gatingMLData, RUnit
 Collate: AllClasses.R
          gatingML.R
@@ -20,4 +20,3 @@ Collate: AllClasses.R
          zzz.R
 License: Artistic-2.0
 biocViews:  Infrastructure, FlowCytometry, CellBasedAssays
-
