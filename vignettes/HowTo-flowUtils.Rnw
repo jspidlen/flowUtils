@@ -201,11 +201,90 @@ flowEnv2.0[['myRectangleGate4LogicleArcSinHFCSCompensated']]
 then we can see that \texttt{myRectangleGate4LogicleArcSinHFCSCompensated} is a
 rectangular gate. Let us use the \texttt{str} command to explore the details
 of this gate. 
-<<ReadGatingML3, echo=TRUE, results=verbatim>>=
+<<ReadGatingML4, echo=TRUE, results=verbatim>>=
 str(flowEnv2.0[['myRectangleGate4LogicleArcSinHFCSCompensated']])
 @
+We can see that the parameters are references to two transformations. We can
+explore these further by entering
+<<ReadGatingML5, echo=TRUE, results=verbatim>>=
+str(flowEnv2.0[['myLogicle.FCS.PE-A']])
+str(flowEnv2.0[['Tr_Arcsinh.FCS.APC-Cy7-A']])
+@
+This reveals that \texttt{myLogicle.FCS.PE-A} is a logicle transformation
+applied to ``PE-A'', which has been compensated according to the description in
+the data file (\textit{e.g.}, the \texttt{\$SPILLOVER}, \texttt{SPILL} or other
+keywords). Analogically, we can see that \texttt{Tr\_Arcsinh.FCS.APC-Cy7-A} is
+an ArcSinH transformation applied to ``APC-Cy7-A'', which has also been
+compensated according to the description in the data file.\\
 
-TODO: other objects created, transformations applied to FCS parameters vs. any
+In this example, we can also see how scaling transformations are mapped between
+R and Gating-ML. Specifically, in Gating-ML 1.5 and in R, each scaling
+transformation is bound to the parameter (\textit{e.g.}, FCS parameter) that it
+is supposed to be applied to. We can see from the chunk of Gating-ML 1.5 code
+below that transformations ``T1'' and ``T2'' are the same exept one is applied
+to ``FL1-H'' while the other one to ``FL2-H''. In Gating-ML 1.5 and in R, these
+transformations have to be defined separately, each of them having a unique
+identifier assigned. 
+
+\begin{verbatim}
+<!-- This is a chunk of Gating-ML 1.5 code -->
+<transforms:transformation transforms:id="T1">
+  <transforms:ln transforms:a="1" transforms:b="111.1793874">
+    <data-type:parameter data-type:name="FL1-H" />
+  </transforms:ln>
+</transforms:transformation>
+<transforms:transformation transforms:id="T2">
+  <transforms:ln transforms:a="1" transforms:b="111.1793874">
+    <data-type:parameter data-type:name="FL2-H" />
+  </transforms:ln>
+</transforms:transformation>
+<gating:RectangleGate gating:id="R1">
+  <gating:dimension gating:min="1" gating:max="3">
+    <transforms:transformationReference transforms:ref="T1" />
+  </gating:dimension>
+  <gating:dimension gating:min="2" gating:max="4">
+    <transforms:transformationReference transforms:ref="T2" />
+  </gating:dimension>
+</gating:RectangleGate>
+\end{verbatim}
+This design has been mainly driven by the fact that Gating-ML 1.5 and R allow
+for an arbitrary combination of data transformations, although most of these
+compound transformations are likely not very meaningful for the analysis of flow
+cytometry data. On the other hand, Gating-ML 2.0 supports only
+pipelines that are considered meaningful for static gate-based analysis of flow
+cytometry data (see section \ref{sec:WritingGatingML}). Consequently, only a
+single scaling transformation may be included when an FCS parameter is being
+transformed, and therefore, Gating-ML 2.0 description is simpler and allows 
+for the same transformation to be ``shared'' when applicable to multiple
+FCS parameters. We can see the design difference in the chunk of
+Gating-ML 2.0 code below:
+
+\begin{verbatim}
+<!-- This is a chunk of Gating-ML 2.0 code -->
+<transforms:transformation transforms:id="T1">
+  <transforms:flog transforms:T="1024" transforms:M="4" />
+</transforms:transformation>
+<gating:RectangleGate gating:id="R1">
+  <gating:dimension gating:min="1" gating:max="3" 
+   gating:transformation-ref="T1" gating:compensation-ref="uncompensated">
+    <data-type:fcs-dimension data-type:name="FL1-H" />
+  </gating:dimension>
+  <gating:dimension gating:min="2" gating:max="4" 
+   gating:transformation-ref="T1" gating:compensation-ref="uncompensated">
+    <data-type:fcs-dimension data-type:name="FL2-H" />
+  </gating:dimension>
+</gating:RectangleGate>
+\end{verbatim}
+Consequently, when scaling transformations are read from a Gating-ML
+2.0 file, multiple instances may be created in R if the ``same'' transformation
+is being reused for different FCS parameters (in one or more gates). New
+identifiers for these transformations will be created based on what the scaling
+transformation is applicable to. Based on the above example, we may see two
+transformations saved in the enviroment once this Gating-ML 2.0 chunk is read.
+One of them will be identified as ``T1.uncompensated.FL1-H'' and the other one
+as ``T1.uncompensated.FL2-H''.\\
+
+TODO: other objects created? Compensation?
 
 \subsection{Applying Gating-ML files}
 \label{sec:ApplyingGatingMLfiles}
@@ -221,7 +300,7 @@ explicitely specified in the Gating-ML 1.5 file. Therefore, you will need to
 prevent R from applying the default ``channel-to-scale'' transformation when
 reading your data with the intention of applying a Gating-ML 1.5 file to it.
 This can be done by specifying \texttt{transformation=FALSE} in the 
-\Rfunction{read.FCS} or \Rfunction{read.flowSet} functions. 
+\Rfunction{read.FCS} or \Rfunction{read.flowSet} functions.\\
 
 Gating-ML 2.0 specifies that data shall be used as scale values by default.
 This means that the ``channel-to-scale'' transformation (as defined by the
@@ -263,7 +342,6 @@ write.gatingML(flowEnv, outputFile)
 The second argument of the \Rfunction{write.gatingML} function (\textit{i.e.},
 the filename is optional. The output is written to standard output if filename
 is not provided.
-
 Table \ref{tab:gatingMLClasses} summarizes what R classes are used to
 capture various Gating-ML concepts (\textit{i.e.,} gates, transformations,
 compensation, etc.). 
@@ -273,7 +351,7 @@ filters and transformations can be saved in Gating-ML 2.0 as long as they are
 Gating-ML 2.0 compatible and the
 ``workflow'' is expressible in Gating-ML 2.0 (see below).
 Data driven filters (\textit{e.g.}, \Rclass{norm2Filter}, 
-\Rclass{kmeansFilter}, etc.) are not supported by Gating-ML. 
+\Rclass{kmeansFilter}, etc.) are not supported by Gating-ML.\\ 
 
 \begin{table}
 \caption{Summary of Gating-ML concepts and related R classes}
@@ -442,6 +520,8 @@ These were all examples of meaningful data transformations and analysis
 pipelines that can be saved in a Gating-ML 2.0 file. Below, we demonstrate...
 
 TODO
+
+TODO If Gating-ML 2.0 is written, corresponding transformations will be merged.\\
 
 TODO Add example with unsupported transformation type
 
