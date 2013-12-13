@@ -507,7 +507,7 @@ testGatingML1.5Compliance <- function(file)
         dirs = system.file("RUnitScript_Files", package="flowUtils"),
         testFileRegexp = "^runit.+\\.[rR]$", testFuncRegexp = "^test.+")
     testResult <- runTestSuite(testsuite)
-    printHTMLProtocol(testResult, fileName = paste(file, ".html", sep=""))
+    printHTMLProtocol(testResult, fileName = addHTMLExtensionIfNeeded(file))
 }
 
 testGatingML2.0Compliance <- function(file)
@@ -517,5 +517,16 @@ testGatingML2.0Compliance <- function(file)
         dirs = system.file("RUnitGml2Script_Files", package = "flowUtils"), 
         testFileRegexp = "^runit.+\\.[rR]$", testFuncRegexp = "^test.+")
     testResult <- runTestSuite(testsuite)
-    printHTMLProtocol(testResult, fileName = paste(file, ".html", sep=""))
+    printHTMLProtocol(testResult, fileName = addHTMLExtensionIfNeeded(file))
+}
+
+addHTMLExtensionIfNeeded <- function(file)
+{
+    if(class(file) != "character" || nchar(file) < 5 || 
+        (substring(file, nchar(file)-4, nchar(file))  != ".html") && 
+        (substring(file, nchar(file)-4, nchar(file))  != ".HTML"))
+    {
+        paste(file, ".html", sep="")
+    }
+    else file
 }
