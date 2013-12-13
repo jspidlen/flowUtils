@@ -63,7 +63,7 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
                     else if (compensationRefs[[len]] == "uncompensated") unitytransform(parName)
                     else 
                     {
-                        if (exists(parName, envir=flowEnv) 
+                        if (exists(parName, envir=flowEnv, inherits=FALSE) 
                             && class(flowEnv[[parName]])[1] == "compensatedParameter" 
                             && flowEnv[[parName]]@spillRefId == compensationRefs[[len]])
                         flowEnv[[parName]]
@@ -106,7 +106,7 @@ getTransformationListGml2 <- function(dimensionList, flowEnv)
 createOrUseGml2Transformation <- function(genericTransformationId, compensationRef, parameterName, flowEnv)
 {
     appliedName <- paste(genericTransformationId, compensationRef, parameterName, sep = ".")
-    if (!exists(appliedName, envir=flowEnv))
+    if (!exists(appliedName, envir=flowEnv, inherits=FALSE))
     {
         if (compensationRef == "FCS")
             tempParameter = compensatedParameter(parameters=parameterName, spillRefId="SpillFromFCS", 
@@ -114,7 +114,7 @@ createOrUseGml2Transformation <- function(genericTransformationId, compensationR
         else if (compensationRef == "uncompensated") tempParameter <- unitytransform(parameterName)
         else 
         {
-            if (exists(parameterName, envir=flowEnv) && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
+            if (exists(parameterName, envir=flowEnv, inherits=FALSE) && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
                 && flowEnv[[parameterName]]@spillRefId == compensationRef)
                 tempParameter = flowEnv[[parameterName]]
             else 
@@ -129,7 +129,7 @@ createOrUseGml2Transformation <- function(genericTransformationId, compensationR
         {
             resultTransformation = tempParameter
         }
-        else if (exists(genericTransformationId, envir=flowEnv))
+        else if (exists(genericTransformationId, envir=flowEnv, inherits=FALSE))
         {
             resultTransformation <- flowEnv[[genericTransformationId]]
             resultTransformation@parameters = tempParameter
@@ -161,7 +161,7 @@ createOrUseGml2RatioTransformation <- function(genericTransformationId, compensa
         myRatioTr <- flowEnv[[ratioTransformationRef]]
         numeratorName <- myRatioTr@numerator@parameters
         denominatorName <- myRatioTr@denominator@parameters
-        if (exists(fullRatioTransformationRef, envir=flowEnv))
+        if (exists(fullRatioTransformationRef, envir=flowEnv, inherits=FALSE))
             fullRatioTransformationRef
         else
         {
@@ -190,7 +190,7 @@ createOrUseGml2RatioTransformation <- function(genericTransformationId, compensa
             }
             else
             {
-                if (exists(genericTransformationId, envir=flowEnv))
+                if (exists(genericTransformationId, envir=flowEnv, inherits=FALSE))
                 {
                     resultTransformation <- flowEnv[[genericTransformationId]]
                     resultTransformation@parameters = appliedRatioTr
@@ -242,7 +242,7 @@ getTransformationListForQuadrantGate <- function(quadrant, dividers, transformat
                 else if (compensationRef == "uncompensated") transformationList[[len]] <- unitytransform(parameterName)
                 else 
                 {
-                    if (exists(parameterName, envir=flowEnv) 
+                    if (exists(parameterName, envir=flowEnv, inherits=FALSE) 
                         && class(flowEnv[[parameterName]])[1] == "compensatedParameter" 
                         && flowEnv[[parameterName]]@spillRefId == compensationRef)
                         transformationList[[len]] <- flowEnv[[parameterName]]
