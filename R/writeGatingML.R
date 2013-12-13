@@ -715,7 +715,7 @@ resolveTransformationReference <- function(trRef)
 {
     if(!is(trRef, "transformReference")) 
         stop(paste("Cannot call resolveTransformationReference on", class(trRef)))
-    if(exists(trRef@transformationId, envir=trRef@searchEnv))
+    if(exists(trRef@transformationId, envir=trRef@searchEnv, inherits=FALSE))
         trRef@searchEnv[[trRef@transformationId]]
     else
         stop(paste("Cannot find", trRef@transformationId, "in the environment."))
@@ -863,7 +863,7 @@ doubleCheckExistanceOfParameter <- function(par, flowEnv)
 {
     if(is(par, "transform")) 
     {
-        if(!is.null(par@transformationId) && par@transformationId != "" && !exists(par@transformationId, envir=flowEnv)) 
+        if(!is.null(par@transformationId) && par@transformationId != "" && !exists(par@transformationId, envir=flowEnv, inherits=FALSE)) 
         {
             flowEnv[[par@transformationId]] <- par
             flowEnv[['.addedObjects']][[par@transformationId]] <- par@transformationId
@@ -878,7 +878,7 @@ doubleCheckExistanceOfFilter <- function(filt, flowEnv)
 {
     if(is(filt, "concreteFilter")) 
     {
-        if(!is.null(filt@filterId) && filt@filterId != "" && !exists(filt@filterId, envir=flowEnv)) 
+        if(!is.null(filt@filterId) && filt@filterId != "" && !exists(filt@filterId, envir=flowEnv, inherits=FALSE)) 
         {
             flowEnv[[filt@filterId]] <- filt
             flowEnv[['.addedObjects']][[filt@filterId]] <- filt@filterId
