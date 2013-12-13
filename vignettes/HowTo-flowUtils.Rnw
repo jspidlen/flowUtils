@@ -189,7 +189,6 @@ g2.0Example <- system.file("extdata/Gml2/Gating-MLFiles",
 read.gatingML(g2.0Example, flowEnv2.0)
 ls(flowEnv2.0)
 @
-
 We are not showing the output the \texttt{ls} commands since these contain over
 a 100 of different objects saved in the environments, including various gates 
 (data filters) and transformations (scale transformations, compensation, etc.).
@@ -206,10 +205,43 @@ str(flowEnv2.0[['myRectangleGate4LogicleArcSinHFCSCompensated']])
 @
 We can see that the parameters are references to two transformations. We can
 explore these further by entering
-<<ReadGatingML5, echo=TRUE, results=verbatim>>=
+<<ReadGatingML5, echo=TRUE, results=hide>>=
 str(flowEnv2.0[['myLogicle.FCS.PE-A']])
+@
+\begin{verbatim}
+Formal class 'logicletGml2' [package "flowCore"] with 7 slots
+  ..@ .Data           :function ()  
+  ..@ T               : num 262144
+  ..@ M               : num 5
+  ..@ W               : num 1
+  ..@ A               : num 0.5
+  ..@ parameters      :Formal class 'compensatedParameter' [package "flowCore"]
+                       with 5 slots
+  .. .. ..@ .Data           :function ()  
+  .. .. ..@ parameters      : chr "PE-A"
+  .. .. ..@ spillRefId      : chr "SpillFromFCS"
+  .. .. ..@ searchEnv       :<environment: 0x66ac3e0> 
+  .. .. ..@ transformationId: chr "PE-A_compensated_according_to_FCS"
+  ..@ transformationId: chr "myLogicle.FCS.PE-A"
+\end{verbatim}
+<<ReadGatingML6, echo=TRUE, results=hide>>=
 str(flowEnv2.0[['Tr_Arcsinh.FCS.APC-Cy7-A']])
 @
+\begin{verbatim}
+Formal class 'asinhtGml2' [package "flowCore"] with 6 slots
+  ..@ .Data           :function ()  
+  ..@ T               : num 1.18
+  ..@ M               : num 0.434
+  ..@ A               : num 0
+  ..@ parameters      :Formal class 'compensatedParameter' [package "flowCore"]
+                       with 5 slots
+  .. .. ..@ .Data           :function ()  
+  .. .. ..@ parameters      : chr "APC-Cy7-A"
+  .. .. ..@ spillRefId      : chr "SpillFromFCS"
+  .. .. ..@ searchEnv       :<environment: 0x66ac3e0> 
+  .. .. ..@ transformationId: chr "APC-Cy7-A_compensated_according_to_FCS"
+  ..@ transformationId: chr "Tr_Arcsinh.FCS.APC-Cy7-A"
+\end{verbatim}
 This reveals that \texttt{myLogicle.FCS.PE-A} is a logicle transformation
 applied to ``PE-A'', which has been compensated according to the description in
 the data file (\textit{e.g.}, the \texttt{\$SPILLOVER}, \texttt{SPILL} or other
@@ -290,7 +322,7 @@ gate is created in the ``PE-A'' and ``PerCP-Cy5-5-A'' dimensions,
 which are compensated according to the ``MySpill'' spillover matrix. This
 matrix has been extracted from the Gating-ML 2.0 file.
 
-<<ReadGatingML6, echo=TRUE, results=verbatim>>=
+<<ReadGatingML7, echo=TRUE, results=verbatim>>=
 str(flowEnv2.0[['myPolygonGateWithCustomSpillover']])
 flowEnv2.0[['MySpill']]
 @
@@ -351,6 +383,22 @@ flowEnv[['myGate']] <- rectangleGate(filterId="myGate",
 outputFile <- tempfile(fileext=".gating-ml2.xml")
 write.gatingML(flowEnv, outputFile)
 @
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ... >
+  ... 
+  <gating:RectangleGate gating:id="myGate">
+    <gating:dimension gating:min="150" gating:max="300" 
+                      gating:compensation-ref="uncompensated">
+      <data-type:fcs-dimension data-type:name="FSC-H"/>
+    </gating:dimension>
+    <gating:dimension gating:min="200" gating:max="600" 
+                      gating:compensation-ref="uncompensated">
+      <data-type:fcs-dimension data-type:name="SSC-H"/>
+    </gating:dimension>
+  </gating:RectangleGate>
+</gating:Gating-ML>
+\end{verbatim}
 
 The second argument of the \Rfunction{write.gatingML} function (\textit{i.e.},
 the filename is optional. The output is written to standard output if filename
@@ -469,10 +517,39 @@ myEl@parameters <- new("parameters", compPars)
 flowEnv[['myEl']] <- myEl
 write.gatingML(flowEnv)
 @
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ... ">
+  ...
+  <gating:EllipsoidGate gating:id="myEl">
+    <gating:dimension gating:compensation-ref="FCS">
+      <data-type:fcs-dimension data-type:name="FL1-H"/>
+    </gating:dimension>
+    <gating:dimension gating:compensation-ref="FCS">
+      <data-type:fcs-dimension data-type:name="FL2-H"/>
+    </gating:dimension>
+    <gating:mean>
+      <gating:coordinate data-type:value="12"/>
+      <gating:coordinate data-type:value="16"/>
+    </gating:mean>
+    <gating:covarianceMatrix>
+      <gating:row>
+        <gating:entry data-type:value.FL1-H="62.5"/>
+        <gating:entry data-type:value.FL2-H="37.5"/>
+      </gating:row>
+      <gating:row>
+        <gating:entry data-type:value.FL1-H="37.5"/>
+        <gating:entry data-type:value.FL2-H="62.5"/>
+      </gating:row>
+    </gating:covarianceMatrix>
+    <gating:distanceSquare data-type:value="1"/>
+  </gating:EllipsoidGate>
+</gating:Gating-ML>
+\end{verbatim}
 
 The \texttt{spillRefId="SpillFromFCS"} indicates that compensation according
 to the description in the FCS data file shall used. In the Gating-ML output,
-this will typically be described as \texttt{<gating:dimension
+this is described as \texttt{<gating:dimension
 gating:compensation-ref="FCS">} for the appropriate dimensions.
 If we wanted to use compensation based on a custom spillover (or spectrum) 
 matrix instead, we could modify the code as follows: 
@@ -482,7 +559,7 @@ spillM <- matrix(c(1, 0.03, 0.07, 1), nrow = 2, byrow=TRUE)
 colnames(spillM) <- c("FL1-H", "FL2-H")
 rownames(spillM) <- c("Comp-FL1-H", "Comp-FL2-H")
 pars <- new("parameters", list("FL1-H", "FL2-H"))
-myComp <- compensation(spillover=spillM, compensationId='spillM', pars)
+myComp <- compensation(spillover=spillM, compensationId='myComp', pars)
 flowEnv[['myComp']] <- myComp
 compPars <- list(
   compensatedParameter(parameters="FL1-H", spillRefId="myComp", 
@@ -494,15 +571,48 @@ myEl@parameters <- new("parameters", compPars)
 flowEnv[['myEl']] <- myEl
 write.gatingML(flowEnv)
 @
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ... >
+  ...
+  <transforms:spectrumMatrix transforms:id="myComp">
+    <transforms:fluorochromes>
+      <data-type:fcs-dimension data-type:name="Comp-FL1-H"/>
+      <data-type:fcs-dimension data-type:name="Comp-FL2-H"/>
+    </transforms:fluorochromes>
+    <transforms:detectors>
+      <data-type:fcs-dimension data-type:name="FL1-H"/>
+      <data-type:fcs-dimension data-type:name="FL2-H"/>
+    </transforms:detectors>
+    <transforms:spectrum>
+      <transforms:coefficient transforms:value="1"/>
+      <transforms:coefficient transforms:value="0.03"/>
+    </transforms:spectrum>
+    <transforms:spectrum>
+      <transforms:coefficient transforms:value="0.07"/>
+      <transforms:coefficient transforms:value="1"/>
+    </transforms:spectrum>
+  </transforms:spectrumMatrix>
+  <gating:EllipsoidGate gating:id="myEl">
+    <gating:dimension gating:compensation-ref="myComp">
+      <data-type:fcs-dimension data-type:name="Comp-FL1-H"/>
+    </gating:dimension>
+    <gating:dimension gating:compensation-ref="myComp">
+      <data-type:fcs-dimension data-type:name="Comp-FL2-H"/>
+    </gating:dimension>
+    ...
+  </gating:EllipsoidGate>
+</gating:Gating-ML>
+\end{verbatim}
 
 Please note that new names are assigned to parameters compensated according to a
 custom spillover matrix (\textit{i.e.}, \texttt{Comp-FL1-H} and
 \texttt{Comp-FL2-H}).
 This is necessary due to the generic Gating-ML 2.0 design, which also supports 
 non-square spectrum matrices (where these is no one-to-one correspondence between 
-the measured and ``compensated'' values). Should you wish to experiment with
-non-square spectrum matrices, the following piece of code can be used to
-generate one.
+the measured and ``compensated'' values). The following piece of code
+demonstrates how a non-square spectrum matrix can be generated and saved in
+Gating-ML. 
 
 <<WriteGatingML4, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
@@ -510,19 +620,105 @@ specM <- matrix(c(0.78, 0.13, 0.22, 0.05, 0.57, 0.89), nrow = 2, byrow=TRUE)
 colnames(specM) <- c("FL1-H", "FL2-H", "FL3-H")
 rownames(specM) <- c("Deconvoluted-P1", "Deconvoluted-P2")
 pars <- new("parameters", list("FL1-H", "FL2-H", "FL3-H"))
-myComp <- compensation(spillover=specM, compensationId='specM', pars)
-flowEnv[['myComp']] <- myComp
+mySpecM <- compensation(spillover=specM, compensationId='specM', pars)
+flowEnv[['mySpecM']] <- mySpecM
 compPars <- list(
-  compensatedParameter(parameters="FL1-H", spillRefId="myComp", 
+  compensatedParameter(parameters="FL1-H", spillRefId="mySpecM", 
     transformationId="Deconvoluted-P1", searchEnv=flowEnv),
-  compensatedParameter(parameters="FL2-H", spillRefId="myComp", 
+  compensatedParameter(parameters="FL2-H", spillRefId="mySpecM", 
     transformationId="Deconvoluted-P2", searchEnv=flowEnv)
 )
 myEl@parameters <- new("parameters", compPars)
 flowEnv[['myEl']] <- myEl
 write.gatingML(flowEnv)
 @
-
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ... >
+ ...
+  <transforms:spectrumMatrix transforms:id="specM">
+    <transforms:fluorochromes>
+      <data-type:fcs-dimension data-type:name="Deconvoluted-P1"/>
+      <data-type:fcs-dimension data-type:name="Deconvoluted-P2"/>
+    </transforms:fluorochromes>
+    <transforms:detectors>
+      <data-type:fcs-dimension data-type:name="FL1-H"/>
+      <data-type:fcs-dimension data-type:name="FL2-H"/>
+      <data-type:fcs-dimension data-type:name="FL3-H"/>
+    </transforms:detectors>
+    <transforms:spectrum>
+      <transforms:coefficient transforms:value="0.78"/>
+      <transforms:coefficient transforms:value="0.13"/>
+      <transforms:coefficient transforms:value="0.22"/>
+    </transforms:spectrum>
+    <transforms:spectrum>
+      <transforms:coefficient transforms:value="0.05"/>
+      <transforms:coefficient transforms:value="0.57"/>
+      <transforms:coefficient transforms:value="0.89"/>
+    </transforms:spectrum>
+  </transforms:spectrumMatrix>
+</gating:Gating-ML>
+\end{verbatim}
+Next, we will use a \Rclass{quadGate} and demonstrate how scaling
+transformations can be included:
+<<WriteGatingML5, echo=TRUE, eval=TRUE, results=hide>>=
+flowEnv <- new.env()
+myTrQuad <- quadGate(filterId = "myTrQuad", "APC-A" = 0.5, "APC-Cy7-A" = 0.6)
+trArcSinH1 = asinhtGml2(parameters = "APC-A", T = 1000, M = 4.5, A = 0, 
+  transformationId="trArcSinH1")
+trLogicle1 = logicletGml2(parameters = "APC-Cy7-A", T = 1000, W = 0.5, 
+  M = 4.5, A = 0, transformationId="trLogicle1")
+flowEnv[['trArcSinH1']] <- trArcSinH1
+flowEnv[['trLogicle1']] <- trLogicle1
+trPars = list(
+  transformReference("trArcSinH1", flowEnv),
+  transformReference("trLogicle1", flowEnv)
+)
+myTrQuad@parameters = new("parameters", trPars)
+flowEnv[['myTrQuad']] <- myTrQuad
+write.gatingML(flowEnv)
+@
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ... >
+  ...
+  <transforms:transformation transforms:id="trArcSinH1">
+    <transforms:fasinh transforms:T="1000" transforms:M="4.5" transforms:A="0"/>
+  </transforms:transformation>
+  <transforms:transformation transforms:id="trLogicle1">
+    <transforms:logicle transforms:T="1000" transforms:M="4.5" transforms:W="0.5"
+                        transforms:A="0"/>
+  </transforms:transformation>
+  <gating:QuadrantGate gating:id="myTrQuad">
+    <gating:divider gating:transformation-ref="trArcSinH1" 
+                    gating:compensation-ref="uncompensated" gating:id="myTrQuad.D1">
+      <data-type:fcs-dimension data-type:name="APC-A"/>
+      <gating:value>0.5</gating:value>
+    </gating:divider>
+    <gating:divider gating:transformation-ref="trLogicle1" 
+                    gating:compensation-ref="uncompensated" gating:id="myTrQuad.D2">
+      <data-type:fcs-dimension data-type:name="APC-Cy7-A"/>
+      <gating:value>0.6</gating:value>
+    </gating:divider>
+    <gating:Quadrant gating:id="myTrQuad.PP">
+      <gating:position gating:divider_ref="myTrQuad.D1" gating:location="1.5"/>
+      <gating:position gating:divider_ref="myTrQuad.D2" gating:location="1.6"/>
+    </gating:Quadrant>
+    <gating:Quadrant gating:id="myTrQuad.PN">
+      <gating:position gating:divider_ref="myTrQuad.D1" gating:location="1.5"/>
+      <gating:position gating:divider_ref="myTrQuad.D2" gating:location="-0.4"/>
+    </gating:Quadrant>
+    <gating:Quadrant gating:id="myTrQuad.NP">
+      <gating:position gating:divider_ref="myTrQuad.D1" gating:location="-0.5"/>
+      <gating:position gating:divider_ref="myTrQuad.D2" gating:location="1.6"/>
+    </gating:Quadrant>
+    <gating:Quadrant gating:id="myTrQuad.NN">
+      <gating:position gating:divider_ref="myTrQuad.D1" gating:location="-0.5"/>
+      <gating:position gating:divider_ref="myTrQuad.D2" gating:location="-0.4"/>
+    </gating:Quadrant>
+  </gating:QuadrantGate>
+</gating:Gating-ML>
+\end{verbatim}
 
 
 TODO Add example with transformation
