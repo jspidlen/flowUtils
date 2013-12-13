@@ -1,7 +1,7 @@
 Package: flowUtils
 Type: Package
 Title: Utilities for flow cytometry
-Version: 1.25.24
+Version: 1.25.25
 Author: N. Gopalakrishnan, F. Hahne, B. Ellis, R. Gentleman, M. Dalphin, N. Le Meur, B. Purcell, J. Spidlen.
 Maintainer: Josef Spidlen <jspidlen@bccrc.ca>
 Description: Provides utilities for flow cytometry data. 
