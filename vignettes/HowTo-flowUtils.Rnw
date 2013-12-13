@@ -719,9 +719,53 @@ write.gatingML(flowEnv)
   </gating:QuadrantGate>
 </gating:Gating-ML>
 \end{verbatim}
+Next, we can modify the code so that compensated parameters are used as
+arguments of the Logicle and ArcSinH transformations. In addition, we will use
+these transformations directly rather than creating a transformation reference.
+Consequently, the \Rfunction{write.gatingML} function will create the
+``trArcSinH1'' and ``trLogicle1'' transformations even without having to save
+these in the environment.
 
+<<WriteGatingML6, echo=TRUE, eval=TRUE, results=hide>>=
+rm(list=ls(flowEnv), envir=flowEnv)
+trArcSinH1@parameters <- compensatedParameter(parameters="APC-A", 
+  spillRefId="SpillFromFCS", searchEnv=flowEnv,
+  transformationId= "APC-A_compensated_according_to_FCS")
+trLogicle1@parameters <- compensatedParameter(parameters="APC-Cy7-A", 
+  spillRefId="SpillFromFCS", searchEnv=flowEnv,
+  transformationId="APC-Cy7-A_compensated_according_to_FCS")
+trPars <- list(trArcSinH1,trLogicle1)
+myTrQuad@parameters <- new("parameters", trPars)
+flowEnv[['myTrQuad']] <- myTrQuad
+write.gatingML(flowEnv)
+@
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ... >
+  ...
+  <transforms:transformation transforms:id="trArcSinH1">
+    <transforms:fasinh transforms:T="1000" transforms:M="4.5" transforms:A="0"/>
+  </transforms:transformation>
+  <transforms:transformation transforms:id="trLogicle1">
+    <transforms:logicle transforms:T="1000" transforms:M="4.5" transforms:W="0.5"
+                        transforms:A="0"/>
+  </transforms:transformation>
+  <gating:QuadrantGate gating:id="myTrQuad">
+    <gating:divider gating:transformation-ref="trArcSinH1" 
+                    gating:compensation-ref="FCS" gating:id="myTrQuad.D1">
+      <data-type:fcs-dimension data-type:name="APC-A"/>
+      <gating:value>0.5</gating:value>
+    </gating:divider>
+    <gating:divider gating:transformation-ref="trLogicle1" 
+                    gating:compensation-ref="FCS" gating:id="myTrQuad.D2">
+      <data-type:fcs-dimension data-type:name="APC-Cy7-A"/>
+      <gating:value>0.6</gating:value>
+    </gating:divider>
+    ...
+  </gating:QuadrantGate>
+</gating:Gating-ML>
+\end{verbatim}
 
-TODO Add example with transformation
 
 TODO Add example with ratio
 
@@ -764,10 +808,80 @@ TODO: explain asinh and ratio conversion.
 
 
 \section{Testing Gating-ML compliance}
-<<TestGatingMLCompliance, eval=FALSE, echo=TRUE, results=verbatim>>=
-testGatingMLCompliance("ComplianceReport1.5", version=1.5)
-testGatingMLCompliance("ComplianceReport2.0", version=2.0)
+The flowUtils package includes RUnit-based compliance tests to verify its
+compliance with the Gating-ML 1.5 and Gating-ML 2.0 specifications. 
+You will need the \Rpackage{gatingMLData} package (version 2.2.0 or newer) and
+the \Rpackage{RUnit} package in order to run the compliance tests.
+If you do not have these packages, you can install them as follows:
+
+<<TestGatingMLCompliance1, eval=FALSE, echo=TRUE, results=verbatim>>=
+source("http://bioconductor.org/biocLite.R")
+biocLite("gatingMLData")
+install.packages("RUnit")
 @
+Once you have the required packages installed, the 
+\Rfunction{testGatingMLCompliance} function can be used to test Gating-ML
+compliance. This function takes two arguments: the name of the file where the
+compliance HTML report shall be saved, and the version of Gating-ML that 
+the compliance with shall be tested with. In order to test compliance with
+Gating-ML 1.5, you can run the following code:
+
+<<TestGatingMLCompliance2, eval=FALSE, echo=TRUE, results=verbatim>>=
+testGatingMLCompliance("ComplianceReport_v1.5.html", version=1.5)
+@
+This code will run 460 test functions, which are based on the 32 sets of
+compliance tests included with the Gating-ML 1.5 specification. 
+During these tests, computed event membership is compared against the events
+expected in each of the tested gates, and any discrepancies are reported as
+failures. 
+The Gating-ML 1.5 compliance tests usually take about 1 -- 2 minutes to
+complete, at which point an HTML report with 0 failures and 0 errors should be
+produced.\\
+
+The following code can be executed in order to test compliance with Gating-ML
+2.0:
+<<TestGatingMLCompliance3, eval=FALSE, echo=TRUE, results=verbatim>>=
+testGatingMLCompliance("ComplianceReport_v2.0.html", version=2.0)
+@
+This code will execute 365 test functions and should take about 4 -- 6 minutes
+to complete. It contains 11 sets of tests. Sets 1 and 2 are based on
+the two sets of compliance tests included with the Gating-ML 2.0
+specification. During these tests, computed event membership is compared 
+against the events expected in each of the tested gates, and any 
+discrepancies are reported as failures.
+Sets 3, 4 and 5 implement additional compliance tests that were not 
+included with the Gating-ML 2.0 specification. These allow us to test
+a few additional concepts that are not checked with the official tests
+(e.g., non-square spectrum matrices); however, we should note that we have used
+R to generate the expected results for these tests. Therefore, the tests 
+can only ensure that \Rpackage{flowUtils} parses the provided Gating-ML 2.0
+files properly and that the results remain consistent over time.
+The rest of the test sets is focused on writing Gating-ML 2.0. The first 5
+``write Gating-ML'' test sets are based on the mentioned ``read Gating-ML''
+tests; however, we always
+\begin{enumerate}
+\item Read the Gating-ML file into an empty enviroment\\[-20pt]
+\item Save that enviroment into temporary Gating-ML 2.0 file\\[-20pt]
+\item Empty the enviroment\\[-20pt]
+\item Read the saved temporary Gating-ML file\\[-20pt]
+\item Check that we retrieved all the gates with all the expected results correctly
+\end{enumerate}
+This way, we can also make sure that the Gating-ML files have been written
+correctly.
+The last set of ``write Gating-ML'' tests includes concepts that cannot be
+created by reading a Gating-ML 2.0 file; however, they can be created
+manually and exported to a Gating-ML 2.0 file. 
+For example, this includes tests that the Gating-ML 1.5 ratio 
+transformation can be saved in Gating-ML 2.0 and then retrieved
+as Gating-ML 2.0 ``fratio'' with the correct results.
+Additional tests include the ``asinhtGml2'' transformation with a directly 
+embedded (rather than referenced) ratio transformation, the use of  
+filters (rather than filter references) for Boolean gates,  
+the proper conversion of Gating-ML 1.5 asinht to Gating-ML 2.0 asinhtGml2, and
+also testing of various Quad gates in combination with compensation, ratio and
+scale transformations.
+An HTML report with 0 failures and 0 errors should be
+produced once the Gating-ML 2.0 compliance tests are completed.
 
 \section{Using Gating-ML to exchange gates with other software tools}
 To the best of our knowledge, R, FlowRepository and Cytobank are the first
