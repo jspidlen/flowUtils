@@ -284,7 +284,20 @@ transformations saved in the enviroment once this Gating-ML 2.0 chunk is read.
 One of them will be identified as ``T1.uncompensated.FL1-H'' and the other one
 as ``T1.uncompensated.FL2-H''.\\
 
-TODO: other objects created? Compensation?
+Compensation objects are also parsed from the Gating-ML files and saved in the
+environment. For example, the ``myPolygonGateWithCustomSpillover'' polygon
+gate is created in the ``PE-A'' and ``PerCP-Cy5-5-A'' dimensions,
+which are compensated according to the ``MySpill'' spillover matrix. This
+matrix has been extracted from the Gating-ML 2.0 file.
+
+<<ReadGatingML6, echo=TRUE, results=verbatim>>=
+str(flowEnv2.0[['myPolygonGateWithCustomSpillover']])
+flowEnv2.0[['MySpill']]
+@
+Non-square spectrum matrices are extracted and saved the same way. For
+example, you may want to review the
+``myPolygonGateWithCustomNonSquareSpectrumMatrix'' and ``MyNonSquareSpectrum''
+objects in the ``flowEnv2.0'' environment.
 
 \subsection{Applying Gating-ML files}
 \label{sec:ApplyingGatingMLfiles}
