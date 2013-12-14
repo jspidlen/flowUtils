@@ -664,17 +664,17 @@ transformations can be included:
 <<WriteGatingML5, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
 myTrQuad <- quadGate(filterId = "myTrQuad", "APC-A" = 0.5, "APC-Cy7-A" = 0.6)
-trArcSinH1 = asinhtGml2(parameters = "APC-A", T = 1000, M = 4.5, A = 0, 
+trArcSinH1 <- asinhtGml2(parameters = "APC-A", T = 1000, M = 4.5, A = 0, 
   transformationId="trArcSinH1")
-trLogicle1 = logicletGml2(parameters = "APC-Cy7-A", T = 1000, W = 0.5, 
+trLogicle1 <- logicletGml2(parameters = "APC-Cy7-A", T = 1000, W = 0.5, 
   M = 4.5, A = 0, transformationId="trLogicle1")
 flowEnv[['trArcSinH1']] <- trArcSinH1
 flowEnv[['trLogicle1']] <- trLogicle1
-trPars = list(
+trPars <- list(
   transformReference("trArcSinH1", flowEnv),
   transformReference("trLogicle1", flowEnv)
 )
-myTrQuad@parameters = new("parameters", trPars)
+myTrQuad@parameters <- new("parameters", trPars)
 flowEnv[['myTrQuad']] <- myTrQuad
 write.gatingML(flowEnv)
 @
@@ -766,19 +766,100 @@ write.gatingML(flowEnv)
 </gating:Gating-ML>
 \end{verbatim}
 
+In certain cases, a Gating-ML 1.5 compatible transformation can be
+transformed and expressed in Gating-ML 2.0 (see table
+\ref{tab:gatingMLClasses}).
+For example, the Gating-ML 1.5 ``ratio'' transformation can be expressed as
+Gating-ML 2.0 ``fratio''.
+The Gating-ML 1.5 ``ratio'' is defined as 
+$$f(x,y) = \frac{x}{y}$$
+The parameterized ``fratio'' transformation in Gating-ML 2.0 is defined as
+$$f(x,y,A,B,C) = A\frac{x-B}{y-C}$$
+Therefore, we can express the Gating-ML 1.5 ``ratio'' as Gating-ML 2.0
+``fratio'' by setting $A=1$, $B=0$, and $C=0$. 
+Code shown below demonstrates that this ``conversion'' is done automatically
+when the \Rfunction{write.gatingML} is called:
 
-TODO Add example with ratio
+<<WriteGatingML7, echo=TRUE, eval=TRUE, results=hide>>=
+flowEnv <- new.env()
+rat1 <- ratio("FSC-A", "SSC-A", transformationId = "rat1")
+myRectGate <- rectangleGate(filterId="myRectGate", "rat1"=c(0.8, 1.4))
+myRectGate@parameters <- new("parameters", list(rat1))
+flowEnv[['myRectGate']] <- myRectGate
+write.gatingML(flowEnv)
+@
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ...>
+  ...
+  <transforms:transformation transforms:id="rat1">
+    <transforms:fratio transforms:A="1" transforms:B="0" transforms:C="0">
+      <data-type:fcs-dimension data-type:name="FSC-A"/>
+      <data-type:fcs-dimension data-type:name="SSC-A"/>
+    </transforms:fratio>
+  </transforms:transformation>
+  <gating:RectangleGate gating:id="myRectGate">
+    <gating:dimension gating:min="0.8" gating:max="1.4" 
+                      gating:compensation-ref="uncompensated">
+      <data-type:new-dimension data-type:transformation-ref="rat1"/>
+    </gating:dimension>
+  </gating:RectangleGate>
+</gating:Gating-ML>
+\end{verbatim}
+Similarly for the parameterized inverse hyperbolic sine transformation, which in
+Gating-ML 1.5 is defined as
+$${\textrm{f}}(x, a, b) =  {\textrm{asinh}}(ax)*b$$
+and in Gating-ML 2.0 as
+$${\textrm{f}}(x, T, M, A) = \frac{{\textrm{asinh}}(x \sinh(M \ln(10)) / T) + A
+\ln(10)}{(M+A) \ln(10)} $$
+Therefore, the \Rfunction{write.gatingML} function can convert the Gating-ML 1.5
+parameterization to Gating-ML 2.0 by setting
+$A = 0$, $M = 1 / (b * \ln(10))$ and $T = (\sinh(1/b)) / a$ as demonstrated
+below:
+<<WriteGatingML8, echo=TRUE, eval=TRUE, results=hide>>=
+flowEnv <- new.env()
+myASinH <- asinht("FL3-W", a = 1.5828, b = 0.0965, transformationId = "myASinH")
+gate1 <- rectangleGate(filterId="gate1", "myASinH"=c(0.3, 0.7))
+gate1@parameters <- new("parameters", list(myASinH))
+flowEnv[['gate1']] <- gate1
+write.gatingML(flowEnv)
+@
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ...>
+  ...
+  <transforms:transformation transforms:id="myASinH">
+    <transforms:fasinh transforms:T="10000.1131651903" 
+                       transforms:M="4.5004609523653" 
+                       transforms:A="0"/>
+  </transforms:transformation>
+  <gating:RectangleGate gating:id="gate1">
+    <gating:dimension gating:min="0.3" gating:max="0.7" 
+                      gating:transformation-ref="myASinH" 
+                      gating:compensation-ref="uncompensated">
+      <data-type:fcs-dimension data-type:name="FL3-W"/>
+    </gating:dimension>
+  </gating:RectangleGate>
+</gating:Gating-ML>
+\end{verbatim}
+So far, all our examples included a relativelly simple pipeline. Next, we
+will try to demonstrate the use of a custom compensation along with a scaling 
+transformation (log) applied to a ratio of two FCS parameters:
+
+<<WriteGatingML9, echo=TRUE, eval=TRUE, results=verbatim>>=
+flowEnv <- new.env()
+# TODO
+write.gatingML(flowEnv)
+@
+
+
 
 These were all examples of meaningful data transformations and analysis
 pipelines that can be saved in a Gating-ML 2.0 file. Below, we demonstrate...
 
-TODO
-
 TODO If Gating-ML 2.0 is written, corresponding transformations will be merged.\\
 
 TODO Add example with unsupported transformation type
-
-TODO
 
 <<WriteGatingMLIssue1, echo=TRUE, eval=TRUE, results=verbatim>>=
 logicle1 <- logicletGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, 
