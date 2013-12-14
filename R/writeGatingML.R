@@ -36,6 +36,17 @@ write.gatingML <- function(flowEnv, file = NULL)
     gatingMLNode$closeTag()
     
     flowEnv[['.objectIDsWrittenToXMLOutput']] = list() # Use this list to collect XML Ids
+	
+	somethingUseful = FALSE
+    for (x in ls(flowEnv)) {
+	   object = objectNameToObject(x, flowEnv)
+       if(is(object, "parameterFilter") || is(object, "singleParameterTransform") || is(object, "setOperationFilter"))
+       {
+		   somethingUseful = FALSE
+           break
+       }
+    }
+	if(!somethingUseful) warning("Nothing useful seems to be present in the environment; the output Gating-ML file may not be very useful.", call. = FALSE)
 
     # Go over everything and temporarily add transformations and argument gates to flowEnv
     # if they are not saved in flowEnv directly, but they are being used in other objects
