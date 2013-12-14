@@ -852,16 +852,15 @@ flowEnv <- new.env()
 write.gatingML(flowEnv)
 @
 
+TODO If Gating-ML 2.0 is written, corresponding transformations will be
+merged.\\
 
+TODO Add example with unsupported transformation type\\
 
-These were all examples of meaningful data transformations and analysis
+TODO These were all examples of meaningful data transformations and analysis
 pipelines that can be saved in a Gating-ML 2.0 file. Below, we demonstrate...
 
-TODO If Gating-ML 2.0 is written, corresponding transformations will be merged.\\
-
-TODO Add example with unsupported transformation type
-
-<<WriteGatingMLIssue1, echo=TRUE, eval=TRUE, results=verbatim>>=
+<<WriteGatingMLIssue1, echo=TRUE, eval=TRUE, results=hide>>=
 logicle1 <- logicletGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, 
   transformationId="logicle1")
 logicle2 <- logicletGml2(parameters = "logicle1", T = 1000, M = 4.5, A = 0, 
@@ -871,22 +870,12 @@ myRect <- rectangleGate(filterId="myRect", list("logicle2"=c(0, .6)))
 myRect@parameters <- new("parameters", list(logicle2))
 flowEnv[['myRect']] <- myRect
 x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
-# Just printing out x$message with a new line inserted so that the
-# output does not run off the page in this vignetter
-cat(paste(substr(x$message, 1, 74), substr(x$message, 75, nchar(x$message)), 
-  sep = "\n"))
+x$message
 @
-
-TODO show more examples of working stuff
-
-TODO: explain compensation
-
-TODO: explain asinh and ratio conversion.
-
-
-
-
-
+\begin{verbatim}
+[1] "Unexpected parameter class logicletGml2, compound transformations are not
+    supported in Gating-ML 2.0."
+\end{verbatim}
 
 \section{Testing Gating-ML compliance}
 The flowUtils package includes RUnit-based compliance tests to verify its
