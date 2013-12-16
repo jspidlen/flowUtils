@@ -42,7 +42,7 @@ write.gatingML <- function(flowEnv, file = NULL)
 	   object = objectNameToObject(x, flowEnv)
        if(is(object, "parameterFilter") || is(object, "singleParameterTransform") || is(object, "setOperationFilter"))
        {
-		   somethingUseful = FALSE
+		   somethingUseful = TRUE
            break
        }
     }
