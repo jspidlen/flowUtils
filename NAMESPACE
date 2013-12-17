@@ -39,6 +39,6 @@ importFrom(utils, localeToCharset)
 
 importFrom(XML, names.XMLNode, toString.XMLNode, xmlAttrs, xmlChildren,
            xmlElementsByTagName, xmlGetAttr, xmlName, xmlNamespace,
-           xmlNode, xmlRoot, xmlSApply, xmlTreeParse)
+           xmlNode, xmlRoot, xmlSApply, xmlTreeParse, xmlTree)
 
 importFrom(corpcor, pseudoinverse)
