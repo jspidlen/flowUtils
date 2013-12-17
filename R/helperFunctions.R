@@ -490,8 +490,8 @@ performGateTest<-function(gateId,fcs,expectedResult,flowEnv)
 
 testGatingMLCompliance <- function(file = "GatingMLComplianceReport", version = 2.0)
 {
-    if(!require(RUnit))
-        stop("You need to have 'RUnit' package in order to run the Gating-ML compliance tests.", call.=FALSE)
+#    if(!require(RUnit))
+#        stop("You need to have 'RUnit' package in order to run the Gating-ML compliance tests.", call.=FALSE)
     if(!require(gatingMLData))
         stop("You need to have 'gatingMLData' package in order to run the Gating-ML compliance tests.", call.=FALSE)
     if ((version == 1.5) || (version == "1.5")) 
