@@ -1083,55 +1083,74 @@ x$message
 \end{verbatim}
 
 \subsection{Example with unsupported transformations}
-TODO Add example with unsupported transformation type; EXPLAIN:
+R is a powerful programming language that allows for many different data
+transformations.
+However, only some data transformations are supported by the Gating-ML 2.0
+specification (see table \ref{tab:gatingMLClasses}). As shown below, an error
+is produced if an incompatible transformation is found in the
+environment that is being written to Gating-ML 2.0 output.
 
-<<WriteGatingMLUnsupportedCase1, echo=TRUE, eval=TRUE, results=hide>>=
+<<WriteGatingMLUnsupportedCase2, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
 tSS <- splitscale(parameters = "FL1-H", r = 1024, maxValue = 10000, 
     transitionChannel = 256, transformationId = "tSS")
-myRect <- rectangleGate(filterId="myRect", list("logicle2"=c(100, 700)))
+myRect <- rectangleGate(filterId="myRect", list("tss"=c(100, 700)))
 myRect@parameters <- new("parameters", list(tSS))
 flowEnv[['myRect']] <- myRect
-write.gatingML(flowEnv)
+x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
+x$message
 @
 \begin{verbatim}
-<?xml version="1.0" encoding="UTF-8"?>
-<gating:Gating-ML ... >
-  ...
-  <gating:RectangleGate gating:id="myRect">
-    <gating:dimension gating:min="100" gating:max="700" 
-      gating:transformation-ref="tSS" gating:compensation-ref="uncompensated">
-      <data-type:fcs-dimension data-type:name="FL1-H"/>
-    </gating:dimension>
-  </gating:RectangleGate>
-</gating:Gating-ML>
+[1] "Class 'splitscale' is not supported in Gating-ML 2.0 output. Only 
+    Gating-ML 2.0 compatible transformations are supported by Gating-ML 2.0
+    output. Transformation 'tSS' is not among those and cannot be included. 
+    Therefore, any gate referencing this transformation would be referencing
+    a non-existent transformation in the Gating-ML output. Please correct the
+    gates and transformations in your environment and try again."
 \end{verbatim}
-\vspace{-15pt}
-{\color{red}
-\begin{verbatim}
-Warning message:
-Class 'splitscale' is not supported in Gating-ML 2.0 output. Only Gating-ML 2.0 
-compatible transformations are supported by Gating-ML 2.0 output. Transformation 
-'tSS' is not among those and will be skipped. Therefore, any gate referencing 
-this transformation will be referencing a non-existent transformation in the 
-Gating-ML output.  
-\end{verbatim}
-}
+If this is the case, you will have to remove the transformation and any
+reference to it from the environment before being able to save it in Gating-ML
+2.0.
 
+\subsection{Example with unsupported gate type}
+All widely used static gates are Gating-ML 2.0 compatible. 
+Gates that are not compatible with Gating-ML 2.0 include $n$-dimension polytope
+gates (\Rclass{polytopeGate} class) and decision tree gates
+(\Rclass{expressionFilter}). These types of gates are supported by Gating-ML
+1.5, but the support has been removed in Gating-ML 2.0 since these gates are
+almost never used for the analysis of flow cytometry data. In addition,
+Gating-ML 2.0 cannot be used to export data driven gate, such as
+\Rclass{norm2Filter}, \Rclass{kmeansFilter}, \Rclass{curv1Filter}, 
+\Rclass{curv2Filter}, \Rclass{boundaryFilter}, etc.
+As shown below, an error is produced if an incompatible gate is found in the
+environment that is being written to Gating-ML 2.0 output.
 
-
+<<WriteGatingMLUnsupportedCase3, echo=TRUE, eval=TRUE, results=hide>>=
+flowEnv <- new.env()
+myRect <- rectangleGate(filterId="myRect", "FSC-H"=c(100, 700))
+flowEnv[['myRect']] <- myRect
+x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
+x$message
+@
+ 
 \section{Testing Gating-ML compliance}
 \subsection{Additional requirements}
 The flowUtils package includes RUnit-based compliance tests to verify its
 compliance with the Gating-ML 1.5 and Gating-ML 2.0 specifications. 
-You will need the \Rpackage{gatingMLData} package (version 2.2.0 or newer) and
-the \Rpackage{RUnit} package in order to run the compliance tests.
-If you do not have these packages, you can install them as follows:
+You will need the \Rpackage{gatingMLData} package (version 2.2.0 or newer) 
+% and the \Rpackage{RUnit} package 
+in order to run the compliance tests.
+%If you do not have these packages, you can install them as follows:
+If you do not have this package, you can install it as follows:
 
+%<<TestGatingMLCompliance1, eval=FALSE, echo=TRUE, results=verbatim>>=
+%source("http://bioconductor.org/biocLite.R")
+%biocLite("gatingMLData")
+%install.packages("RUnit")
+%@
 <<TestGatingMLCompliance1, eval=FALSE, echo=TRUE, results=verbatim>>=
 source("http://bioconductor.org/biocLite.R")
 biocLite("gatingMLData")
-install.packages("RUnit")
 @
 
 \subsection{Gating-ML 1.5 compliance}
@@ -1236,6 +1255,8 @@ software tools (gates of wrong sizes or in wrong positions), you may want to
 try reading your data with the \texttt{transformation=linearize} option.
 
 \subsection{Notes about precision}
+TODO: EXPLAIN this example (and why FlowRepository is showing 80.64\% while
+R calculated 80.52\% in this gate).
 
 <<PrecisionIssuesDemo, echo=true, results=verbatim>>=
 fcsFile  <- system.file("extdata/examples", "166889.fcs", 
@@ -1252,11 +1273,15 @@ for (x in ls(flowEnv)) if (is(flowEnv[[x]], "filter")) {
 ls(flowEnv)
 @
 
+TODO: EXPLAIN the identifiers
+
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.25\textwidth]{166889}
 \end{figure}
 
+TODO: Mention that there may be large differences the other way around due to
+third party software not implementing all the transformations etc.
 
 % TODO Add more citations
 \clearpage

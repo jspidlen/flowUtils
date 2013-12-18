@@ -104,8 +104,11 @@ addObjectToGatingML <- function(gatingMLNode, x, flowEnv, addParent = NULL, forc
             errMessage <- paste("Class \'", class(object), "\' is not supported in Gating-ML 2.0 output.", sep="")
             if(is(object, "singleParameterTransform"))
                 errMessage <- paste(errMessage, " Only Gating-ML 2.0 compatible transformations are supported by Gating-ML 2.0 output. Transformation \'", 
-                    object@transformationId, "\' is not among those and will be skipped. Therefore, any gate referencing this transformation will be referencing a non-existent transformation in the Gating-ML output.", sep="")
-            warning(errMessage, call. = FALSE)
+                    object@transformationId, "\' is not among those and cannot be included. Therefore, any gate referencing this transformation would be referencing a non-existent transformation in the Gating-ML output. Please correct the gates and transformations in your environment and try again.", sep="")
+            if(is(object, "filter"))
+                errMessage <- paste(errMessage, " Only Gating-ML 2.0 compatible gates are supported by Gating-ML 2.0 output. Filter \'", 
+                  object@filterId, "\' is not among those and cannot be included. Please remove this filter and any references to it from the environment and try again.", sep="")
+			stop(errMessage, call. = FALSE)    
         }
     )
 }
