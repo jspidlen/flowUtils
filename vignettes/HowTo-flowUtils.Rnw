@@ -1127,12 +1127,43 @@ environment that is being written to Gating-ML 2.0 output.
 
 <<WriteGatingMLUnsupportedCase3, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
-myRect <- rectangleGate(filterId="myRect", "FSC-H"=c(100, 700))
-flowEnv[['myRect']] <- myRect
+# Gating-ML 1.5 example 5.3.4.c
+a <- matrix(c(-1, 0, 0, 0, -1, 0, 0, 0, -1, 1, 0, 0, 0, 0, 1), ncol=3)
+b <- c(100, 50, 0, 250, 300)
+myPolytope = polytopeGate(filterId='myPolytope', .gate=a, b=b, 
+  list("FSC-H", "SSC-H", "FL1-H"))
+flowEnv[['myPolytope']] <- myPolytope
 x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
 x$message
 @
- 
+\begin{verbatim}
+[1] "Class 'polytopeGate' is not supported in Gating-ML 2.0 output. Only 
+    Gating-ML 2.0 compatible gates are supported by Gating-ML 2.0 output. 
+    Filter 'myPolytope' is not among those and cannot be included. Please 
+    remove this filter and any references to it from the environment and try
+    again."
+\end{verbatim}
+If this is the case, you will have to remove the incompatible gate (filter)
+and any reference to it, including references from Boolean collections (
+\textit{i.e.}, \Rclass{intersectFilter}, \Rclass{unionFilter} and
+\Rclass{complementFilter}) and gating hierarchies (\Rclass{subsetFilter}).
+A similar error is produced if we try to include data driven gates in the
+Gating-ML output as shown below: 
+<<WriteGatingMLUnsupportedCase4, echo=TRUE, eval=TRUE, results=hide>>= 
+flowEnv <- new.env()
+myNorm2Filter <- norm2Filter("FSC-H", "SSC-H", filterId="myNorm2Filter")
+flowEnv[['myNorm2Filter']] <- myNorm2Filter
+x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
+x$message
+@
+\begin{verbatim}
+[1] "Class 'norm2Filter' is not supported in Gating-ML 2.0 output. Only 
+    Gating-ML 2.0 compatible gates are supported by Gating-ML 2.0 output. 
+    Filter 'myNorm2Filter' is not among those and cannot be included. Please
+    remove this filter and any references to it from the environment and try 
+    again."
+\end{verbatim}
+
 \section{Testing Gating-ML compliance}
 \subsection{Additional requirements}
 The flowUtils package includes RUnit-based compliance tests to verify its
@@ -1255,8 +1286,40 @@ software tools (gates of wrong sizes or in wrong positions), you may want to
 try reading your data with the \texttt{transformation=linearize} option.
 
 \subsection{Notes about precision}
-TODO: EXPLAIN this example (and why FlowRepository is showing 80.64\% while
-R calculated 80.52\% in this gate).
+In R, data transformations and gates are expressed and calculated using a
+double-precision floating-point format, which leads to very ``precise'' results.
+Arguably, such high precision is not needed for the analysis of flow
+cytometry data and therefore, several other tools choose to implement lower
+precision solutions. Commonly, these tools incorporate a binning
+approach, where the full scale range is binned into a fixed number of bins
+(\textit{e.g.}, 256, 1024), and gates are calculated based on this binning.
+Such an approach allows for faster calculations and gate membership determination.
+If this is the case, small differences are to be expected between
+populations calculated by R (which is precise) and by other tools (which may be
+approximate).
+However, these differences should not be biologically significant since they are
+very small and typically, events in question will be very close to the border
+of a gate.
+%With most of the gates, borders are considered inclusive, which means that
+%events on the edge are considered to be in the gate. With R's ``unlimited'' precision,
+%gate boundaries are ``infinitelly'' thin and therefore, there is a very small
+%chance that an event will fall exactly onto the gate boundary. If a binning
+%approach is incorporated, then the boundary will typically have a thickness of
+%1 bin with more events falling onto the gate boundary.
+This can be demonstrated on the following example. We have a taken a randomly
+chosen gate (Figure \ref{fig:FlowRepositoryExampleGate}) from FlowRepository,
+exported the gate from FlowRepository using FlowRepository's Gating-ML 2.0
+export, imported this Gating-ML file in R, and applied it to the same FCS data
+file that FlowRepository did. The ``PE-A'' channel is displayed on an ArcSinH
+scale.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.4\textwidth]{166889}
+\caption{A screenshot from FlowRepository with an ellipse gate enclosing
+80.64\% of cells.}
+\label{fig:FlowRepositoryExampleGate}
+\end{figure}
 
 <<PrecisionIssuesDemo, echo=true, results=verbatim>>=
 fcsFile  <- system.file("extdata/examples", "166889.fcs", 
@@ -1270,21 +1333,42 @@ for (x in ls(flowEnv)) if (is(flowEnv[[x]], "filter")) {
     result <- filter(myFrame, flowEnv[[x]])
     print(summary(result))
 }
-ls(flowEnv)
 @
+As you can see, FlowRepository is showing 80.64\% of cells in that gate, while
+R calculated 80.52\% only. This minor difference can be explained by the fact
+that FlowRepository incorporates binning (with 256 bins) in gating.\\ 
+
+TODO: Additional very minor differences can be observed due to different
+``channel to scale'' transformations implemented in different software tools. In
+R, we are using the FCS 3.1 \citep{paper:FCS3.1Paper} and Gating-ML 2.0
+compatible formula:
+
+
+
+%% This is true but not related to our export.
+%Even large differences could be observed if Gating-ML 2.0 is exported from R
+%and imported in third party software that does not implement all the
+%Gating-ML 2.0 scaling transformations.
+
+
+% Mention that there may be large differences the other way around due to
+third party software not implementing all the transformations etc.
+
+\subsection{Notes about gate and population identifiers}
+As you may have noticed, two gates have been parsed from the Gating-ML file, an
+\Rclass{ellipsoidGate} and an \Rclass{intersectFilter} gate.
+<<PrecisionIssuesDemo2, echo=true, results=verbatim>>=
+class(flowEnv[['Gate_1_UEUtQSBTU0MtQSBFMQ.._UEUtQQ.._U1NDLUE.']])
+class(flowEnv[['GateSet_1_UEUtQQ.._U1NDLUE.']])
+@
+This is 
+
 
 TODO: EXPLAIN the identifiers
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.25\textwidth]{166889}
-\end{figure}
 
-TODO: Mention that there may be large differences the other way around due to
-third party software not implementing all the transformations etc.
-
-% TODO Add more citations
-\clearpage
+TODO Add more citations?
+%\clearpage
 \bibliographystyle{plainnat} 
 \bibliography{flowUtilsRefs}
 
