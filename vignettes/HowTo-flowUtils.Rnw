@@ -1251,10 +1251,12 @@ An HTML report with 0 failures and 0 errors should be
 produced once the Gating-ML 2.0 compliance tests are completed.
 
 \section{Using Gating-ML to exchange gates with other software tools}
-To the best of our knowledge, R, FlowRepository and Cytobank are the first
-Gating-ML compatible software tools. FlowJo (and other tools) also
-implemented most of Gating-ML, but are still working on adjusting some of the data
-transformations to make Gating-ML based gating properly interoperable.
+To the best of our knowledge, R, FlowRepository
+\citep{paper:FlowRepositoryCurrProt, paper:FlowRepositoryCytA} and Cytobank
+\citep{paper:Cytobank} are the first Gating-ML compatible software tools. FlowJo (and other
+tools) also implemented most of Gating-ML, but are still working on adjusting
+some of the data transformations to make Gating-ML based gating properly
+interoperable.
 
 \subsection{Implicit FCS transformations}
 As mentioned in section \ref{sec:ApplyingGatingMLfiles}, the
@@ -1338,36 +1340,127 @@ As you can see, FlowRepository is showing 80.64\% of cells in that gate, while
 R calculated 80.52\% only. This minor difference can be explained by the fact
 that FlowRepository incorporates binning (with 256 bins) in gating.\\ 
 
-TODO: Additional very minor differences can be observed due to different
-``channel to scale'' transformations implemented in different software tools. In
-R, we are using the FCS 3.1 \citep{paper:FCS3.1Paper} and Gating-ML 2.0
-compatible formula:
-
-
-
 %% This is true but not related to our export.
 %Even large differences could be observed if Gating-ML 2.0 is exported from R
 %and imported in third party software that does not implement all the
 %Gating-ML 2.0 scaling transformations.
 
-
-% Mention that there may be large differences the other way around due to
-third party software not implementing all the transformations etc.
+Additional very minor differences can be observed due to different
+``channel to scale'' transformations implemented in different software tools. In
+R, we are using the Gating-ML 2.0 compatible formula that has been
+provided in FCS 3.1 \citep{paper:FCS3.1Paper}.
+Specifically, for \$DATATYPE/I/, 
+\$P$n$R/$r$/, $r>0$, \$P$n$E/$f_1$,$f_2$/, $f_1>0$, 
+$f_2>0$: $n$ is a logarithmic parameter with channel values going from 
+$0$ to $r-1$, and scale values ranging from $f_2$ to $f_2*10^{f_1}$. 
+A channel value $x_c$ can be converted to a scale value $x_s$ as 
+$x_s = 10^{f_1 * x_c / r} * f_2$. If $f_2 = 0$ then $f_2$ shall be considered as
+1 and the same formula shall be applied.
+However, this formula has only been standardized recently and historically, 
+some software tools use a different calculation, 
+namely $x_s = 10^{f_1 * x_c / (r-1)} * f_2$. 
+Differences between using $r-1$ \textit{vs}. $r$ in the formula may lead to
+minor differences in the resulting gating; however, these should be very minor
+and not significant biologically.
 
 \subsection{Notes about gate and population identifiers}
 As you may have noticed, two gates have been parsed from the Gating-ML file, an
 \Rclass{ellipsoidGate} and an \Rclass{intersectFilter} gate.
 <<PrecisionIssuesDemo2, echo=true, results=verbatim>>=
 class(flowEnv[['Gate_1_UEUtQSBTU0MtQSBFMQ.._UEUtQQ.._U1NDLUE.']])
+str(flowEnv[['Gate_1_UEUtQSBTU0MtQSBFMQ.._UEUtQQ.._U1NDLUE.']])
 class(flowEnv[['GateSet_1_UEUtQQ.._U1NDLUE.']])
+str(flowEnv[['GateSet_1_UEUtQQ.._U1NDLUE.']])
 @
-This is 
+This relates to how FlowRepository exports Gating-ML. 
+We can inspect the Gating-ML file using the following command:
+<<PrecisionIssuesDemo3, echo=true, results=hide>>=
+cat(readChar(gateFile, file.info(gateFile)$size))
+@
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<gating:Gating-ML ...">
+ <data-type:custom_info> ... </data-type:custom_info>
+ <transforms:transformation transforms:id="Tr_Arcsinh">
+  <transforms:fasinh transforms:T="176.2801790465702" 
+                     transforms:M="0.43429448190325176" transforms:A="0.0" />
+ </transforms:transformation>
+ <gating:EllipsoidGate gating:id="Gate_1_UEUtQSBTU0MtQSBFMQ.._UEUtQQ.._U1NDLUE.">
+  <data-type:custom_info> ... </data-type:custom_info>
+  <gating:dimension gating:compensation-ref="FCS" 
+                    gating:transformation-ref="Tr_Arcsinh">
+   <data-type:fcs-dimension data-type:name="PE-A" />
+  </gating:dimension>
+  <gating:dimension gating:compensation-ref="FCS">
+   <data-type:fcs-dimension data-type:name="SSC-A" />
+  </gating:dimension>
+  <gating:mean>
+   <gating:coordinate data-type:value="0.13093575523900436" />
+   <gating:coordinate data-type:value="26112.900390625" />
+  </gating:mean>
+  <gating:covarianceMatrix>
+   <gating:row>
+    <gating:entry data-type:value="1.0941582172399216" />
+    <gating:entry data-type:value="4008.453938328732" />
+   </gating:row>
+   <gating:row>
+    <gating:entry data-type:value="4008.453938328732" />
+    <gating:entry data-type:value="6.198370677161704E8" />
+   </gating:row>
+  </gating:covarianceMatrix>
+  <gating:distanceSquare data-type:value="1.0" />
+ </gating:EllipsoidGate>
+ <gating:BooleanGate gating:id="GateSet_1_UEUtQQ.._U1NDLUE.">
+  <data-type:custom_info> ... </data-type:custom_info>
+  <gating:and>
+   <gating:gateReference gating:ref="Gate_1_UEUtQSBTU0MtQSBFMQ.._UEUtQQ.._U1NDLUE." />
+    <!-- Boolean "and" gates are used to describe FlowRepository's populations 
+         (GateSets). Here, we only have one gate defining the population, but 
+         Gating-ML requires at least two arguments for the "and" gate. Therefore, 
+         we are referencing the same gate twice. -->
+   <gating:gateReference gating:ref="Gate_1_UEUtQSBTU0MtQSBFMQ.._UEUtQQ.._U1NDLUE." />
+  </gating:and>
+ </gating:BooleanGate>
+</gating:Gating-ML>
+\end{verbatim}
 
+There are two different concepts in FlowRepository: gates and populations (also
+called ``GateSets'').
+A population is defined as the intersection of one or more gates. In Gating-ML,
+every gate defines a population, and there is the option of combining gates into
+more complicated structures using the Boolean ``AND'', ``OR'' and ``NOT''
+operators.
+Consequently, FlowRepository exports a Boolean ``AND'' gate for every population
+defined. If this population is defined by a single gate, then this gate will be
+listed twice in the operands of the Boolean ``AND'' gate in order to satisfy
+Gating-ML's requirement of 2 or more arguments for the Boolean ``AND'' and
+``OR'' gates. This explains why there is the
+\texttt{GateSet\_1\_UEUtQQ..\_U1NDLUE.} \Rclass{intersectFilter} filter
+in our environment, and why it references the ellipsoid gate twice 
+(which has no effect on the calculation result).
+Also, please note that if you export gates from R using Gating-ML
+2.0 and import these in FlowRepository, the gates will get imported but
+the populations will not be defined automatically. You will need to open the
+population manager within FlowRepository in order to specify which combinations
+of gates are ``meaningfull'' in terms of defining a ``useful'' population.
+\\ 
 
-TODO: EXPLAIN the identifiers
+Finally, you may have noticed that the gate identifiers are long and not
+human readable. In Gating-ML, there is no standardized way of
+describing a ``name'' of a gate. There is a standard way of describing a gate
+identifier; however, the syntax of this identifier
+has to conform to the syntax of XML identifiers. Therefore, FlowRepository uses
+a modified Base64 encoding of gate names to create XML compatible
+gate identifiers. \\
 
+We are using a
+different approach to ensure that the gates' identifiers are
+XML compatible when exporting Gating-ML from R. 
+This approach is based on replacing ``illegal'' characters with
+characters that are allowed to be part of an XML identifier.
+We recommend using regular ASCII characters for gate identifiers in R if you
+wish to keep these unchanged in your Gating-ML 2.0 export. 
 
-TODO Add more citations?
 %\clearpage
 \bibliographystyle{plainnat} 
 \bibliography{flowUtilsRefs}
