@@ -1314,8 +1314,8 @@ approach, where the full scale range is binned into a fixed number of bins
 (\textit{e.g.}, 256, 1024), and gates are calculated based on this binning.
 Such an approach allows for faster calculations and gate membership determination.
 If this is the case, small differences are to be expected between
-populations calculated by R (which is precise) and by other tools (which may be
-approximate).
+populations calculated by R (which is ``precise'') and by other tools (which may
+be approximate).
 However, these differences should not be biologically significant since they are
 very small and typically, events in question will be very close to the border
 of a gate.
@@ -1325,7 +1325,7 @@ of a gate.
 %chance that an event will fall exactly onto the gate boundary. If a binning
 %approach is incorporated, then the boundary will typically have a thickness of
 %1 bin with more events falling onto the gate boundary.
-This can be demonstrated on the following example. We have a taken a randomly
+This can be demonstrated on the following example. We have taken a randomly
 chosen gate (Figure \ref{fig:FlowRepositoryExampleGate}) from FlowRepository,
 exported the gate from FlowRepository using FlowRepository's Gating-ML 2.0
 export, imported this Gating-ML file in R, and applied it to the same FCS data
@@ -1355,7 +1355,8 @@ for (x in ls(flowEnv)) if (is(flowEnv[[x]], "filter")) {
 @
 As you can see, FlowRepository is showing 80.64\% of cells in that gate, while
 R calculated 80.52\% only. This minor difference can be explained by the fact
-that FlowRepository incorporates binning (with 256 bins) in gating.\\ 
+that FlowRepository incorporates binning (with 256 bins) in the gating
+calculations.\\
 
 %% This is true but not related to our export.
 %Even large differences could be observed if Gating-ML 2.0 is exported from R
@@ -1454,7 +1455,7 @@ Gating-ML's requirement of 2 or more arguments for the Boolean ``AND'' and
 ``OR'' gates. This explains why there is the
 \texttt{GateSet\_1\_UEUtQQ..\_U1NDLUE.} \Rclass{intersectFilter} filter
 in our environment, and why it references the ellipsoid gate twice 
-(which has no effect on the calculation result).
+(which has no effect on the calculated result).
 Also, please note that if you export gates from R using Gating-ML
 2.0 and import these in FlowRepository, the gates will get imported but
 the populations will not be defined automatically. You will need to open the
@@ -1471,14 +1472,14 @@ a modified Base64 encoding of gate names to create XML compatible
 gate identifiers. \\
 
 We are using a
-different approach to ensure that the gates' identifiers are
+different approach to ensure that the gate identifiers are
 XML compatible when exporting Gating-ML from R. 
 This approach is based on replacing ``illegal'' characters with
 characters that are allowed to be part of an XML identifier.
 We recommend using regular ASCII characters for gate identifiers in R if you
 wish to keep these unchanged in your Gating-ML 2.0 export. 
 
-%\clearpage
+\clearpage
 \bibliographystyle{plainnat} 
 \bibliography{flowUtilsRefs}
 
