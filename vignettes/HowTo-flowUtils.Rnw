@@ -15,6 +15,7 @@
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{color}
+\usepackage{amsfonts}
 
 \textwidth=6.2in
 \textheight=8.5in
@@ -43,7 +44,7 @@ populations of interests by defining the characteristics of particles
 for further data acquisition or analysis. Gating-ML represents 
 a specification on how to form unambiguous 
 XML-based gate definitions. Such a description of gates facilitates
-the interchange and validation of data and analysis between different
+the interchange and validation of data and analysis among different
 software packages with the potential for significant increase of 
 hardware and software interoperability.\\
 
@@ -66,7 +67,7 @@ Gating in flow cytometry is a highly important process for selecting
 populations of interests by defining the characteristics of particles 
 for further data acquisition or analysis. A gate is a filter (set of
 boundaries) that serve to isolate a specific group of cytometric 
-events (e.g. cells) from a larger set. A standard formal way of 
+events (\textit{e.g.}, cells) from a larger set. A standard formal way of 
 exchanging unambiguous descriptions of gates is crucial for 
 interoperability among analytical hardware and software applications.\\
 
@@ -83,7 +84,7 @@ release in February 2006. In January 2008, Gating-ML version
 became an International Society for Advancement of Cytometry (ISAC)
 Candidate Recommendation.
 Gating-ML 1.5 supports rectangular gates in $n$ dimensions
-(i.e., from one--dimensional range gates up to n--dimensional
+(i.e., from one--dimensional range gates up to $n$-dimensional
 hyper-rectangular regions), polygon gates in two (and more) dimensions,
 ellipsoid gates in $n$ dimensions, decision tree structures, and 
 Boolean collections of any of the types of gates. Gates are 
@@ -99,14 +100,14 @@ parameters, as well as inverse transformations wherever these exist,
 inverse split scale, and EH transformations, and compensation.
 Arbitrary compound transformations may be created. Gates are 
 applicable on raw ``channel'' values of the list mode data
-files unless transformations are explicitely specified. 
+files unless transformations are explicitly specified. 
 
 \subsection{Gating-ML 2.0}
 Based on feedback gathered from the implementors and development 
 in the field, Gating-ML version 2.0 \citep{spec:GatingML2.0} has been developed
-and adoped as a candidate for an ISAC Recommendation in January 2013. 
+and adopted as a candidate for an ISAC Recommendation in January 2013. 
 Gating-ML 2.0 significantly simplifies several aspects of Gating-ML 
-by focusing on gates, data transformations and workflows that are 
+by focusing on gates, data transformations and pipelines that are 
 useful in flow cytometry, rather than asking implementors to 
 support a very generic approach.
 Gating-ML 2.0 supports rectangular gates in $n$ dimensions 
@@ -114,8 +115,8 @@ Gating-ML 2.0 supports rectangular gates in $n$ dimensions
 hyper-rectangular regions), quadrant gates in $n$ dimensions, polygon 
 gates, ellipsoid gates in $n$ dimensions, and Boolean collections of 
 any of the types of gates. Supported gate types have been selected 
-based on feedback on Gating-ML 1.5 in order to keep the specification
-simple while accommodate future innovations in automated 
+based on feedback on the Gating-ML 1.5 specification in order to keep it 
+simple while accommodating for future innovations in automated 
 multidimensional gating and clustering in a generic way.
 Gates are uniquely identified and may be ordered
 into a hierarchical structure to describe a gating strategy.
@@ -128,24 +129,24 @@ In addition, transformations such as linear, logarithmic,
 and inverse hyperbolic sine are supported and have been extended 
 to allow for additional parameterization and tweaking specifically 
 for the display of flow cytometry data. In Gating-ML 2.0, these 
-extensions are called FLin, FLog and FASinH, respectively. Finally, a
-parametrized ratio of two FCS dimensions (i.e., FRatio) and fluorescence 
+extensions are called ``FLin'', ``FLog'' and ``FASinH'', respectively. A
+parametrized ratio of two FCS dimensions (i.e., ``FRatio'') and fluorescence 
 compensation complete the list of supported transformations.
 Compared to Gating-ML 1.5, the list of Gating-ML 2.0 supported
 transformations has been shortened by omitting transformations 
 that have not been found particularly useful or are no longer
 necessary due to additional design changes. In addition, values from 
-FCS files are referenced as scale ``values'' (used to be channel 
+FCS files are referenced as ``scale values'' (used to be channel 
 values in Gating-ML 1.5), which eliminates the necessity to encode the ``channel
 to scale'' transformation in Gating-ML (this transformation is unambiguously
 captured by keywords in the FCS data file standard). Finally, Gating-ML 2.0 
 no longer supports compound transformations in general. Instead, each gate 
-dimension can be defined referencing up to one ``scale'' transformation 
-plus an optional fluorescence compensation description applied on an FCS
-dimension, which may be an FCS dimension from a list mode data file,
-or the result of an additional transformation, i.e., the ratio of two FCS
-dimensions. All these changes have been made based on community feedback
-in order to significantly simplify the Gating-ML specification, 
+dimension can be defined by referencing up to one ``scale'' transformation 
+plus an optional fluorescence compensation description applied on a
+dimension, which may be a parameter from a list mode data file,
+or the result of an additional transformation, such as the ratio
+of two FCS parameters. All these changes have been made based on received
+community feedback in order to simplify the Gating-ML specification, 
 especially for Gating-ML consumers (readers).
 
 \subsection{Gating-ML support in flowUtils}
@@ -194,7 +195,7 @@ ls(flowEnv2.0)
 @
 
 \subsection{Exploring objects read into the environment}
-We did not show the output the \texttt{ls} commands above since these
+We are not showing the output the \texttt{ls} commands above since these
 contain over a 100 of different objects saved in the environments, including various gates 
 (data filters) and transformations (scale transformations, compensation, etc.).
 Users are encouraged to explore these objects further. For example, if we
@@ -204,12 +205,12 @@ flowEnv2.0[['myRectangleGate4LogicleArcSinHFCSCompensated']]
 @
 then we can see that \texttt{myRectangleGate4LogicleArcSinHFCSCompensated} is a
 rectangular gate. Let us use the \texttt{str} command to explore the details
-of this gate. 
+of this gate.
 <<ReadGatingML4, echo=TRUE, results=verbatim>>=
 str(flowEnv2.0[['myRectangleGate4LogicleArcSinHFCSCompensated']])
 @
-We can see that the parameters are references to two transformations. We can
-explore these further by entering
+We can see that the \texttt{parameters} slot references two
+transformations. We can explore these further by entering
 <<ReadGatingML5, echo=TRUE, results=hide>>=
 str(flowEnv2.0[['myLogicle.FCS.PE-A']])
 @
@@ -247,26 +248,28 @@ Formal class 'asinhtGml2' [package "flowCore"] with 6 slots
   .. .. ..@ transformationId: chr "APC-Cy7-A_compensated_according_to_FCS"
   ..@ transformationId: chr "Tr_Arcsinh.FCS.APC-Cy7-A"
 \end{verbatim}
-This reveals that \texttt{myLogicle.FCS.PE-A} is a logicle transformation
-applied to ``PE-A'', which has been compensated according to the description in
-the data file (\textit{e.g.}, the \texttt{\$SPILLOVER}, \texttt{SPILL} or other
+This reveals that \texttt{myLogicle.FCS.PE-A} is a Logicle transformation
+applied to the ``PE-A'' parameter, which has been compensated according to the
+description in the data file (\textit{e.g.}, the \texttt{\$SPILLOVER}, \texttt{SPILL} or other
 keywords). Analogically, we can see that \texttt{Tr\_Arcsinh.FCS.APC-Cy7-A} is
-an ArcSinH transformation applied to ``APC-Cy7-A'', which has also been
-compensated according to the description in the data file.\\
+an inverse hyperbolic sine (ArcSinH) transformation applied to the
+``APC-Cy7-A'' parameter, which has also been compensated according to the
+description in the data file.\\
 
-\subsection{Scaling transformation shared in Gating-ML 2.0, not in R}
+\subsection{Scaling transformations shared in Gating-ML 2.0, not in R}
 \label{sec:sharedTransforms}
 In the previous example, we can also see how scaling transformations are
-mapped between R and Gating-ML. Specifically, in Gating-ML 1.5 and in R, each scaling
-transformation is bound to the parameter (\textit{e.g.}, FCS parameter) that it
-is supposed to be applied to. We can see from the chunk of Gating-ML 1.5 code
-below that transformations ``T1'' and ``T2'' are the same exept one is applied
-to ``FL1-H'' while the other one to ``FL2-H''. In Gating-ML 1.5 and in R, these
-transformations have to be defined separately, each of them having a unique
-identifier assigned. 
+mapped between R and Gating-ML. In Gating-ML 1.5 and in R, each scaling
+transformation is bound to its argument (\textit{i.e.}, to the FCS parameter)
+that it is supposed to be applied to. 
+From the snippet of Gating-ML 1.5 code below, we can see that transformations
+``T1'' and ``T2'' are ``the same'' except one of them is applied
+to the ``FL1-H'' parameter while the other one to the ``FL2-H'' parameter. In
+Gating-ML 1.5 and in R, these transformations have to be defined separately, 
+each of them having a unique identifier assigned. 
 
 \begin{verbatim}
-<!-- This is a chunk of Gating-ML 1.5 code -->
+<!-- Snippet of Gating-ML 1.5 code -->
 <transforms:transformation transforms:id="T1">
   <transforms:ln transforms:a="1" transforms:b="111.1793874">
     <data-type:parameter data-type:name="FL1-H" />
@@ -286,20 +289,20 @@ identifier assigned.
   </gating:dimension>
 </gating:RectangleGate>
 \end{verbatim}
-This design has been mainly driven by the fact that Gating-ML 1.5 and R allow
+This design has been primarily driven by the fact that Gating-ML 1.5 and R allow
 for an arbitrary combination of data transformations, although most of these
-compound transformations are likely not very meaningful for the analysis of flow
-cytometry data. On the other hand, Gating-ML 2.0 supports only
-pipelines that are considered meaningful for static gate-based analysis of flow
+compound transformations are not very meaningful for the analysis of flow
+cytometry data. Gating-ML 2.0 supports only
+pipelines that are considered meaningful for static gate based analysis of flow
 cytometry data (see section \ref{sec:WritingGatingML}). Consequently, only a
 single scaling transformation may be included when an FCS parameter is being
-transformed, and therefore, Gating-ML 2.0 description is simpler and allows 
-for the same transformation to be ``shared'' when applicable to multiple
-FCS parameters. We can see the design difference in the chunk of
-Gating-ML 2.0 code below:
+transformed. Therefore, the Gating-ML 2.0 description is simpler and allows 
+for the same transformation to be applicable to multiple
+FCS parameters. We can see the design difference in the snippet of
+Gating-ML 2.0 code below.
 
 \begin{verbatim}
-<!-- This is a chunk of Gating-ML 2.0 code -->
+<!-- Snippet of Gating-ML 2.0 code -->
 <transforms:transformation transforms:id="T1">
   <transforms:flog transforms:T="1024" transforms:M="4" />
 </transforms:transformation>
@@ -315,18 +318,19 @@ Gating-ML 2.0 code below:
 </gating:RectangleGate>
 \end{verbatim}
 Consequently, when scaling transformations are read from a Gating-ML
-2.0 file, multiple instances may be created in R if the ``same'' transformation
-is being reused for different FCS parameters (in one or more gates). New
+2.0 file, multiple instances may be created in R if the same transformation
+is being applied to different FCS parameters (in one or more gates). New
 identifiers for these transformations will be created based on what the scaling
 transformation is applicable to. Based on the above example, we may see two
-transformations saved in the enviroment once this Gating-ML 2.0 chunk is read.
+transformations saved in the environment once this Gating-ML 2.0 snippet is
+read.
 One of them will be identified as ``T1.uncompensated.FL1-H'' and the other one
 as ``T1.uncompensated.FL2-H''.\\
 
 \subsection{Representation of spillover and spectrum matrices} 
 Compensation objects are also parsed from the Gating-ML files and saved in the
 environment. For example, the ``myPolygonGateWithCustomSpillover'' polygon
-gate is created in the ``PE-A'' and ``PerCP-Cy5-5-A'' dimensions,
+gate is drawn in the ``PE-A'' and ``PerCP-Cy5-5-A'' parameters,
 which are compensated according to the ``MySpill'' spillover matrix. This
 matrix has been extracted from the Gating-ML 2.0 file.
 
@@ -334,34 +338,35 @@ matrix has been extracted from the Gating-ML 2.0 file.
 str(flowEnv2.0[['myPolygonGateWithCustomSpillover']])
 flowEnv2.0[['MySpill']]
 @
-Non-square spectrum matrices are extracted and saved the same way. For
+Non-square spectrum matrices are extracted and saved the same way. These
+matrices are supported in Gating-ML 2.0 only. For
 example, you may want to review the
 ``myPolygonGateWithCustomNonSquareSpectrumMatrix'' and ``MyNonSquareSpectrum''
 objects in the ``flowEnv2.0'' environment.
 
 \subsection{Applying Gating-ML files}
 \label{sec:ApplyingGatingMLfiles}
-Once the elements from a Gating-ML file are saved in an environment, the
-``filters'' can be used to gate an FCS data file (\textit{i.e.,} a 
-\Robject{flowFrame}), or a set of FCS files (\textit{i.e.,} a
+Once the elements from a Gating-ML file have been saved in an environment,
+the ``filters'' (\textit{a.k.a.} the gates) can be used to gate an FCS data file
+(\textit{i.e.,} a \Robject{flowFrame}), or a set of FCS files (\textit{i.e.,} a
 \Robject{flowSet}).
 Please pay attention to the \texttt{transformation} argument when
 reading the FCS files. Gating-ML 1.5 specifies that data shall be used as
 channel values by default, and any additional transformation shall be
-explicitely specified in the Gating-ML 1.5 file. Therefore, you will need to
+explicitly specified in the Gating-ML 1.5 file. Therefore, you will need to
 prevent R from applying the default ``channel-to-scale'' transformation when
 reading your data with the intention of applying a Gating-ML 1.5 file to it.
 This can be done by specifying \texttt{transformation=FALSE} in the 
-\Rfunction{read.FCS} or \Rfunction{read.flowSet} functions.\\
+\Rfunction{read.FCS} and \Rfunction{read.flowSet} functions.\\
 
-Gating-ML 2.0 specifies that data shall be used as scale values by default.
+Gating-ML 2.0 specifies that event ``scale values'' shall be used by default.
 This means that the ``channel-to-scale'' transformation (as defined by the
 keywords within the FCS data file) shell be applied prior applying
-any additional scaling transformations described in the Gating-ML 2.0 file. 
+any additional transformations described in the Gating-ML 2.0 file. 
 Therefore, you should specify \texttt{transformation=linearize-with-PnG-scaling}
 in the \Rfunction{read.FCS} or \Rfunction{read.flowSet} functions if
 you will be working with Gating-ML 2.0 files.
-An example of applying a Gating-ML 2.0 file on an FCS file is shown bellow:
+An example of applying a Gating-ML 2.0 file to an FCS data file is shown bellow:
 
 <<ApplyGatingML1, echo=TRUE, results=verbatim>>=
 fcsFile <- system.file("extdata/Gml2/FCSFiles", "data1.fcs", 
@@ -415,16 +420,17 @@ spilloverMatrix & compensation, compensatedParameter & 1.5 \\ \hline
 spectrumMatrix & compensation, compensatedParameter & 2.0 \\ \hline
 \multicolumn{3}{p{15cm}}{\vspace{1pt}$^{*}$ The Quadrant gate in Gating-ML 2.0
 allows for arbitrary splits of $n$-dimensional space, including more than one ``cut'' per dimension, and
-with the option of merging several of these ``cuts'' into a resulting quadrant.
-The quadGate filter in R is a less flexible structure implementing the
+with the option of merging several of these ``cuts'' into a resulting
+``quadrant''.
+The \Rclass{quadGate} filter in R is a less flexible structure implementing the
 traditional two-dimensional quadrant gate concept (\textit{i.e., } with each 
 dimension split exactly once, and always resulting in 4 quadrants).
-Therefore, a quadGate filter is saved as a Quadrant gate in Gating-ML,
+Therefore, a \Rclass{quadGate} filter is saved as a Quadrant gate in Gating-ML;
 however, if a Quadrant gate is read from Gating-ML, then a set of
-appropriate rectangleGate filters is created.} \\
-\multicolumn{3}{p{15cm}}{$^{**}$ For Gating-ML 2.0 output, the ratio and asinht
-transformations from Gating-ML 1.5 will be converted to fratio and fasinh,
-respectively.} \\
+appropriate \Rclass{rectangleGate} filters is created.} \\
+\multicolumn{3}{p{15cm}}{$^{**}$ For Gating-ML 2.0 output, the ``ratio'' and
+``asinht'' transformations from Gating-ML 1.5 will be converted to ``fratio''
+and ``fasinh'', respectively.} \\
 \end{tabular}
 \end{table}
 
@@ -432,10 +438,17 @@ respectively.} \\
 Gating-ML 2.0 compatible objects stored in an environment may be
 written to a Gating-ML 2.0 file using the \Rfunction{write.gatingML}
 function. Please see table \ref{tab:gatingMLClasses} for details about Gating-ML
-compatible objects. These objects may have been created by a previous
-\Rfunction{read.gatingML} call, or in any other way. A simple example of
-manually creating a rectangular gate and saving the result in Gating-ML 2.0 is
-shown below.
+compatible objects. These objects may have been created by the 
+\Rfunction{read.gatingML} function, or in any other way. 
+Below, we demonstrate how to programmatically create a simple rectangular gate
+and save the result in a Gating-ML 2.0 file. 
+Please note that for readability reasons, pieces that are not significant for
+the understanding of examples have been omitted from XML listings in this
+vignette. These include lengthy XML namespace declarations and custom
+information produced by the \Rfunction{write.gatingML} function, such as
+details about the origin of the produced Gating-ML file. The skipped output is
+noted by ``\texttt{...}'' in the XML listings. Readers are encouraged to run
+the examples themselves to review the full output.
 
 <<WriteGatingML1, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
@@ -461,58 +474,62 @@ write.gatingML(flowEnv, outputFile)
 </gating:Gating-ML>
 \end{verbatim}
 The second argument of the \Rfunction{write.gatingML} function (\textit{i.e.},
-the filename is optional. The output is written to standard output if filename
-is not provided.
+the file name) is optional. The output is written to the ``standard output''
+(\textit{e.g.}, the console) if no filename is provided.
 
 \subsection{Gating-ML compatible objects}
 Table \ref{tab:gatingMLClasses} summarizes what R classes are used to
 capture various Gating-ML concepts (\textit{i.e.,} gates, transformations,
-compensation, etc.). 
+and compensations). 
 Corresponding \Rpackage{flowCore} filters and transformations are
 created when Gating-ML 1.5 or 2.0 is read, and the same types of
 filters and transformations can be saved in Gating-ML 2.0 as long as they are
 Gating-ML 2.0 compatible and the analysis
-``pipelines'' is expressible in Gating-ML 2.0 (see section
+``pipeline'' is expressible in Gating-ML 2.0 (see section
 \ref{sec:gatingML2Pipelines}).
-Data driven filters (\textit{e.g.}, \Rclass{norm2Filter}, 
-\Rclass{kmeansFilter}, etc.) are not supported by Gating-ML.\\ 
+Data driven filters (\textit{e.g.}, \Rclass{norm2Filter},
+\Rclass{kmeansFilter}, \Rclass{curv1Filter}, \Rclass{curv2Filter},
+\Rclass{boundaryFilter}, etc.) are not supported by Gating-ML.\\ 
 
 \subsection{Gating-ML 2.0 compatible pipelines}
 \label{sec:gatingML2Pipelines}
 R is a powerful language allowing you to create and combine various data
 transformations and use these as dimensions (parameters) for your FCS data
-filters. However, Gating-ML 2.0 supports only the ``workflows'' that are
+filters. However, Gating-ML 2.0 supports only the pipelines that are
 considered meaningful for static gate based analysis of flow cytometry data.
-This design decision has been made in order to make Gating-ML 2.0 implementation feasible for
-common flow cytometry data analysis tools. In practice, Gating-ML 2.0
-compatible workflows consist of the following steps:
+This design decision has been made in order to make Gating-ML 2.0
+implementation feasible for common flow cytometry data analysis tools. In
+practice, Gating-ML 2.0 compatible pipelines (\textit{a.k.a.} ``workflows'')
+consist of the following steps:
 \begin{enumerate}
-\item Read the FCS data file and apply the ``channel to scale'' transformations
-to FCS parameters as specified by the \$P$n$E and \$P$n$G keywords. (These
-transformations are not explicitely described in Gating-ML.)
-\item Optionally apply compensation based on either a compensation
+\item Read an FCS data file and apply the ``channel to scale''
+transformations to FCS parameters as specified by the \$P$n$E and \$P$n$G keywords. (These
+transformations are not explicitly described in Gating-ML.)
+\item Optionally: apply compensation based on either a compensation
 description in the FCS data file (\textit{e.g.}, the \texttt{\$SPILLOVER},
 \texttt{SPILL} or other keywords), or based on a ``spectrum'' matrix described
 in the Gating-ML 2.0 file. A spectrum matrix covers both, the traditional
 compensation based on square spillover matrices, as well as spectral unmixing,
 see \citep{spec:GatingML2.0}.
-\item For next steps, use either FCS parameters, or a ``fratio'' of two
-FCS parameters (``fratio'' in Gating-ML 2.0 is an extended ratio of two
-FCS parameters defined as $A\frac{x-B}{y-C}$, where $x,y$ are FCS parameters,
-A, B, and C are some real constants.)
-\item Optionally apply one of the Gating-ML 2.0 compatible scale
-transformation, \textit{i.e.,} parameterized linear, log, asinh, Logicle or Hyperlog.
+\item For further steps, use either FCS parameters, or a ``fratio'' of two
+FCS parameters. A ``fratio'' in Gating-ML 2.0 is an extended ratio of two
+FCS parameters defined as $A\frac{x-B}{y-C}$, where $x$ and $y$ are FCS
+parameters, and $A \in \mathbb{R}$, $B\in \mathbb{R}$, and $C\in \mathbb{R}$ are constants.
+\item Optionally: apply one of the Gating-ML 2.0 compatible scale
+transformation, \textit{i.e.,} parameterized linear, logarithmical,
+inverse hyperbolic sine, Logicle or Hyperlog transformation.
 \item Apply Gating-ML 2.0 compatible gates in the data space created by previous
-steps. Gating-ML 2.0 supported gate types include range gates, rectangular and
-hyperrectangular gates, polygon gates, ellipsoid gates, quadrant gates and
-Boolean collections (\textit{or--union}, \textit{and--intersect} and
-\textit{not--complement}) of any of the gate types.
+steps. 
+Gating-ML 2.0 supported gate types include polygon gates, ellipsoid gates, range
+gates, rectangular and hyper-rectangular gates, quadrant gates and
+Boolean collections (\textit{i.e.}, union, intersect or complement) 
+of any of the gate types.
 \end{enumerate}
 
 \subsection{Examples with compensation}
-The example below demonstrates the inclusion of compensation in a Gating-ML
-output. As before, we will programatically create objects that will be saved in
-Gating-ML 2.0 output.
+Example below demonstrates the inclusion of a compensation description in the 
+Gating-ML output. Same as before, objects will be created programmatically and
+exported in a Gating-ML 2.0 output.
 
 <<WriteGatingML2, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
@@ -564,7 +581,7 @@ The \texttt{spillRefId="SpillFromFCS"} indicates that compensation according
 to the description in the FCS data file shall used. In the Gating-ML output,
 this is described as \texttt{<gating:dimension
 gating:compensation-ref="FCS">} for the appropriate dimensions.
-If we wanted to use compensation based on a custom spillover (or spectrum) 
+If we wanted to use a compensation based on a custom spillover (or spectrum) 
 matrix instead, we could modify the code as follows: 
 
 <<WriteGatingML3, echo=TRUE, eval=TRUE, results=hide>>=
@@ -617,12 +634,12 @@ write.gatingML(flowEnv)
   </gating:EllipsoidGate>
 </gating:Gating-ML>
 \end{verbatim}
-Please note that new names are assigned to parameters compensated according to a
-custom spillover matrix (\textit{i.e.}, \texttt{Comp-FL1-H} and
+Note that new names have been assigned to parameters compensated according
+to a custom spillover matrix (\textit{i.e.}, \texttt{Comp-FL1-H} and
 \texttt{Comp-FL2-H}).
 This is necessary due to the generic Gating-ML 2.0 design, which also supports 
-non-square spectrum matrices (where these is no one-to-one correspondence between 
-the measured and ``compensated'' values). The following piece of code
+non-square spectrum matrices (where there is no direct one-to-one correspondence
+between the measured and ``compensated'' values). The following piece of code
 demonstrates how a non-square spectrum matrix can be generated and saved in
 Gating-ML. 
 
@@ -673,6 +690,7 @@ write.gatingML(flowEnv)
 \end{verbatim}
 
 \subsection{Example with scaling transformations}
+\label{sec:writeScalingTrEx}
 In the following example, we will use a \Rclass{quadGate} to demonstrate how
 scaling transformations can be included in the Gating-ML output.
 <<WriteGatingML5, echo=TRUE, eval=TRUE, results=hide>>=
@@ -735,12 +753,12 @@ write.gatingML(flowEnv)
 \end{verbatim}
 
 \subsection{Example with scaling transformations and compensation}
-The previous code can be easily modified so that compensated
-parameters are used as arguments of the Logicle and ArcSinH transformations. In
-addition, we will use these transformations directly rather than creating a 
-transformation reference.
+Previous code (section \ref{sec:writeScalingTrEx}) can be easily modified
+so that compensated parameters are used as arguments of the Logicle and ArcSinH
+transformations. In addition, we will use these transformations directly rather
+than creating a transformation reference.
 Consequently, the \Rfunction{write.gatingML} function will create the
-``trArcSinH1'' and ``trLogicle1'' transformations even without having to save
+``trArcSinH1'' and ``trLogicle1'' transformations even without us having to save
 these in the environment.
 
 <<WriteGatingML6, echo=TRUE, eval=TRUE, results=hide>>=
@@ -795,8 +813,8 @@ The parameterized ``fratio'' transformation in Gating-ML 2.0 is defined as
 $$f(x,y,A,B,C) = A\frac{x-B}{y-C}$$
 Therefore, we can express the Gating-ML 1.5 ``ratio'' as Gating-ML 2.0
 ``fratio'' by setting $A=1$, $B=0$, and $C=0$. 
-Code shown below demonstrates that this ``conversion'' is done automatically
-when the \Rfunction{write.gatingML} is called:
+Example shown below demonstrates that this conversion is done
+automatically when the \Rfunction{write.gatingML} is called:
 
 <<WriteGatingML7, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
@@ -862,7 +880,7 @@ write.gatingML(flowEnv)
 \end{verbatim}
 
 \subsection{Example with compensation, ratio and scaling together}
-So far, our examples included a relativelly simple gates. Next, we
+So far, our examples included relatively simple gates. Next, we
 will demonstrate the use of a custom compensation along with a scaling 
 transformation (log) applied to the ratio of two FCS parameters, ``FL1-A'' and
 ``FL1-W''.
@@ -989,15 +1007,15 @@ is not the case for Gating-ML 1.5 or the Gating-ML implementation in R.
 Therefore, if multiple ``equivalent'' transformations are supposed to be
 written to Gating-ML 2.0, then these will be merged into a single
 transformation and all references will be updated accordingly in the
-Gating-ML 2.0 output. This behaviour can be demonstrated on the following
+Gating-ML 2.0 output. This behavior can be demonstrated on the following
 example:
 <<WriteGatingML11, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
-logicle1 <- logicletGml2(parameters = "FL1-H", T = 10000, M = 4.5, A = 0, W= 0.5, "logicle1")
-logicle2 <- logicletGml2(parameters = "FL2-H", T = 10000, M = 4.5, A = 0, W= 0.5, "logicle2")
+logicle1 <- logicletGml2(parameters="FL1-H", T=10000, M=4.5, A=0, W=.5, "logicle1")
+logicle2 <- logicletGml2(parameters="FL2-H", T=10000, M=4.5, A=0, W=.5, "logicle2")
 lin1 <- lintGml2(parameters = "FL1-H", T = 10000, A = 0, "lin1")
 lin2 <- lintGml2(parameters = "FL2-H", T = 10000, A = 0, "lin2")
-rectG <- rectangleGate(filterId="rectG", "logicle1"=c(0.2, 0.6), "lin2"=c(0.2, 0.6))
+rectG <- rectangleGate(filterId="rectG", "logicle1"=c(.1, .6), "lin2"=c(.2, .6))
 rectG@parameters <- new("parameters", list(logicle1, lin2))
 rangeG1 <- rectangleGate(filterId="rangeG1", "logicle2"=c(0.1, 0.5))
 rangeG1@parameters <- new("parameters", list(logicle2))
@@ -1017,7 +1035,7 @@ write.gatingML(flowEnv)
   </transforms:transformation>
   <transforms:transformation transforms:id="logicle1">
     <transforms:logicle transforms:T="10000" transforms:M="4.5" 
-                        transforms:W="0.5" transforms:A="0"/>
+      transforms:W="0.5" transforms:A="0"/>
   </transforms:transformation>
   <gating:RectangleGate gating:id="rangeG1">
     <gating:dimension gating:min="0.1" gating:max="0.5" 
@@ -1032,7 +1050,7 @@ write.gatingML(flowEnv)
     </gating:dimension>
   </gating:RectangleGate>
   <gating:RectangleGate gating:id="rectG">
-    <gating:dimension gating:min="0.2" gating:max="0.6" 
+    <gating:dimension gating:min="0.1" gating:max="0.6" 
       gating:transformation-ref="logicle1" gating:compensation-ref="uncompensated">
       <data-type:fcs-dimension data-type:name="FL1-H"/>
     </gating:dimension>
@@ -1049,21 +1067,21 @@ The ``logicle1'' and ``logicle2'' are defined the same way except that
 ``logicle1'' is applied to ``FL1-H'' while ``logicle2'' is applied to ``FL2-H''.
 Similarly for ``lin1'' and ``lin2''. Further in the code, we define a
 rectangular gate in the ``logicle1'' and ``lin2'' dimensions, and two range
-gates in the ``logicle2'' and ``lin1'' dimensions, respectivelly.
+gates in the ``logicle2'' and ``lin1'' dimensions, respectively.
 Due to the transformation merging, only the ``logicle1'' and ``lin1''
-transformations are in the Gating-ML 2.0 output. The second dimension of
+transformations are defined in the Gating-ML 2.0 output. The second dimension of
 ``rectG'' has been updated to reference the ``lin1'' transformation; however, it
 is correctly applied to ``FL2-H''. Similarly, ``rangeG1'' has been updated to
-reference the ``logicle1'' transformation applied on ``FL2-H''.
+reference the ``logicle1'' transformation applied to ``FL2-H''.
 
 \subsection{Example with unsupported pipelines}
 As explained in section \ref{sec:gatingML2Pipelines}, not all
-pipelines (workflows) expressible in R are expressible in Gating-ML 2.0.
+pipelines expressible in R are expressible in Gating-ML 2.0.
 Below is an example of a pipeline involving compound scaling transformations --
-a logicle transformation applied to another logicle transformation. An error
+a Logicle transformation applied to another Logicle transformation. An error
 message saying that ``Unexpected parameter class logicletGml2, compound
 transformations are not supported in Gating-ML 2.0.'' will be displayed if we
-try to save this in Gating-ML.
+try to save this in Gating-ML 2.0.
 
 <<WriteGatingMLUnsupportedCase1, echo=TRUE, eval=TRUE, results=hide>>=
 logicle1 <- logicletGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, 
@@ -1088,7 +1106,7 @@ transformations.
 However, only some data transformations are supported by the Gating-ML 2.0
 specification (see table \ref{tab:gatingMLClasses}). As shown below, an error
 is produced if an incompatible transformation is found in the
-environment that is being written to Gating-ML 2.0 output.
+environment that is being written to the Gating-ML 2.0 output.
 
 <<WriteGatingMLUnsupportedCase2, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
@@ -1109,21 +1127,21 @@ x$message
     gates and transformations in your environment and try again."
 \end{verbatim}
 If this is the case, you will have to remove the transformation and any
-reference to it from the environment before being able to save it in Gating-ML
-2.0.
+reference to it from the environment before being able to save the environment in
+Gating-ML 2.0.
 
 \subsection{Example with unsupported gate type}
 All widely used static gates are Gating-ML 2.0 compatible. 
-Gates that are not compatible with Gating-ML 2.0 include $n$-dimension polytope
-gates (\Rclass{polytopeGate} class) and decision tree gates
-(\Rclass{expressionFilter}). These types of gates are supported by Gating-ML
-1.5, but the support has been removed in Gating-ML 2.0 since these gates are
+Gates that are not compatible with Gating-ML 2.0 include $n$-dimensional polytope
+gates (the \Rclass{polytopeGate} class) and decision tree gates
+(the \Rclass{expressionFilter} class). These types of gates are supported by
+Gating-ML 1.5, but the support has been removed in Gating-ML 2.0 since these gates are
 almost never used for the analysis of flow cytometry data. In addition,
 Gating-ML 2.0 cannot be used to export data driven gate, such as
 \Rclass{norm2Filter}, \Rclass{kmeansFilter}, \Rclass{curv1Filter}, 
 \Rclass{curv2Filter}, \Rclass{boundaryFilter}, etc.
 As shown below, an error is produced if an incompatible gate is found in the
-environment that is being written to Gating-ML 2.0 output.
+environment that is supposed to be written to a Gating-ML 2.0 output.
 
 <<WriteGatingMLUnsupportedCase3, echo=TRUE, eval=TRUE, results=hide>>=
 flowEnv <- new.env()
@@ -1144,11 +1162,11 @@ x$message
     again."
 \end{verbatim}
 If this is the case, you will have to remove the incompatible gate (filter)
-and any reference to it, including references from Boolean collections (
-\textit{i.e.}, \Rclass{intersectFilter}, \Rclass{unionFilter} and
+and any reference to it, including references from Boolean collections 
+(\textit{i.e.}, \Rclass{intersectFilter}, \Rclass{unionFilter} and
 \Rclass{complementFilter}) and gating hierarchies (\Rclass{subsetFilter}).
-A similar error is produced if we try to include data driven gates in the
-Gating-ML output as shown below: 
+A similar error will be produced if you try to include data driven gates in
+the Gating-ML output as shown below: 
 <<WriteGatingMLUnsupportedCase4, echo=TRUE, eval=TRUE, results=hide>>= 
 flowEnv <- new.env()
 myNorm2Filter <- norm2Filter("FSC-H", "SSC-H", filterId="myNorm2Filter")
@@ -1166,9 +1184,9 @@ x$message
 
 \section{Testing Gating-ML compliance}
 \subsection{Additional requirements}
-The flowUtils package includes RUnit-based compliance tests to verify its
-compliance with the Gating-ML 1.5 and Gating-ML 2.0 specifications. 
-You will need the \Rpackage{gatingMLData} package (version 2.2.0 or newer) 
+The \Rpackage{flowUtils} package includes RUnit-based compliance tests to verify
+its compliance with the Gating-ML 1.5 and Gating-ML 2.0 specifications. 
+You will need the \Rpackage{gatingMLData} package (version 2.2.1 or newer) 
 % and the \Rpackage{RUnit} package 
 in order to run the compliance tests.
 %If you do not have these packages, you can install them as follows:
@@ -1185,8 +1203,8 @@ biocLite("gatingMLData")
 @
 
 \subsection{Gating-ML 1.5 compliance}
-Once you have the required packages installed, the 
-\Rfunction{testGatingMLCompliance} function can be used to test Gating-ML
+Once you have the required \Rpackage{gatingMLData} package installed,
+the \Rfunction{testGatingMLCompliance} function can be used to test Gating-ML
 compliance. This function takes two arguments: the name of the file where the
 compliance HTML report shall be saved, and the version of Gating-ML that 
 the compliance with shall be tested with. In order to test compliance with
@@ -1244,19 +1262,18 @@ as Gating-ML 2.0 ``fratio'' with the correct results.
 Additional tests include the ``asinhtGml2'' transformation with a directly 
 embedded (rather than referenced) ratio transformation, the use of  
 filters (rather than filter references) for Boolean gates,  
-the proper conversion of Gating-ML 1.5 asinht to Gating-ML 2.0 asinhtGml2, and
-also testing of various Quad gates in combination with compensation, ratio and
+the proper conversion of Gating-ML 1.5 ``asinht'' to Gating-ML 2.0 ``asinhtGml2'', and
+also tests of various Quad gates in combination with compensation, ratio and
 scale transformations.
 An HTML report with 0 failures and 0 errors should be
 produced once the Gating-ML 2.0 compliance tests are completed.
 
 \section{Using Gating-ML to exchange gates with other software tools}
-To the best of our knowledge, R, FlowRepository
+To the best of our knowledge, R, Matlab, FlowRepository
 \citep{paper:FlowRepositoryCurrProt, paper:FlowRepositoryCytA} and Cytobank
 \citep{paper:Cytobank} are the first Gating-ML compatible software tools. FlowJo (and other
 tools) also implemented most of Gating-ML, but are still working on adjusting
-some of the data transformations to make Gating-ML based gating properly
-interoperable.
+some of the data transformations to achieve Gating-ML based interoperability.
 
 \subsection{Implicit FCS transformations}
 As mentioned in section \ref{sec:ApplyingGatingMLfiles}, the
@@ -1268,7 +1285,7 @@ Gating-ML 2.0. This is because Gating-ML 2.0 specifies that the
 ``channel'' values from the FCS data file. The ``channel-to-scale''
 transformation includes:
 \begin{itemize}
-\item The ``linearization'' of FCS parameters stored on log scale, \textit{i.e.,} 
+\item The ``linearization'' of FCS parameters stored on a log scale, \textit{i.e.,} 
 with \$P$n$E values different from ``0,0''.
 \item The ``correction'' for gain of FCS parameters stored
 with \$P$n$G values different from ``1''.
@@ -1277,7 +1294,7 @@ The latter one means nothing more than the division of the parameter value by
 the appropriate \$P$n$G value. According to our experience, in the majority of 
 cases, there are no \$P$n$G values in the FCS data files, and if these are
 present and different from ``1'', the data file has usually been produced by one
-of the older instruments. Also, as this is just a linear transformation, 
+of the older instruments. But, as this is just a linear transformation, 
 it may be ignored by some analysis tools as data is scaled based on the 
 size of the display with little meaning of the actual absolute expression
 values. However, this details is significant for being able to exchange
@@ -1442,7 +1459,7 @@ Also, please note that if you export gates from R using Gating-ML
 2.0 and import these in FlowRepository, the gates will get imported but
 the populations will not be defined automatically. You will need to open the
 population manager within FlowRepository in order to specify which combinations
-of gates are ``meaningfull'' in terms of defining a ``useful'' population.
+of gates are ``meaningful'' in terms of defining a useful population.
 \\ 
 
 Finally, you may have noticed that the gate identifiers are long and not
