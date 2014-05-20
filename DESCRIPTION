@@ -1,7 +1,7 @@
 Package: flowUtils
 Type: Package
 Title: Utilities for flow cytometry
-Version: 1.29.0
+Version: 1.29.1
 Author: N. Gopalakrishnan, F. Hahne, B. Ellis, R. Gentleman, M. Dalphin, N. Le Meur, B. Purcell, J. Spidlen.
 Maintainer: Josef Spidlen <jspidlen@bccrc.ca>
 Description: Provides utilities for flow cytometry data. 
@@ -19,4 +19,4 @@ Collate: AllClasses.R
          writeGatingML.R
          zzz.R
 License: Artistic-2.0
-biocViews:  Infrastructure, FlowCytometry, CellBasedAssays
+biocViews:  Infrastructure, FlowCytometry, CellBasedAssays, DecisionTree
