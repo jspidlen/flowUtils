@@ -96,7 +96,7 @@ setMethod(
             { 
                 covMat[i,] = getParameters(covarianceList[[i]]) 
             }  
-            distance = getParameters(xmlElementsByTagName(object, "distanceSquare")[[1]])
+            distance = sqrt(getParameters(xmlElementsByTagName(object, "distanceSquare")[[1]]))
             filt = ellipsoidGate(filterId=gateId, .gate=covMat, mean=meanLimits, distance=distance, transformationList)
             if(parentId == "NULL")
             {
@@ -451,7 +451,7 @@ setMethod(
         {
             covMat[i,] = getParameters(covarianceList[[i]]) 
         }  
-        distance = getParameters(xmlElementsByTagName(object, "distanceSquare")[[1]])
+        distance = sqrt(getParameters(xmlElementsByTagName(object, "distanceSquare")[[1]]))
         filt = ellipsoidGate(filterId=gateId, .gate=covMat, mean=meanLimits, distance=distance, transformationList)
         if (parentId == "NULL")
         {
