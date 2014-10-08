@@ -192,7 +192,7 @@ addEllipsoidGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateI
     }
     gatingMLNode$closeTag() # </gating:covarianceMatrix>
     
-    attrs = c("data-type:value" = gate@distance)
+    attrs = c("data-type:value" = gate@distance ^ 2)
     gatingMLNode$addNode("gating:distanceSquare", attrs = attrs)
     
     gatingMLNode$closeTag() # </gating:EllipsoidGate>
