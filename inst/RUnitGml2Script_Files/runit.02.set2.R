@@ -67,6 +67,14 @@ test.Ellipsecl <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.Ellipseclb <- function()
+{
+  gateId  <- "Ellipseclb"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.Ellipseua <- function()
 {
     gateId  <- "Ellipseua"
@@ -89,6 +97,22 @@ test.Ellipseul <- function()
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.Ellipseulb <- function()
+{
+  gateId  <- "Ellipseulb"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.Ellipseulb2 <- function()
+{
+  gateId  <- "Ellipseulb2"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.HyperCube1 <- function()
@@ -123,6 +147,14 @@ test.Poly1ca <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.Poly1cab <- function()
+{
+  gateId  <- "Poly1cab"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.Poly1ch <- function()
 {
     gateId  <- "Poly1ch"
@@ -131,12 +163,28 @@ test.Poly1ch <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.Poly1chb <- function()
+{
+  gateId  <- "Poly1chb"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.Poly1cl <- function()
 {
     gateId  <- "Poly1cl"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.Poly1clb <- function()
+{
+  gateId  <- "Poly1clb"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.Poly1u <- function()
@@ -155,6 +203,22 @@ test.Poly1ua <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.Poly1uab <- function()
+{
+  gateId  <- "Poly1uab"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.Poly1uab2 <- function()
+{
+  gateId  <- "Poly1uab2"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.Poly1uh <- function()
 {
     gateId  <- "Poly1uh"
@@ -163,12 +227,28 @@ test.Poly1uh <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.Poly1uhb <- function()
+{
+  gateId  <- "Poly1uhb"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.Poly1ul <- function()
 {
 	gateId  <- "Poly1ul"
 	csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
 	expectedResult <- read.csv(csvFile, header = FALSE)
 	flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.Poly1ulb <- function()
+{
+  gateId  <- "Poly1ulb"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.Rectch <- function()
