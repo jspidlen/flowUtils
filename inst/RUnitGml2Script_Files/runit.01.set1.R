@@ -235,6 +235,22 @@ test.RatRange1a <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.RatRange1aBound <- function()
+{
+  gateId  <- "RatRange1aBound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.RatRange1Bound <- function()
+{
+  gateId  <- "RatRange1Bound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.RatRange2 <- function()
 {
     gateId  <- "RatRange2"
@@ -299,6 +315,14 @@ test.ScaleRange1 <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.ScaleRange1Bound <- function()
+{
+  gateId  <- "ScaleRange1Bound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.ScaleRange1c <- function()
 {
     gateId  <- "ScaleRange1c"
@@ -315,6 +339,14 @@ test.ScaleRange2 <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.ScaleRange2Bound <- function()
+{
+  gateId  <- "ScaleRange2Bound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.ScaleRange2c <- function()
 {
     gateId  <- "ScaleRange2c"
@@ -323,12 +355,28 @@ test.ScaleRange2c <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.ScaleRange2cBound <- function()
+{
+  gateId  <- "ScaleRange2cBound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.ScaleRange3 <- function()
 {
     gateId  <- "ScaleRange3"
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.ScaleRange3Bound <- function()
+{
+  gateId  <- "ScaleRange3Bound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.ScaleRange3c <- function()
@@ -345,6 +393,14 @@ test.ScaleRange4 <- function()
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.ScaleRange4Bound <- function()
+{
+  gateId  <- "ScaleRange4Bound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
 test.ScaleRange4c <- function()
@@ -379,6 +435,14 @@ test.ScaleRange6 <- function()
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
+test.ScaleRange6Bound <- function()
+{
+  gateId  <- "ScaleRange6Bound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
 test.ScaleRange6c <- function()
 {
     gateId  <- "ScaleRange6c"
@@ -409,5 +473,21 @@ test.ScaleRect1 <- function()
     csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
     expectedResult <- read.csv(csvFile, header = FALSE)
     flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.ScaleRect1Bound <- function()
+{
+  gateId  <- "ScaleRect1Bound"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
+}
+
+test.ScaleRect1Bound2 <- function()
+{
+  gateId  <- "ScaleRect1Bound2"
+  csvFile <- paste(csvFile, .Platform$file.sep, "Results_", gateId, ".txt", sep="")
+  expectedResult <- read.csv(csvFile, header = FALSE)
+  flowUtils:::performGateTest(gateId, fcs, expectedResult, flowEnv)
 }
 
