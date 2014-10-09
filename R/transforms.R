@@ -78,8 +78,11 @@ fasinhTr <- function(node, flowEnv)
     pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use
     pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # method fail...
+    boundMin = (xmlGetAttr(node, "boundMin", -Inf))
+    boundMax = (xmlGetAttr(node, "boundMax", Inf))
     return(asinhtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        A = as.numeric(pA), transformationId = transformationId))
+        A = as.numeric(pA), transformationId = transformationId,
+        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- flin transformation --------------
@@ -89,8 +92,11 @@ flinTr <- function(node, flowEnv)
     coefficientList = xmlElementsByTagName(node, "flin", recursive=FALSE)
     pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use defaults
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # here or just let the method fail...
+    boundMin = (xmlGetAttr(node, "boundMin", -Inf))
+    boundMax = (xmlGetAttr(node, "boundMax", Inf))
     return(lintGml2(parameters = "any", T = as.numeric(pT), A = as.numeric(pA), 
-        transformationId = transformationId))
+        transformationId = transformationId,
+        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- flog transformation --------------
@@ -100,8 +106,11 @@ flogTr <- function(node, flowEnv)
 	coefficientList = xmlElementsByTagName(node, "flog", recursive=FALSE)
 	pT = sapply(coefficientList, xmlGetAttr, "T", default=262144) # It's questionable whether to use defaults
 	pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # here or just let the method fail...
+	boundMin = (xmlGetAttr(node, "boundMin", -Inf))
+	boundMax = (xmlGetAttr(node, "boundMax", Inf))
 	return(logtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-					transformationId = transformationId))
+					transformationId = transformationId,
+					boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- Logicle transformation --------------
@@ -129,8 +138,11 @@ hyperlogTr <- function(node, flowEnv)
     pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
     pW = sapply(coefficientList, xmlGetAttr, "W", default=0.5)    # method fail...
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
+    boundMin = (xmlGetAttr(node, "boundMin", -Inf))
+    boundMax = (xmlGetAttr(node, "boundMax", Inf))
     return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
+        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId,
+        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- Ratio transformation --------------
@@ -145,9 +157,12 @@ fratioTr <- function(node, flowEnv)
     pA = sapply(coefficientList, xmlGetAttr, "A", default=1) # It's questionable whether to use
     pB = sapply(coefficientList, xmlGetAttr, "B", default=0) # defaults here or just let the
     pC = sapply(coefficientList, xmlGetAttr, "C", default=0) # method fail...
+    boundMin = (xmlGetAttr(node, "boundMin", -Inf))
+    boundMax = (xmlGetAttr(node, "boundMax", Inf))
     parameters <- getGatingML2RatioParameterList(node, flowEnv)
     ratiotGml2(numerator = parameters[[1]], denominator = parameters[[2]], pA = as.numeric(pA),
-        pB = as.numeric(pB), pC = as.numeric(pC), transformationId = transformationId)
+        pB = as.numeric(pB), pC = as.numeric(pC), transformationId = transformationId,
+        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax))
 }
 
 ####################################################
