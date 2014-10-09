@@ -113,8 +113,11 @@ logicleTr <- function(node, flowEnv)
     pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # defaults here or just let the
     pW = sapply(coefficientList, xmlGetAttr, "W", default=0.5)    # method fail...
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
+    boundMin = (xmlGetAttr(node, "boundMin", -Inf))
+    boundMax = (xmlGetAttr(node, "boundMax", Inf))
     return(logicletGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
+        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId,
+        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- Hyperlog transformation --------------
