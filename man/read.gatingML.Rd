@@ -30,35 +30,34 @@
 }
 
 \references{
-  Spidlen J, Leif RC, Moore W, Roederer M, ISAC DSTF, Brinkman RR. 2008.
-  Gating-ML: XML-based gating descriptions in flow cytometry.
-  Cytometry A. 73A(12):1151--7.
-
-  Spidlen J, ISAC DSTF, Brinkman RR. 2008. 
-  Gating-ML Candidate Recommendation for Gating Description in Flow Cytometry version 1.5.
-  \url{http://flowcyt.sf.net/gating/Gating-ML.v1.5.081030.pdf}
-  \url{http://flowcyt.sf.net/gating/Gating-ML.v1.5.081030.full.zip}
-  \url{http://flowcyt.sf.net/gating/Gating-ML.v1.5.081030.Compliance-tests.081030.zip}
-
-  Spidlen J, ISAC DSTF, Brinkman RR. 2013.
+  Spidlen J, ISAC DSTF, Brinkman RR. 2014.\cr
   Gating-ML 2.0. International Society for Advancement of Cytometry (ISAC) standard for 
-  representing gating descriptions in flow cytometry.
-  \url{http://flowcyt.sf.net/gating/20130122.pdf}
-  \url{http://flowcyt.sf.net/gating/20130122.full.zip}
-    
+  representing gating descriptions in flow cytometry.\cr
+  \url{http://flowcyt.sf.net/gating/20141009.pdf}\cr
+  \url{http://flowcyt.sf.net/gating/20141009.full.zip}
+
+  Spidlen J, Leif RC, Moore W, Roederer M, ISAC DSTF, Brinkman RR. 2008.\cr
+  Gating-ML: XML-based gating descriptions in flow cytometry.\cr
+  Cytometry A. 2008 Dec; 73A(12):1151--7. doi: 10.1002/cyto.a.20637.
+
+  Spidlen J, ISAC DSTF, Brinkman RR. 2008.\cr
+  Gating-ML Candidate Recommendation for Gating Description in Flow Cytometry version 1.5.\cr
+  \url{http://flowcyt.sf.net/gating/Gating-ML.v1.5.081030.pdf}\cr
+  \url{http://flowcyt.sf.net/gating/Gating-ML.v1.5.081030.full.zip}\cr
+  \url{http://flowcyt.sf.net/gating/Gating-ML.v1.5.081030.Compliance-tests.081030.zip}
 }
 
-\author{N. Gopalakrishnan, J. Spidlen}
+\author{J. Spidlen, N. Gopalakrishnan}
 
 \seealso{
-\code{\link{write.gatingML}}
+  \code{\link{write.gatingML}}
 }
 
 \examples{
 
-#######################
-# Gating-ML 2.0 example
-#######################
+#########################
+# Gating-ML 2.0 example #
+#########################
 flowEnv <- new.env()
 
 fcsFile <- system.file("extdata/Gml2/FCSFiles", 
@@ -74,9 +73,9 @@ ls(flowEnv)
 result = filter(fcs, flowEnv$Polygon1)
 summary(result)
 
-#######################
-# Gating-ML 1.5 example
-#######################
+#########################
+# Gating-ML 1.5 example #
+#########################
 flowEnv <- new.env()
 
 fcsFile <- system.file("extdata/List-modeDataFiles",
