@@ -50,8 +50,7 @@ hardware and software interoperability.\\
 
 \noindent The \Rpackage{flowUtils} package supports reading of Gating-ML 
 version 1.5, and both, reading and writing of Gating-ML 2.0. 
-Gating-ML 2.0 is currently (December 2013) the latest version 
-of Gating-ML.\\
+Gating-ML 2.0 is the latest version of Gating-ML as of October 2014.\\
 
 \noindent \textbf{Keywords:} Flow cytometry, gating, XML, data standard
 \end{abstract}
@@ -145,7 +144,20 @@ dimension can be defined by referencing up to one ``scale'' transformation
 plus an optional fluorescence compensation description applied on a
 dimension, which may be a parameter from a list mode data file,
 or the result of an additional transformation, such as the ratio
-of two FCS parameters. All these changes have been made based on received
+of two FCS parameters. In October 2014, bounded transformations
+have been added to Gating-ML 2.0. This means that a boundary may be added 
+to any Gating-ML 2.0 scaling transformation, or to a ratio transformation.
+A boundary restricts a value x (i.e. the result of a transformation that 
+the boundary is applied to) to the [boundMin, boundMax] interval. 
+Using a boundary allows for unambiguous encoding of gating performed by 
+software tools that pile off-scale events on the graph axes. In these cases, 
+if the selected visualization (scaling transformation) is not quite appropriate,
+certain events could fall of the graph. However, instead of loosing these events, 
+some software tools prefer to shift them to a predefined minimum or maximum, 
+which may effect gate membership of these events. 
+A Gating-ML boundary may be used in order to mimic such behavior in 
+Gating-ML and encode these gates in a reproducible manner.
+All these changes have been made based on received
 community feedback in order to simplify the Gating-ML specification, 
 especially for Gating-ML consumers (readers).
 
@@ -153,7 +165,7 @@ especially for Gating-ML consumers (readers).
 The \Rpackage{flowUtils} package supports reading of Gating-ML 
 version 1.5 (implemented by N. Gopalakrishnan in 2008), and both
 reading and writing of Gating-ML 2.0 (implemented by J. Spidlen in
-2013). Gating-ML 2.0 is currently (as of December 2013) the latest version
+2013--2014). Gating-ML 2.0 is currently (as of October 2014) the latest version
 of Gating-ML.
 
 \section{Reading Gating-ML files}
@@ -518,8 +530,10 @@ parameters, and $A \in \mathbb{R}$, $B\in \mathbb{R}$, and $C\in \mathbb{R}$ are
 \item Optionally: apply one of the Gating-ML 2.0 compatible scale
 transformation, \textit{i.e.,} parameterized linear, logarithmical,
 inverse hyperbolic sine, Logicle or Hyperlog transformation.
+A transformation boundary may be used; see the boundMin and boundMax parameters
+of the Gating-ML 2.0 transformation functions.
 \item Apply Gating-ML 2.0 compatible gates in the data space created by previous
-steps. 
+steps.
 Gating-ML 2.0 supported gate types include polygon gates, ellipsoid gates, range
 gates, rectangular and hyper-rectangular gates, quadrant gates and
 Boolean collections (\textit{i.e.}, union, intersect or complement) 
@@ -751,6 +765,15 @@ write.gatingML(flowEnv)
   </gating:QuadrantGate>
 </gating:Gating-ML>
 \end{verbatim}
+If we wanted to add a boundary to the transformation, we could do so by adding
+the boundMin and/or boundMax attributes to the transformation definition as
+follows:
+<<WriteGatingML5Bound, echo=TRUE, eval=TRUE, results=hide>>=
+trArcSinH1 <- asinhtGml2(parameters = "APC-A", T = 1000, M = 4.5, A = 0, 
+  transformationId="trArcSinH1", boundMin = 0.02, boundMax = 0.96)
+trLogicle1 <- logicletGml2(parameters = "APC-Cy7-A", T = 1000, W = 0.5, 
+  M = 4.5, A = 0, transformationId="trLogicle1", boundMin = -0.04)
+@
 
 \subsection{Example with scaling transformations and compensation}
 Previous code (section \ref{sec:writeScalingTrEx}) can be easily modified
@@ -1186,7 +1209,7 @@ x$message
 \subsection{Additional requirements}
 The \Rpackage{flowUtils} package includes RUnit-based compliance tests to verify
 its compliance with the Gating-ML 1.5 and Gating-ML 2.0 specifications. 
-You will need the \Rpackage{gatingMLData} package (version 2.2.1 or newer) 
+You will need the \Rpackage{gatingMLData} package (version 2.6.0 or newer)
 % and the \Rpackage{RUnit} package 
 in order to run the compliance tests.
 %If you do not have these packages, you can install them as follows:
@@ -1228,7 +1251,7 @@ The following code can be executed in order to test compliance with Gating-ML
 <<TestGatingMLCompliance3, eval=FALSE, echo=TRUE, results=verbatim>>=
 testGatingMLCompliance("ComplianceReport_v2.0.html", version=2.0)
 @
-This code will execute 365 test functions and should take about 4 -- 6 minutes
+This code will execute 405 test functions and should take about 4 -- 6 minutes
 to complete. It contains 11 sets of tests. Sets 1 and 2 are based on
 the two sets of compliance tests included with the Gating-ML 2.0
 specification. During these tests, computed event membership is compared 
