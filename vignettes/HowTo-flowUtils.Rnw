@@ -768,7 +768,7 @@ write.gatingML(flowEnv)
 If we wanted to add a boundary to the transformation, we could do so by adding
 the boundMin and/or boundMax attributes to the transformation definition as
 follows:
-<<WriteGatingML5Bound, echo=TRUE, eval=TRUE, results=hide>>=
+<<WriteGatingML5Bound, echo=TRUE, eval=FALSE, results=hide>>=
 trArcSinH1 <- asinhtGml2(parameters = "APC-A", T = 1000, M = 4.5, A = 0, 
   transformationId="trArcSinH1", boundMin = 0.02, boundMax = 0.96)
 trLogicle1 <- logicletGml2(parameters = "APC-Cy7-A", T = 1000, W = 0.5, 
