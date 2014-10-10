@@ -1,5 +1,5 @@
 #############################################################
-## This set implements additional compliance tests that are
+## This set implements additional compliance tests that
 ## were not included with Gating-ML 2.0. We have used R to
 ## generate the expected results and therefore, these tests
 ## are more just a sanity check whether the results are 

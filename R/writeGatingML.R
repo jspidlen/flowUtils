@@ -37,7 +37,7 @@ write.gatingML <- function(flowEnv, file = NULL)
     
     flowEnv[['.objectIDsWrittenToXMLOutput']] = list() # Use this list to collect XML Ids
 	
-	somethingUseful = FALSE
+    somethingUseful = FALSE
     for (x in ls(flowEnv)) {
 	   object = objectNameToObject(x, flowEnv)
        if(is(object, "parameterFilter") || is(object, "singleParameterTransform") || is(object, "setOperationFilter"))
@@ -46,7 +46,7 @@ write.gatingML <- function(flowEnv, file = NULL)
            break
        }
     }
-	if(!somethingUseful) warning("Nothing useful seems to be present in the environment; the output Gating-ML file may not be very useful.", call. = FALSE)
+    if(!somethingUseful) warning("Nothing useful seems to be present in the environment; the output Gating-ML file may not be very useful.", call. = FALSE)
 
     # Go over everything and temporarily add transformations and argument gates to flowEnv
     # if they are not saved in flowEnv directly, but they are being used in other objects
@@ -432,6 +432,8 @@ addAsinhtGml2 <- function(gatingMLNode, x, flowEnv)
     if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
     
     attrs = c("transforms:id" = myID)
+    if (is.finite(myTrans@boundMin)) attrs = append(attrs, c("transforms:boundMin" = myTrans@boundMin))
+    if (is.finite(myTrans@boundMax)) attrs = append(attrs, c("transforms:boundMax" = myTrans@boundMax))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
     attrs = c("transforms:T" = myTrans@T, "transforms:M" = myTrans@M, "transforms:A" = myTrans@A)
     gatingMLNode$addNode("transforms:fasinh", attrs = attrs)
@@ -484,6 +486,8 @@ addHyperlogtGml2 <- function(gatingMLNode, x, flowEnv)
     if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
     
     attrs = c("transforms:id" = myID)
+    if (is.finite(myTrans@boundMin)) attrs = append(attrs, c("transforms:boundMin" = myTrans@boundMin))
+    if (is.finite(myTrans@boundMax)) attrs = append(attrs, c("transforms:boundMax" = myTrans@boundMax))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
     attrs = c("transforms:T" = myTrans@T, "transforms:M" = myTrans@M, "transforms:W" = myTrans@W, "transforms:A" = myTrans@A)
     gatingMLNode$addNode("transforms:hyperlog", attrs = attrs)
@@ -501,6 +505,8 @@ addLogicletGml2 <- function(gatingMLNode, x, flowEnv)
     if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
     
     attrs = c("transforms:id" = myID)
+    if (is.finite(myTrans@boundMin)) attrs = append(attrs, c("transforms:boundMin" = myTrans@boundMin))
+    if (is.finite(myTrans@boundMax)) attrs = append(attrs, c("transforms:boundMax" = myTrans@boundMax))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
     attrs = c("transforms:T" = myTrans@T, "transforms:M" = myTrans@M, "transforms:W" = myTrans@W, "transforms:A" = myTrans@A)
     gatingMLNode$addNode("transforms:logicle", attrs = attrs)
@@ -518,6 +524,8 @@ addLintGml2 <- function(gatingMLNode, x, flowEnv)
     if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
     
     attrs = c("transforms:id" = myID)
+    if (is.finite(myTrans@boundMin)) attrs = append(attrs, c("transforms:boundMin" = myTrans@boundMin))
+    if (is.finite(myTrans@boundMax)) attrs = append(attrs, c("transforms:boundMax" = myTrans@boundMax))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
     attrs = c("transforms:T" = myTrans@T, "transforms:A" = myTrans@A)
     gatingMLNode$addNode("transforms:flin", attrs = attrs)
@@ -535,6 +543,8 @@ addLogtGml2 <- function(gatingMLNode, x, flowEnv)
     if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
     
     attrs = c("transforms:id" = myID)
+    if (is.finite(myTrans@boundMin)) attrs = append(attrs, c("transforms:boundMin" = myTrans@boundMin))
+    if (is.finite(myTrans@boundMax)) attrs = append(attrs, c("transforms:boundMax" = myTrans@boundMax))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
     attrs = c("transforms:T" = myTrans@T, "transforms:M" = myTrans@M)
     gatingMLNode$addNode("transforms:flog", attrs = attrs)
@@ -552,6 +562,8 @@ addRatiotGml2 <- function(gatingMLNode, x, flowEnv)
     if(isIdWrittenToXMLAlready(myID, flowEnv)) return(FALSE) 
     
     attrs = c("transforms:id" = myID)
+    if (is.finite(myTrans@boundMin)) attrs = append(attrs, c("transforms:boundMin" = myTrans@boundMin))
+    if (is.finite(myTrans@boundMax)) attrs = append(attrs, c("transforms:boundMax" = myTrans@boundMax))
     gatingMLNode$addNode("transforms:transformation", attrs = attrs, close = FALSE)
     attrs = c("transforms:A" = myTrans@pA, "transforms:B" = myTrans@pB, "transforms:C" = myTrans@pC)
     gatingMLNode$addNode("transforms:fratio", attrs = attrs, close = FALSE)
