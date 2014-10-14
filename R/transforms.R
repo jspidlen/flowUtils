@@ -79,13 +79,9 @@ fasinhTr <- function(node, flowEnv)
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # method fail...
     boundMin = (xmlGetAttr(node, "boundMin", -Inf))
     boundMax = (xmlGetAttr(node, "boundMax", Inf))
-    if ("boundMin" %in% names(getSlots("asinhtGml2")))
-      return(asinhtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        A = as.numeric(pA), transformationId = transformationId,
-        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
-    else
-      return(asinhtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        A = as.numeric(pA), transformationId = transformationId))
+    return(asinhtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+      A = as.numeric(pA), transformationId = transformationId,
+      boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- flin transformation --------------
@@ -97,13 +93,9 @@ flinTr <- function(node, flowEnv)
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)      # here or just let the method fail...
     boundMin = (xmlGetAttr(node, "boundMin", -Inf))
     boundMax = (xmlGetAttr(node, "boundMax", Inf))
-    if ("boundMin" %in% names(getSlots("lintGml2")))
-      return(lintGml2(parameters = "any", T = as.numeric(pT), A = as.numeric(pA), 
-        transformationId = transformationId,
-        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
-    else
-      return(lintGml2(parameters = "any", T = as.numeric(pT), A = as.numeric(pA), 
-        transformationId = transformationId))
+    return(lintGml2(parameters = "any", T = as.numeric(pT), A = as.numeric(pA), 
+      transformationId = transformationId,
+      boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- flog transformation --------------
@@ -115,13 +107,9 @@ flogTr <- function(node, flowEnv)
 	pM = sapply(coefficientList, xmlGetAttr, "M", default=4.5)    # here or just let the method fail...
 	boundMin = (xmlGetAttr(node, "boundMin", -Inf))
 	boundMax = (xmlGetAttr(node, "boundMax", Inf))
-	if ("boundMin" %in% names(getSlots("logtGml2")))
-	  return(logtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-			transformationId = transformationId,
-			boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
-  else
-    return(logtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-      transformationId = transformationId))
+  return(logtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+		transformationId = transformationId,
+		boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- Logicle transformation --------------
@@ -135,13 +123,9 @@ logicleTr <- function(node, flowEnv)
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
     boundMin = (xmlGetAttr(node, "boundMin", -Inf))
     boundMax = (xmlGetAttr(node, "boundMax", Inf))
-    if ("boundMin" %in% names(getSlots("logicletGml2")))
-      return(logicletGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId,
-        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
-    else
-      return(logicletGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
+    return(logicletGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+      W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId,
+      boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- Hyperlog transformation --------------
@@ -155,13 +139,9 @@ hyperlogTr <- function(node, flowEnv)
     pA = sapply(coefficientList, xmlGetAttr, "A", default=0)
     boundMin = (xmlGetAttr(node, "boundMin", -Inf))
     boundMax = (xmlGetAttr(node, "boundMax", Inf))
-    if ("boundMin" %in% names(getSlots("hyperlogtGml2")))
-      return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId,
-        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
-    else
-      return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
-        W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId))
+    return(hyperlogtGml2(parameters = "any", T = as.numeric(pT), M = as.numeric(pM), 
+      W = as.numeric(pW), A = as.numeric(pA), transformationId = transformationId,
+      boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####----------- Ratio transformation --------------
@@ -179,13 +159,9 @@ fratioTr <- function(node, flowEnv)
     boundMin = (xmlGetAttr(node, "boundMin", -Inf))
     boundMax = (xmlGetAttr(node, "boundMax", Inf))
     parameters <- getGatingML2RatioParameterList(node, flowEnv)
-    if ("boundMin" %in% names(getSlots("hyperlogtGml2")))
-      return(ratiotGml2(numerator = parameters[[1]], denominator = parameters[[2]], pA = as.numeric(pA),
-        pB = as.numeric(pB), pC = as.numeric(pC), transformationId = transformationId,
-        boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
-    else
-      return(ratiotGml2(numerator = parameters[[1]], denominator = parameters[[2]], pA = as.numeric(pA),
-        pB = as.numeric(pB), pC = as.numeric(pC), transformationId = transformationId))
+    return(ratiotGml2(numerator = parameters[[1]], denominator = parameters[[2]], pA = as.numeric(pA),
+      pB = as.numeric(pB), pC = as.numeric(pC), transformationId = transformationId,
+      boundMin = as.numeric(boundMin), boundMax = as.numeric(boundMax)))
 }
 
 ####################################################
