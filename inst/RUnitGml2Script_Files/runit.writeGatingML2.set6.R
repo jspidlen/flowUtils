@@ -287,6 +287,7 @@ test.parentGate <- function()
 
 test.failNicelyWithCompoundTransformsASinH <- function()
 {
+    require("RUnit")
     flowEnvX = new.env()
     XtrArcSinH1 = asinhtGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, transformationId="XtrArcSinH1")
     XtrArcSinH2 = asinhtGml2(parameters = "XtrArcSinH1", T = 1000, M = 4.5, A = 0, transformationId="XtrArcSinH2")
@@ -297,11 +298,12 @@ test.failNicelyWithCompoundTransformsASinH <- function()
     rm(list=c('XtrArcSinH1', 'XtrArcSinH2', 'myRectGate'))
     x <- tryCatch(write.gatingML(flowEnvX), error = function(e) { e })
     expectedError = x$message == "Unexpected parameter class asinhtGml2, compound transformations are not supported in Gating-ML 2.0." 
-    checkTrue(expectedError, "Did not get the error message that we were hoping for.")
+    RUnit:::checkTrue(expectedError, "Did not get the error message that we were hoping for.")
 }
 
 test.failNicelyWithCompoundTransformsLogicle <- function()
 {
+    require("RUnit")
     flowEnvX = new.env()
     logicle1 = logicletGml2(parameters = "FL1-H", T = 1000, M = 4.5, A = 0, transformationId="logicle1")
     logicle2 = logicletGml2(parameters = "logicle1", T = 1000, M = 4.5, A = 0, transformationId="logicle2")
@@ -312,7 +314,7 @@ test.failNicelyWithCompoundTransformsLogicle <- function()
     rm(list=c('logicle1', 'logicle2', 'myRect'))
     x <- tryCatch(write.gatingML(flowEnvX), error = function(e) { e })
     expectedError = x$message == "Unexpected parameter class logicletGml2, compound transformations are not supported in Gating-ML 2.0."
-    checkTrue(expectedError, "Did not get the error message that we were hoping for.")
+    RUnit:::checkTrue(expectedError, "Did not get the error message that we were hoping for.")
 }
 
 test.gateAsinhGml1.5 <- function()
