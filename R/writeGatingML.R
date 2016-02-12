@@ -412,7 +412,8 @@ addCompensation <- function(gatingMLNode, x, flowEnv)
         gatingMLNode$addNode("transforms:spectrum", close = FALSE)
         for (colNo in 1:ncol(myComp@spillover)) 
         {
-            attrs = c("transforms:value" = myComp@spillover[rowNo,colNo])
+            # attrs = c("transforms:value" = myComp@spillover[rowNo,colNo])
+            attrs = c("transforms:value" = as.vector(myComp@spillover[rowNo,colNo]))
             gatingMLNode$addNode("transforms:coefficient", attrs = attrs)
         }
         gatingMLNode$closeTag() # </transforms:spectrum>
