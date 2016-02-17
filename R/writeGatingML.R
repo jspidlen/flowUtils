@@ -147,9 +147,11 @@ addPolygonGateNode <- function(gatingMLNode, x, flowEnv, addParent, forceGateId)
     for (i in 1:length(gate@boundaries[,1]))
     {
         gatingMLNode$addNode("gating:vertex", close = FALSE)
-        attrs = c("data-type:value" = gate@boundaries[i,1])
+        # attrs = c("data-type:value" = gate@boundaries[i,1])
+        attrs = c("data-type:value" = as.numeric(gate@boundaries[i,1]))
         gatingMLNode$addNode("gating:coordinate", attrs = attrs)
-        attrs = c("data-type:value" = gate@boundaries[i,2])
+        # attrs = c("data-type:value" = gate@boundaries[i,2])
+        attrs = c("data-type:value" = as.numeric(gate@boundaries[i,2]))
         gatingMLNode$addNode("gating:coordinate", attrs = attrs)
         gatingMLNode$closeTag() # </gating:vertex>
     }
