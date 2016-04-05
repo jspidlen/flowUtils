@@ -354,9 +354,9 @@ getGatingML2RatioParameterList <- function(node, flowEnv)
 getFluorochromeList<-function(node, flowEnv)
 {   
     parameters=list()
-    nodeNames=names.XMLNode(node[[1]])
+    nodeNames=names.XMLNode(node[["fluorochromes"]])
     len=length(nodeNames)
-    subNodes=xmlChildren(node[[1]])
+    subNodes=xmlChildren(node[["fluorochromes"]])
 
     for (i in seq(len))
     {
@@ -371,9 +371,9 @@ getFluorochromeList<-function(node, flowEnv)
 getDetectorList<-function(node, flowEnv)
 {   
     parameters=list()
-    nodeNames=names.XMLNode(node[[2]])
+    nodeNames=names.XMLNode(node[["detectors"]])
     len=length(nodeNames)
-    subNodes=xmlChildren(node[[2]])
+    subNodes=xmlChildren(node[["detectors"]])
 
     for (i in seq(len))
     {
