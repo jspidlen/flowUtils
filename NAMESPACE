@@ -1,6 +1,6 @@
 export("read.gatingML","testGatingMLCompliance","write.gatingML")
 
-
+import(flowCore)
 importClassesFrom(flowCore, transformReference, unitytransform,
                   workFlow)
 

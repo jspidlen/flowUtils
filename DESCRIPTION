@@ -5,8 +5,8 @@ Version: 1.35.7
 Author: J. Spidlen., N. Gopalakrishnan, F. Hahne, B. Ellis, R. Gentleman, M. Dalphin, N. Le Meur, B. Purcell, W. Jiang
 Maintainer: Josef Spidlen <jspidlen@bccrc.ca>
 Description: Provides utilities for flow cytometry data. 
-Depends: R (>= 2.2.0), flowCore (>= 1.32.0)
-Imports: Biobase, graph, methods, stats, utils, flowViz, corpcor, RUnit, XML
+Depends: R (>= 2.2.0)
+Imports: Biobase, graph, methods, stats, utils, flowViz, corpcor, RUnit, XML, flowCore (>= 1.32.0)
 Suggests: gatingMLData
 Collate: AllClasses.R
          gatingML.R
