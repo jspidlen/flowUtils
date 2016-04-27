@@ -54,6 +54,7 @@
 }
 
 \examples{
+library("flowCore")
 
 #########################
 # Gating-ML 2.0 example #

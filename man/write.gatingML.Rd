@@ -46,6 +46,8 @@
 }
 
 \examples{
+library("flowCore")
+
 #################################################################
 # Read a Gating-ML file and write the objects back in Gating-ML #
 #################################################################

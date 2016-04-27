@@ -56,7 +56,8 @@ Gating-ML 2.0 is the latest version of Gating-ML as of October 2014.\\
 \end{abstract}
 
 <<loadPackage, echo=FALSE, results=hide>>=
-library(flowUtils)
+library("flowUtils")
+library("flowCore")
 options(width=60)
 @
 

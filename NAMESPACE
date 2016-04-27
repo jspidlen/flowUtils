@@ -28,17 +28,19 @@ importFrom(flowCore, asinht, compensatedParameter, compensation,
            rectangleGate, sinht, splitscale, squareroot,
            transformReference, unitytransform, write.flowSet)
 
-importFrom(methods, as, is, new, slot)
+importFrom(methods, as, is, new, slot, slotNames)
 
 importFrom(RUnit, checkTrue, defineTestSuite, printHTMLProtocol,
            runTestSuite)
 
 importFrom(stats, approxfun, runif)
 
-importFrom(utils, localeToCharset)
+importFrom(utils, localeToCharset, packageVersion, sessionInfo)
 
 importFrom(XML, names.XMLNode, toString.XMLNode, xmlAttrs, xmlChildren,
            xmlElementsByTagName, xmlGetAttr, xmlName, xmlNamespace,
            xmlNode, xmlRoot, xmlSApply, xmlTreeParse, xmlTree)
 
 importFrom(corpcor, pseudoinverse)
+
+
