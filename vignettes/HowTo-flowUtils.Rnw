@@ -1222,8 +1222,9 @@ If you do not have this package, you can install it as follows:
 %install.packages("RUnit")
 %@
 <<TestGatingMLCompliance1, eval=FALSE, echo=TRUE, results=verbatim>>=
-source("http://bioconductor.org/biocLite.R")
-biocLite("gatingMLData")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("gatingMLData")
 @
 
 \subsection{Gating-ML 1.5 compliance}
