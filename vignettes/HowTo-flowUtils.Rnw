@@ -1217,8 +1217,9 @@ in order to run the compliance tests.
 If you do not have this package, you can install it as follows:
 
 %<<TestGatingMLCompliance1, eval=FALSE, echo=TRUE, results=verbatim>>=
-%source("http://bioconductor.org/biocLite.R")
-%biocLite("gatingMLData")
+%if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+%BiocManager::install("gatingMLData")
 %install.packages("RUnit")
 %@
 <<TestGatingMLCompliance1, eval=FALSE, echo=TRUE, results=verbatim>>=
