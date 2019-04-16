@@ -1,8 +1,7 @@
 export("read.gatingML","testGatingMLCompliance","write.gatingML")
 
 import(flowCore)
-importClassesFrom(flowCore, transformReference, unitytransform,
-                  workFlow)
+importClassesFrom(flowCore, transformReference, unitytransform)
 
 importClassesFrom(methods, ANY, list)
 
@@ -11,7 +10,7 @@ importMethodsFrom(Biobase, description, exprs, pData, sampleNames,
 
 importMethodsFrom(flowCore,action, assign, colnames,
                   "colnames<-", Data, filter, filterDetails, fsApply,
-                  gate, get, head, identifier, keyword, "keyword<-",
+                  gate, head, identifier, keyword, "keyword<-",
                   ncol, nrow, parameters, summary, toTable, transform,
                   tree)
 
