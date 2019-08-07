@@ -25,8 +25,7 @@ importFrom(flowCore, asinht, compensatedParameter, compensation,
            expressionFilter, flowFrame, hyperlog, invsplitscale,
            logarithm, polygonGate, polytopeGate, quadratic, ratio,
            rectangleGate, sinht, splitscale, squareroot,
-           transformReference, unitytransform, write.flowSet,
-           norm2Filter)
+           transformReference, unitytransform, write.flowSet)
 
 importFrom(methods, as, is, new, slot, slotNames)
 

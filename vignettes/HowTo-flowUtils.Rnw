@@ -500,7 +500,8 @@ filters and transformations can be saved in Gating-ML 2.0 as long as they are
 Gating-ML 2.0 compatible and the analysis
 ``pipeline'' is expressible in Gating-ML 2.0 (see section
 \ref{sec:gatingML2Pipelines}).
-Data driven filters (\textit{e.g.}, \Rclass{norm2Filter},
+Data driven filters (\textit{e.g.}, 
+%\Rclass{norm2Filter},
 \Rclass{kmeansFilter}, \Rclass{curv1Filter}, \Rclass{curv2Filter},
 \Rclass{boundaryFilter}, etc.) are not supported by Gating-ML.\\ 
 
@@ -1162,7 +1163,8 @@ gates (the \Rclass{polytopeGate} class) and decision tree gates
 Gating-ML 1.5, but the support has been removed in Gating-ML 2.0 since these gates are
 almost never used for the analysis of flow cytometry data. In addition,
 Gating-ML 2.0 cannot be used to export data driven gate, such as
-\Rclass{norm2Filter}, \Rclass{kmeansFilter}, \Rclass{curv1Filter}, 
+%\Rclass{norm2Filter}, 
+\Rclass{kmeansFilter}, \Rclass{curv1Filter}, 
 \Rclass{curv2Filter}, \Rclass{boundaryFilter}, etc.
 As shown below, an error is produced if an incompatible gate is found in the
 environment that is supposed to be written to a Gating-ML 2.0 output.
@@ -1189,22 +1191,22 @@ If this is the case, you will have to remove the incompatible gate (filter)
 and any reference to it, including references from Boolean collections 
 (\textit{i.e.}, \Rclass{intersectFilter}, \Rclass{unionFilter} and
 \Rclass{complementFilter}) and gating hierarchies (\Rclass{subsetFilter}).
-A similar error will be produced if you try to include data driven gates in
-the Gating-ML output as shown below: 
-<<WriteGatingMLUnsupportedCase4, echo=TRUE, eval=TRUE, results=hide>>= 
-flowEnv <- new.env()
-myNorm2Filter <- norm2Filter("FSC-H", "SSC-H", filterId="myNorm2Filter")
-flowEnv[['myNorm2Filter']] <- myNorm2Filter
-x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
-x$message
-@
-\begin{verbatim}
-[1] "Class 'norm2Filter' is not supported in Gating-ML 2.0 output. Only 
-    Gating-ML 2.0 compatible gates are supported by Gating-ML 2.0 output. 
-    Filter 'myNorm2Filter' is not among those and cannot be included. Please
-    remove this filter and any references to it from the environment and try 
-    again."
-\end{verbatim}
+%A similar error will be produced if you try to include data driven gates in
+%the Gating-ML output as shown below: 
+%<<WriteGatingMLUnsupportedCase4, echo=TRUE, eval=TRUE, results=hide>>= 
+%flowEnv <- new.env()
+%myNorm2Filter <- norm2Filter("FSC-H", "SSC-H", filterId="myNorm2Filter")
+%flowEnv[['myNorm2Filter']] <- myNorm2Filter
+%x <- tryCatch(write.gatingML(flowEnv), error = function(e) { e })
+%x$message
+%@
+%\begin{verbatim}
+%[1] "Class 'norm2Filter' is not supported in Gating-ML 2.0 output. Only 
+%    Gating-ML 2.0 compatible gates are supported by Gating-ML 2.0 output. 
+%    Filter 'myNorm2Filter' is not among those and cannot be included. Please
+%    remove this filter and any references to it from the environment and try 
+%    again."
+%\end{verbatim}
 
 \section{Testing Gating-ML compliance}
 \subsection{Additional requirements}
